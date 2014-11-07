@@ -334,8 +334,7 @@ class Application:
             if not (mon_json["user"]==self.alloweduser and mon_json["token"]==self.allowedtoken):
                 return self.unauthorised()
             #configure and reboot zabbix            
-            call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
-            call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+            call(['sed', '-i.bak', 's/127.0.0.1/' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
             #if you are in mcr, add custom item for rcb
             if 'mcr' in socket.gethostname():
                 dbuser = mon_json["dbuser"]
@@ -345,7 +344,7 @@ class Application:
                     dbhost+=dbhostfile.read().replace('\n', '')
                 dbname = mon_json["dbname"]
                 call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
-                call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                call(['sed', '-i.bak', 's"# UserParameter="UserParameter=RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
             call(['service', 'zabbix-agent', 'restart'])
             #everything went fine
             response_body = 'OK'

@@ -31,7 +31,7 @@ class SOMonitor(threading.Thread):
     It also updates the decision array ( according to the added triggers ) which will be used in decision part of service orchestrator
     And contacts zabbix to get the problematic triggers so that SO-D can take scale decisions accordingly 
     '''
-    def __init__(self, executionModule, decisionModule, ipMaaS = '192.168.100.21', portMaaS = 0 , apiurlMaaS = 'http://192.168.100.21/zabbix/api_jsonrpc.php', apiUserMaaS = 'admin', apiPassMaaS = 'zabbix'):
+    def __init__(self, executionModule, decisionModule, ipMaaS = '160.85.4.52', portMaaS = 0 , apiurlMaaS = 'http://160.85.4.52/zabbix/api_jsonrpc.php', apiUserMaaS = 'admin', apiPassMaaS = 'zabbix'):
         self.swComponent = 'SO-Monitor'
         threading.Thread.__init__(self)
         
@@ -81,7 +81,7 @@ class SOMonitor(threading.Thread):
                             changeFlag = 1
                         
                         # 4 - Specifies data type "String" and 10 Specifies this item will be checked every 30 seconds    
-                        res = self.configItem("RCB CDR data", zabbixName, "RCB.CDRString", 4, 30)
+                        res = self.configItem("DSS RCB CDR data", zabbixName, "DSS.RCB.CDRString", 4, 30)
                         if res == 1:
                             changeFlag = 1            
                         

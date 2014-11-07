@@ -49,7 +49,7 @@ class msgErrors:
     '''
     authError = 'Error authentication'
 
-class ServiceOrchestratorExecution(object):
+class ServiceOrchstratorExecution(object):
     '''
     DSS SO execution part.
     '''
@@ -61,18 +61,12 @@ class ServiceOrchestratorExecution(object):
         self.tenant_name = tenant_name
         self.templateManager = TemplateGenerator()
         self.template = self.templateManager.getTemplate()
-        self.templateUpdate = ""
+        self.templateupdate = ""
         self.stack_id = None
         # make sure we can talk to deployer...
         writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
         self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name)
 
-    def design(self):
-        """
-        Do initial design steps here.
-        """
-        pass
-    
     def deploy(self):
         """
         deploy SICs.
@@ -80,18 +74,12 @@ class ServiceOrchestratorExecution(object):
         if self.stack_id is None:
             self.stack_id = self.deployer.deploy(self.template, self.token)
 
-    def provision(self):
-        """
-        (Optional) if not done during deployment - provision.
-        """
-        pass
-    
     def update(self):
         """
         update SICs.
         """
         if self.stack_id is not None:
-            self.deployer.update(self.stack_id, self.templateUpdate, self.token)
+            self.deployer.update(self.stack_id, self.templateupdate, self.token)
 
     def dispose(self):
         """
@@ -154,7 +142,7 @@ class ServiceOrchestratorExecution(object):
     def getNumberOfCmsInstances(self):
         return self.templateManager.numberOfCmsInstances
 
-class ServiceOrchestratorDecision(threading.Thread):
+class ServiceOrchstratorDecision(threading.Thread):
     '''
     Decision part of DSS SO.
     '''
@@ -181,11 +169,11 @@ class ServiceOrchestratorDecision(threading.Thread):
         # Creating a monitor for pulling MaaS information 
         self.monitor = SOMonitor(self.so_e,self)
         # Creating a configuring object ( REST client for SO::SIC interface )
-        self.configure = SOConfigure(self.so_e,self)
+        self.configurer = SOConfigurer(self.so_e,self)
         
         # Scaling guard time
-        self.cmsScaleThreshold = 1800 #in seconds
-        self.mcrScaleThreshold = 1800 #in seconds
+        self.cmsScalethreshold = 1800 #in seconds
+        self.McrScalethreshold = 1800 #in seconds
         
         # Current scaling status
         self.lastCmsScale = 0
@@ -197,7 +185,7 @@ class ServiceOrchestratorDecision(threading.Thread):
 
     def run(self):
         # Start pushing configurations to SICs
-        self.configure.start()
+        self.configurer.start()
         
         # Decision loop
         while(1):
@@ -231,8 +219,8 @@ class ServiceOrchestratorDecision(threading.Thread):
                     diff = 0
                 else:
                     diff = int(time.time() - self.lastCmsScale)
-                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScaleThreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')     
-                if item[item.keys()[0]] == cmsCount and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
+                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScalethreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')     
+                if item[item.keys()[0]] == cmsCount and (diff > self.cmsScalethreshold or self.lastCmsScale == 0):
                     # CMS scale out
                     if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
                         self.lastCmsScale = time.time()
@@ -254,8 +242,8 @@ class ServiceOrchestratorDecision(threading.Thread):
                     diff = 0
                 else:
                     diff = int(time.time() - self.lastMcrScale)
-                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " > 0 and ( " + str(diff) + " > " + str(self.mcrScaleThreshold) + " or " + str(self.lastMcrScale) + " == 0 )",'','')
-                if item[item.keys()[0]] > 0 and (diff > self.mcrScaleThreshold or self.lastMcrScale == 0):
+                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " > 0 and ( " + str(diff) + " > " + str(self.McrScalethreshold) + " or " + str(self.lastMcrScale) + " == 0 )",'','')
+                if item[item.keys()[0]] > 0 and (diff > self.McrScalethreshold or self.lastMcrScale == 0):
                     # MCR scale up
                     # It is commented because it's not working for current heat version 
                     if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
@@ -287,7 +275,7 @@ class ServiceOrchestratorDecision(threading.Thread):
             # Call SO execution if scaling required
             writeLogFile(self.swComponent,str(scaleTriggered),'','')           
             if scaleTriggered == True:            
-                self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
+                self.so_e.templateupdate = self.so_e.templateManager.getTemplate()
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 self.so_e.update()
                 writeLogFile(self.swComponent,"Update successful",'','')
@@ -336,10 +324,10 @@ class ServiceOrchestratorDecision(threading.Thread):
                             checkList[item] = "Configured"
                         else:
                             writeLogFile(self.swComponent,'Configuring ' + item ,'','')
-                            self.configure.configInstance(item)
+                            self.configurer.configInstance(item)
                             writeLogFile(self.swComponent,'instance ' + item + ' configured successfully','','')
                             self.monitor.mode = "idle"
-                            self.configure.deploymentPause()
+                            self.configurer.deploymentPause()
                             self.monitor.mode = "addtriggers"                 
     
     # Updates the decision map according to the triggered triggers :-)                                            
@@ -355,12 +343,12 @@ class ServiceOrchestratorDecision(threading.Thread):
                     item[description] += 1                   
 
 # Implements client part of DSS agent REST api to push configs into DSS SICs
-class SOConfigure(threading.Thread):
+class SOConfigurer(threading.Thread):
     
     def __init__(self,so_e,so_d):
         self.swComponent = 'SO-SIC-Config'
         threading.Thread.__init__(self)
-        writeLogFile(self.swComponent,"SOConfigure executed ................",'','')
+        writeLogFile(self.swComponent,"SOConfigurer executed ................",'','')
         self.monitoring_endpoint = '192.168.0.2'
         self.dns_endpoint = '192.168.0.99'
         self.dns_token = 'dnstoken'
@@ -698,14 +686,13 @@ class SOConfigure(threading.Thread):
             response_status = int(response.get("status"))
             writeLogFile(self.swComponent,"response status is:" + str(response_status)  ,'','')
                 
-class ServiceOrchestrator(object):
+class ServiceOrchstrator(object):
     """
     DSS SO
     """
 
     def __init__(self, token, tenant_name):
         self.swComponent = 'SO'
-        self.so_e = ServiceOrchestratorExecution(token, tenant_name)
-        self.so_d = ServiceOrchestratorDecision(self.so_e, token)
+        self.so_e = ServiceOrchstratorExecution(token, tenant_name)
+        self.so_d = ServiceOrchstratorDecision(self.so_e, token)
         self.so_d.start()
-

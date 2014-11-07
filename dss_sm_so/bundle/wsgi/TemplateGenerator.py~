@@ -18,7 +18,7 @@ class TemplateGenerator:
         
         self.key_name = "bart-key"
         self.cdn_enable = 'false'
-        
+
         self.dbname = 'webappdss'
         self.dbpass = 'password'
         self.dbuser = 'root'
@@ -267,7 +267,7 @@ class TemplateGenerator:
         template += '    Properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      flavor: m1.small' + "\n"
-        template += '      image: DSS-DB-SIC' + "\n"
+        template += '      image: DSS-CLEAN-SIC' + "\n"
         template += '      networks:' + "\n"
         template += '        - port: { Ref : dbaas_server_port }' + "\n"
         template += '      user_data: |' + "\n"
