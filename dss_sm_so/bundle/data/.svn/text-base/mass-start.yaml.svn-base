@@ -1,0 +1,33 @@
+HeatTemplateFormatVersion: '2013-05-23'
+
+description: >
+    This template creates one server.
+    This server is connected to the specified network(s).
+    It returns the outgoing public IP.
+
+Resources:
+
+  zabbixserver:
+    Type: OS::Nova::Server
+    Properties:
+      key_name : userkey
+      flavor: m1.small
+      image: mcn-maas
+      networks: [{"network": mgmt,"uuid": 8b016331-b073-4a4d-889a-9c29c2bfc677, "port": { Ref: zs_port }}]
+
+  zs_port:
+    Type: OS::Neutron::Port
+    Properties:
+      network_id: 8b016331-b073-4a4d-889a-9c29c2bfc677
+
+  zs_floating_ip:
+    Type: OS::Neutron::FloatingIP
+    Properties:
+      floating_network_id: 5569c12b-7e90-46f1-8ca3-e08ebc2adf77
+      port_id: { Ref: zs_port }
+
+Outputs:
+  mcn.endpoint.maas:
+    Value:
+      Fn::GetAtt: [zs_floating_ip, floating_ip_address]
+    Description: "IP addresses of the MaaS:"

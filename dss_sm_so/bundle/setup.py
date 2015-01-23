@@ -19,9 +19,9 @@ Setuptools script.
 
 from setuptools import setup
 
-setup(name='sample_epc_so',
+setup(name='sample_dss_so',
       version='0.1',
-      description='Sample EPC SO',
+      description='Sample DSS SO',
       author='Intel Performance Learning Solutions Ltd, Intel Corporation, Zuercher Hochschule fuer Angewandte Wissenschaften.',
       author_email='thijs.metsch@intel.com, edmo@zhaw.ch',
       url='http://www.intel.com, http://cloudcomp.ch',

@@ -1,0 +1,268 @@
+heat_template_version: 2013-05-23
+
+resources:
+  dbaas_server:
+    type: OS::Nova::Server
+    properties:
+      key_name: userkey
+      flavor: m1.small
+      image: DSS-CLEAN-SIC
+      networks:
+        - port: { get_resource: dbaas_server_port }
+      user_data: |
+        #!/bin/bash
+        cd /home/ubuntu/
+
+        #Static data, to be removed
+        databaseusername='root'
+        databasehost='localhost'
+        databasepassword='registro00'
+        sed -i.bak s/dss-cms/`hostname`/g /etc/hosts
+
+        #Configure db
+        echo "GRANT ALL PRIVILEGES ON *.* TO '$databaseusername'@'%' IDENTIFIED BY '$databasepassword';" | mysql -u $databaseusername -p$databasepassword
+        sed -i.bak "s,bind-address,#bind-address,g" /etc/mysql/my.cnf
+        #restart services
+        service mysql restart
+
+  dbaas_server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: "8b016331-b073-4a4d-889a-9c29c2bfc677"
+      fixed_ips:
+        - subnet_id: "7c998e4e-f2d0-49d1-b0d5-1a4d77b75fe8"
+
+  cms1_server:
+    type: OS::Nova::Server
+    properties:
+      key_name: userkey
+      flavor: m1.small
+      image: DSS-CLEAN-SIC
+      networks:
+        - port: { get_resource: cms1_server_port }
+      user_data:
+        str_replace:
+          template: |
+             #!/bin/bash
+             cd /home/ubuntu/
+
+             #Static data, to be removed
+             databasename='webapptest'
+             databaseusername='root'
+             databasehost='dbaas_srv_ip' #localhost
+             databasepassword='registro00'
+             dssmcrapiurl='mcr_srv_ip' #to be filled with the ip of the MCR SIC
+             dssmcrapiport='80'
+             dssmcrapisuperadmin='sysadmin'
+             dssmcrapisuperadminpassword='sysadmin2014'
+             dssmcrapiloginurl='/api/authentications/login'
+             dssmcrapicontentmanagementurl='/api/contents'
+             dssmcrapiusermanagementurl='/api/users'
+             sed -i.bak s/dss-cms/`hostname`/g /etc/hosts
+
+             #Create db if required
+             echo "drop database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
+             echo "create database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
+
+             #Stop services
+             service tomcat7 stop
+             service apache2 stop
+
+             # Download and run main server sw
+             rm -f WebAppDSS*
+             curl http://213.165.68.82/DSS-CMS.tar.gz > DSS-CMS.tar.gz
+             tar -xvzf DSS-CMS.tar.gz
+
+             #Autoconf
+             sed -i.bak "s,DSSCSDBNAME,$databasename,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSCSDBSERVERURL,$databasehost,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSCSDBUSERNAME,$databaseusername,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSCSDBPASSWORD,$databasepassword,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPIURL,$dssmcrapiurl,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPIPORT,$dssmcrapiport,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPISUPERADMINUSER,$dssmcrapisuperadmin," WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPISUPERADMINPASSWORD,$dssmcrapisuperadminpassword,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPILOGINURL,$dssmcrapiloginurl,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPICONTENTMANAGEMENTURL,$dssmcrapicontentmanagementurl,g" WebAppDSSConfig.groovy
+             sed -i.bak "s,DSSMCRAPIUSERMANAGEMENTURL,$dssmcrapiusermanagementurl,g" WebAppDSSConfig.groovy
+
+             mv WebAppDSS-0.1.war WebAppDSS.war
+             cp WebAppDSSConfig.groovy /usr/share/tomcat7/
+             cp WebAppDSS.war /var/lib/tomcat7/webapps/
+
+             #Netconf
+             ip=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+             echo $ip
+
+             #Configure jkmod
+             echo '# Define 1 real worker using ajp13' > /etc/apache2/workers.properties
+             echo 'worker.list=CMSworker' >> /etc/apache2/workers.properties
+             echo '# Set properties for worker (ajp13)' >> /etc/apache2/workers.properties
+             echo 'worker.CMSworker.type=ajp13' >> /etc/apache2/workers.properties
+             echo 'worker.CMSworker.host=localhost' >> /etc/apache2/workers.properties
+             echo 'worker.CMSworker.port=8009' >> /etc/apache2/workers.properties
+
+
+             #Finally to configure the URL Apache should pass through the Tomcat
+             #
+             #/etc/apache2/mods-available/jk.conf
+             sed -i.bak "s,JkWorkersFile /etc/libapache2-mod-jk/workers.properties,JkWorkersFile /etc/apache2/workers.properties,g" /etc/apache2/mods-available/jk.conf
+             defworker="JkMount /\* worker"
+             newworker="JkMount /WebAppDSS\* CMSworker"
+             sed -i.bak "s,$defworker,$newworker,g" /etc/apache2/sites-enabled/000-default.conf
+
+             #Start services
+             service tomcat7 start
+             service apache2 start
+          params:
+            mcr_srv_ip: { get_attr: [ mcr_server_floating_ip, floating_ip_address ] }
+            dbaas_srv_ip: { get_attr: [ dbaas_server, first_address ] } #   DEPRECATED - Use the networks attribute instead of first_address. For example: .{get_attr: [<server name>, networks, <network name>, 0]}. ] }
+
+  cms1_server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: "8b016331-b073-4a4d-889a-9c29c2bfc677"
+      fixed_ips:
+        - subnet_id: "7c998e4e-f2d0-49d1-b0d5-1a4d77b75fe8"
+
+  cms_healthmonitor:
+    type: OS::Neutron::HealthMonitor
+    properties:
+      delay : 3
+      max_retries : 3
+      timeout : 3
+      type : HTTP
+
+  cms_lb_pool:
+    type: OS::Neutron::Pool
+    properties:
+      lb_method: ROUND_ROBIN
+      name: mypool
+      protocol: HTTP
+      subnet_id: "7c998e4e-f2d0-49d1-b0d5-1a4d77b75fe8"
+      monitors : [{ get_resource: cms_healthmonitor }]
+      vip : {"subnet": "7c998e4e-f2d0-49d1-b0d5-1a4d77b75fe8", "name": myvip, "protocol_port": 80 }
+
+  cms_lb_floatingip:
+    Type: OS::Neutron::FloatingIP
+    Properties:
+      floating_network_id: "5569c12b-7e90-46f1-8ca3-e08ebc2adf77"
+      port_id: {"Fn::Select" : ["port_id", { get_attr: [ cms_lb_pool, vip ] } ] }
+
+  cms_loadbalancer:
+    type: OS::Neutron::LoadBalancer
+    Properties:
+      members: [ { get_resource: cms1_server }]
+      pool_id: { get_resource: cms_lb_pool }
+      protocol_port: 80
+
+  mcr_server:
+    type: OS::Nova::Server
+    properties:
+      key_name: userkey
+      flavor: m1.small
+      image: DSS-CLEAN-SIC
+      networks:
+        - port: { get_resource: mcr_server_port }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+
+            #Static data, to be removed
+            mcrapistoragedirectory='/home/ubuntu/files/'
+            mcrapistorageserverurl='http://mcr_srv_ip'
+            mcrapistorageserverport='80'
+            mcrapicontentmanagementurl='/api/contents'
+            databasename='mcrtest'
+            databaseusername='root'
+            databasehost='dbaas_srv_ip'
+            databasepassword='registro00'
+            corsalloworiginregex='cms_srv_ip'
+            corsurlpattern="/api/contents/\*"
+
+            #Creating storage directory and setting Tomcat as the owner
+            cd /home/ubuntu/
+            mkdir files
+            chown tomcat7 files
+
+            sed -i.bak s/dss-cms/`hostname`/g /etc/hosts
+
+            #Create db if required
+            echo "drop database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
+            echo "create database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
+
+            #Stop services
+            service tomcat7 stop
+            service apache2 stop
+
+            # Download and run main server sw
+            rm -f DSSMCR*
+            curl http://213.165.68.82/DSS-MCR.tar.gz > DSS-MCR.tar.gz
+            tar -xvzf DSS-MCR.tar.gz
+
+            #Autoconf
+            sed -i.bak "s,MCRAPISTORAGEDIRECTORY,$mcrapistoragedirectory,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,MCRAPISTORAGESERVERURL,$mcrapistorageserverurl,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,MCRAPISTORAGESERVERPORT,$mcrapistorageserverport,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,MCRAPICONTENTMANAGEMENTURL,$mcrapicontentmanagementurl,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,DSSMCRAPIDBSERVERURL,$databasehost,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,DSSMCRAPIDBNAME,$databasename,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,DSSMCRAPIDBUSERNAME,$databaseusername,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,DSSMCRAPIDBPASSWORD,$databasepassword,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,MCRAPICONTENTMANAGEMENTPATTERN,$corsurlpattern,g" DSSMCRAPIConfig.groovy
+            sed -i.bak "s,DSSCMSSERVER,$corsalloworiginregex,g" DSSMCRAPIConfig.groovy
+
+            mv DSSMCRAPI-0.1.war DSSMCRAPI.war
+            cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
+            cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
+
+            #Netconf
+            ip=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+            echo $ip
+
+            #Configure jkmod
+            echo '# Define 1 real worker using ajp13' > /etc/apache2/workers.properties
+            echo 'worker.list=MCRworker' >> /etc/apache2/workers.properties
+            echo '# Set properties for worker (ajp13)' >> /etc/apache2/workers.properties
+            echo 'worker.MCRworker.type=ajp13' >> /etc/apache2/workers.properties
+            echo 'worker.MCRworker.host=localhost' >> /etc/apache2/workers.properties
+            echo 'worker.MCRworker.port=8009' >> /etc/apache2/workers.properties
+
+            #Finally to configure the URL Apache should pass through the Tomcat
+            #
+            #/etc/apache2/mods-available/jk.conf
+            sed -i.bak "s,JkWorkersFile /etc/libapache2-mod-jk/workers.properties,JkWorkersFile /etc/apache2/workers.properties,g" /etc/apache2/mods-available/jk.conf
+            defworker="JkMount /\* worker"
+            newworker="JkMount /DSSMCRAPI\* MCRworker"
+            sed -i.bak "s,$defworker,$newworker,g" /etc/apache2/sites-enabled/000-default.conf
+
+            #Start services
+            service tomcat7 start
+            service apache2 start
+          params:
+            mcr_srv_ip: { get_attr: [ mcr_server_floating_ip, floating_ip_address ] }
+            cms_srv_ip: { get_attr: [ cms_lb_floatingip, floating_ip_address ] }
+            dbaas_srv_ip: { get_attr: [ dbaas_server, first_address ] } #   DEPRECATED - Use the networks attribute instead of first_address. For example: .{get_attr: [<server name>, networks, <network name>, 0]}. ] }
+
+  mcr_server_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: "8b016331-b073-4a4d-889a-9c29c2bfc677"
+      fixed_ips:
+        - subnet_id: "7c998e4e-f2d0-49d1-b0d5-1a4d77b75fe8"
+
+  mcr_server_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: "5569c12b-7e90-46f1-8ca3-e08ebc2adf77"
+      port_id: { get_resource: mcr_server_port }
+
+outputs:
+  mcn.dss.cms.endpoint:
+    description: Floating IP address of DSS CMS in public network
+    value: { get_attr: [ cms_lb_floatingip, floating_ip_address ] }
+
+  mcn.dss.mcr.endpoint:
+    description: Floating IP address of DSS MCR in public network
+    value: { get_attr: [ mcr_server_floating_ip, floating_ip_address ] }

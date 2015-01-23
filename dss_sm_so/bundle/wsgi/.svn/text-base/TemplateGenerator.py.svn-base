@@ -23,7 +23,7 @@ class TemplateGenerator:
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
-        self.dbpass = 'pass'
+        self.dbpass = 'registro00'
         self.dbuser = 'root'
         
         self.mcr_flavor_idx = 1
