@@ -183,6 +183,7 @@ class Application:
                 response_body = json.dumps({"Message":"Provision Finished"})
                 self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
                 LOG.debug(str([response_body]))
+                self.configurationstatus["provision"] = "True"
                 return [response_body]
             else:
                 return self.servererror(self.SERVER_ERROR_CALL_PROVISION_SCRIPT)
