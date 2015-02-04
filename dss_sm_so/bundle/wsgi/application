@@ -68,7 +68,7 @@ class MyBackend(occi_ext.Backend):
         entity.actions = [occi_ext.PROVISION_ACTION]
 
     def provision_me(self, entity, attributes, extras):
-        self.so.so_e.provision()
+        self.so.so_e.provision(attributes)
         entity.actions = []
 
 application = occi_ext.Application(MyBackend())

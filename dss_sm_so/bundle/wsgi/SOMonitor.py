@@ -59,7 +59,7 @@ class SOMonitor(threading.Thread):
             if self.mode == "checktriggers":
                 time.sleep(10)
                 if i > 6:
-                    serverList = self.so_e.getServerNamesList()
+                    result, serverList = self.so_e.getServerNamesList()
                     i = 0
                 else:
                     i += 1
@@ -208,7 +208,38 @@ class SOMonitor(threading.Thread):
             else:
                 writeLogFile(self.swComponent,'MaaS Trigger Id', status, content)
                 return 'None'
-        
+            
+    def itemExists(self, hostName, itemKey):
+        '''
+        Checks existance of an item in Zabbix server for a special hostname
+        :param hostName: Hostname to add the item to
+        :param itemKey: Key defined in zabbix server for this item
+        '''
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "item.get",
+                        "params":{
+                                  "output": "extend",
+                                  "hostids": str(hostId[0]['hostid']),
+                                  "search": {
+                                             "key_": itemKey
+                                             },
+                                  "sortfield": "name"
+                                  },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]) > 0:
+                    writeLogFile(self.swComponent,'Item already exists on host:' + hostName, status, content)
+                    return 1
+        #'Item is not added to the host yet     
+        return -1
+    
     def doRequestMaaS(self, method, body):
         '''
         Method to perform requests to the MaaS.

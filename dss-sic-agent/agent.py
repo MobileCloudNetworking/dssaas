@@ -33,13 +33,6 @@ class fileManager:
         else:
             self.path =''
         self.contents = '['
-        self.SERVER_ERROR_PARSE_JSON = 'Error in parsing input json'
-        self.SERVER_ERROR_SET_CONFIG_JSON = 'Error while setting instance json config file'
-        self.SERVER_ERROR_DEPLOY_NOT_FINISHED = 'Deployment not finished'
-        self.SERVER_ERROR_DB_NOT_READY = 'Database instance is not ready yet'
-        self.SERVER_ERROR_DB_NOT_FOUND = 'Database not found'
-        self.SERVER_ERROR_CALL_INSTANCE = 'Exception raised while trying to call application'
-        self.SERVER_ERROR_CALL_PROVISION_SCRIPT = 'Wrong number of parameters for the script'
         
     def __del__(self):
         pass
@@ -81,13 +74,20 @@ class Application:
         self.allowedtoken = 'NONE'
         self.alloweduser = 'NONE'
         self.filemg = fileManager()
+        self.SERVER_ERROR_PARSE_JSON = 'Error in parsing input json'
+        self.SERVER_ERROR_SET_CONFIG_JSON = 'Error while setting instance json config file'
+        self.SERVER_ERROR_DEPLOY_NOT_FINISHED = 'Deployment not finished'
+        self.SERVER_ERROR_DB_NOT_READY = 'Database instance is not ready yet'
+        self.SERVER_ERROR_DB_NOT_FOUND = 'Database not found'
+        self.SERVER_ERROR_CALL_INSTANCE = 'Exception raised while trying to call application'
+        self.SERVER_ERROR_CALL_PROVISION_SCRIPT = 'Wrong number of parameters for the script'
         
         if (len(sys.argv)==3):
             self.cdn_enabled = str(sys.argv[2]) #values are : true , false
         else:
             self.cdn_enabled = 'true'
             
-        if self.cdn_enabled is 'false':
+        if self.cdn_enabled == 'true':
             self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False"}
         else:
             self.configurationstatus = {"cdn":"True","provision":"False","mon":"False","rcb":"False","dns":"False"}
@@ -252,15 +252,16 @@ class Application:
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             if not (mon_json["user"]==self.alloweduser and mon_json["token"]==self.allowedtoken):
                 return self.unauthorised()
-            #create query
-            try:
-                self.filemg.set_value('monendpoint', mon_json["monendpoint"])
-            except (ValueError, KeyError, TypeError):
-                return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
             
-            #configure and reboot zabbix
-            call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
-            call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+            if 'cms' in socket.gethostname():
+                try:
+                    self.filemg.set_value('monendpoint', mon_json["monendpoint"])
+                except (ValueError, KeyError, TypeError):
+                    return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)    
+                #configure and reboot zabbix
+                call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        
             #if you are in mcr, add custom item for rcb
             if 'mcr' in socket.gethostname():
                 try:
@@ -269,6 +270,16 @@ class Application:
                     res = conn.getresponse()
                     conn.close()
                     if res.status == 200:
+                        #create query
+                        try:
+                            self.filemg.set_value('monendpoint', mon_json["monendpoint"])
+                        except (ValueError, KeyError, TypeError):
+                            return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
+                        
+                        #configure and reboot zabbix
+                        call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        
                         dbuser = mon_json["dbuser"]
                         dbpassword = mon_json["dbpassword"]
                         dbhost = ''
@@ -276,8 +287,8 @@ class Application:
                             dbhost+=dbhostfile.read().replace('\n', '')
                         dbname = mon_json["dbname"]
                         call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
-                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
-                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
                     else:
                         return self.servererror(self.SERVER_ERROR_DEPLOY_NOT_FINISHED)
                 except:
@@ -309,6 +320,7 @@ class Application:
             #create query
             try:
                 self.filemg.set_value('dnsendpoint', mon_json["dnsendpoint"])
+                self.filemg.set_value('dssdomainname', mon_json["dssdomainname"])
             except (ValueError, KeyError, TypeError):
                 return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
             

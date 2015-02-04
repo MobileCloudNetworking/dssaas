@@ -22,13 +22,11 @@ import os
 import threading
 import csv
 import datetime
+
 from TemplateGenerator import *
 from SOMonitor import *
 
 from sdk.mcn import util
-from sdk.mcn.cdn import CDN
-from sdk.mcn import dnsaasclient
-from sdk.mcn import monitoring
 
 HERE = os.environ['OPENSHIFT_REPO_DIR']
 
@@ -59,16 +57,24 @@ class ServiceOrchestratorExecution():
         self.swComponent = 'SO-Execution'
         # Generate DSS basic template...
         self.token = token
-        self.dns_token = 'ede1dfd4f5a6449082fbfae79df44f5c'
-        self.maas_token = ''
         self.tenant_name = tenant
-        self.dns_tenant_name = 'mcn-dns'
-        self.maas_tenant = 'mcntub'
         self.templateManager = TemplateGenerator()
         self.template = self.templateManager.getTemplate()
-        #self.template = ''
         self.templateUpdate = ""
         self.stack_id = None
+        #Variables of other services
+        #self.dns_endpoint = "8.8.8.8"
+        self.dns_endpoint = None
+        #self.monitoring_endpoint = "54.77.253.117"
+        self.monitoring_endpoint = None
+        #self.cdn_password = 'password'
+        self.cdn_password = None
+        #self.cdn_endpoint = '160.85.4.104:8182'
+        self.cdn_endpoint = None
+        #self.cdn_global_id = 'd3e30c11-8a4d-41b4-b0c0-17de168de2a9'
+        self.cdn_global_id = None
+        #self.cdn_origin = '160.85.4.103:8181'
+        self.cdn_origin = None
         # make sure we can talk to deployer...
         writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
         print "About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name)
@@ -90,13 +96,33 @@ class ServiceOrchestratorExecution():
             self.stack_id = self.deployer.deploy(self.template, self.token)
         #self.event.set()
 
-    def provision(self):
+    def provision(self,attributes):
         """
         (Optional) if not done during deployment - provision.
         """
-        # TODO add you provision phase logic here
-        #
-        LOG.debug('Executing provisioning logic')
+        writeLogFile(self.swComponent,str(attributes), '', '')
+        if attributes:
+            LOG.debug('DSS SO provision - attributes')
+            writeLogFile(self.swComponent,'Got DSS SO attributes in provision', '', '')
+            #print attributes     
+            if 'mcn.endpoint.maas' in attributes:
+                self.monitoring_endpoint = attributes['mcn.endpoint.maas']
+                writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
+            if 'mcn.endpoint.dnsaas' in attributes:
+                self.dns_endpoint = attributes['mcn.endpoint.dnsaas']
+                writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
+            if 'mcn.endpoints.cdn.mgt' in attributes:
+                self.cdn_endpoint = attributes['mcn.endpoints.cdn.mgt']
+                writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
+            if 'mcn.endpoints.cdn.origin' in attributes:
+                self.cdn_origin = attributes['mcn.endpoints.cdn.origin']
+                writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
+            if 'mcn.cdn.password' in attributes:
+                self.cdn_password = attributes['mcn.cdn.password']
+                writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
+            if 'mcn.cdn.id' in attributes:
+                self.cdn_global_id = attributes['mcn.cdn.id']
+                writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
         # once logic executes, deploy phase is done
         #self.event.set()
 
@@ -109,13 +135,42 @@ class ServiceOrchestratorExecution():
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
-    def update(self):
+    def update_stack(self):
         """
         update SICs.
         """
         LOG.debug('Executing disposal logic')
         if self.stack_id is not None:
             self.deployer.update(self.stack_id, self.templateUpdate, self.token)
+            
+    def update(self, updated):
+        """
+        update EPs.
+        """
+        # TODO add you provision phase logic here
+        #
+        if updated.attributes:
+            LOG.debug('DSS SO update - attributes')
+            writeLogFile(self.swComponent,'Got DSS SO attributes in update', '', '')
+            #print attributes     
+            if 'mcn.endpoint.maas' in updated.attributes:
+                self.monitoring_endpoint = updated.attributes['mcn.endpoint.maas']
+                writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
+            if 'mcn.endpoint.dnsaas' in updated.attributes:
+                self.dns_endpoint = updated.attributes['mcn.endpoint.dnsaas']
+                writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
+            if 'mcn.endpoints.cdn.mgt' in updated.attributes:
+                self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
+                writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
+            if 'mcn.endpoints.cdn.origin' in updated.attributes:
+                self.cdn_origin = updated.attributes['mcn.endpoints.cdn.origin']
+                writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
+            if 'mcn.cdn.password' in updated.attributes:
+                self.cdn_password = updated.attributes['mcn.cdn.password']
+                writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
+            if 'mcn.cdn.id' in updated.attributes:
+                self.cdn_global_id = updated.attributes['mcn.cdn.id']
+                writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
 
     def state(self):
         """
@@ -265,19 +320,9 @@ class ServiceOrchestratorDecision(threading.Thread):
                 if item[item.keys()[0]] == cmsCount and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
                     # CMS scale out
                     if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
-                        #self.lastCmsScale = time.time()
-                        #self.so_e.templateManager.templateToScaleOut()
-                        #self.numberOfScaleOutsPerformed += 1
-                        #scaleTriggered = True
-                        #writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
                         cmsScaleOutTriggered = True
                     # CMS scale in
                     elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}" and self.numberOfScaleOutsPerformed > 0:
-                        #self.lastCmsScale = time.time()
-                        #self.so_e.templateManager.templateToScaleIn()
-                        #self.numberOfScaleOutsPerformed -= 1
-                        #scaleTriggered = True
-                        #writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
                         cmsScaleInTriggered = True
                                 
             for item in self.decisionMapMCR:
@@ -290,18 +335,18 @@ class ServiceOrchestratorDecision(threading.Thread):
                 if item[item.keys()[0]] > 0 and (diff > self.mcrScaleThreshold or self.lastMcrScale == 0):
                     # MCR scale up
                     # It is commented because it's not working for current heat version )
-                    if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":
-                        self.so_e.templateManager.templateToScaleUp()
+                    if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":                       
                         self.lastMcrScale = time.time()
+                        #self.so_e.templateManager.templateToScaleUp()
                         self.numberOfScaleUpsPerformed += 1
-                        scaleTriggered = True
+                        #scaleTriggered = True
                         writeLogFile(self.swComponent,"IN MCR scaleUp",'','')
                     # MCR scale down
                     elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0:
                         self.lastMcrScale = time.time()
-                        self.so_e.templateManager.templateToScaleDown()
+                        #self.so_e.templateManager.templateToScaleDown()
                         self.numberOfScaleUpsPerformed -= 1
-                        scaleTriggered = True
+                        #scaleTriggered = True
                         writeLogFile(self.swComponent,"IN MCR scaleDown",'','')
                 #Back to CMS check
                 if self.lastCmsScale == 0:
@@ -328,16 +373,16 @@ class ServiceOrchestratorDecision(threading.Thread):
             # Call SO execution if scaling required
             writeLogFile(self.swComponent,str(scaleTriggered),'','')           
             if scaleTriggered == True:
-                self.monitor.mode = "idle"            
+                self.configure.monitor.mode = "idle"            
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
                 writeLogFile(self.swComponent,"Performing stack update",'','')
-                self.so_e.update()
-                writeLogFile(self.swComponent,"Update successful",'','')
-                
-                writeLogFile(self.swComponent,"Check config stat of instances",'','')
+                self.so_e.update_stack()
+                #writeLogFile(self.swComponent,"Update successful",'','')
+                writeLogFile(self.swComponent,"Update in progress ...",'','')
+                #writeLogFile(self.swComponent,"Check config stat of instances",'','')
                 # Checking configuration status of the instances after scaling
                 self.checkConfigurationStats()
-                self.monitor.mode = "checktriggers"
+                self.configure.monitor.mode = "checktriggers"
                 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info 
     def checkConfigurationStats(self):
@@ -346,9 +391,11 @@ class ServiceOrchestratorDecision(threading.Thread):
         while(result == -1):
             result, listOfAllServers = self.so_e.getServerIPs()
         
+        writeLogFile(self.swComponent,"Update successful",'','')
+        writeLogFile(self.swComponent,"Check config stat of instances",'','')
         checkList = {}
         for item in listOfAllServers:
-            if item != "mcn.dss.lb.endpoint": 
+            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint": 
                 checkList[listOfAllServers[item]] = "unknown"
         
         # Talking to DSS SIC agents to get the configuration status of each 
@@ -369,6 +416,7 @@ class ServiceOrchestratorDecision(threading.Thread):
                             h.timeout = self.timeout
                             writeLogFile(self.swComponent,"Sending config request to " + item + ":",'','')
                             response, content = h.request(target, 'GET', None, headers)
+                            writeLogFile(self.swComponent,"Config stat is: " + str(content),'','')
                         except Exception as e:
                             writeLogFile(self.swComponent,"Handled config request exception " + str(e),'','')
                             continue
@@ -379,7 +427,8 @@ class ServiceOrchestratorDecision(threading.Thread):
                             checkList[item] = "Configured"
                         else:
                             writeLogFile(self.swComponent,'Configuring ' + item ,'','')
-                            self.configure.configInstance(item)
+                            writeLogFile(self.swComponent,'Configuring in progress ...' ,'','')
+                            self.configure.configInstance(item,listOfAllServers)
                             writeLogFile(self.swComponent,'instance ' + item + ' configured successfully','','')                            
                             self.configure.deploymentPause()
                             response_status = 0
@@ -424,63 +473,69 @@ class SOConfigure(threading.Thread):
         
         self.so_e = so_e
         self.so_d = so_d
-        print "About to get DNS"
-        #self.dnsManager = util.get_dnsaas(self.so_e.dns_token,tenant_name=self.so_e.dns_tenant_name)
-        #DNSaaS pending to get the method
-        #self.dns_endpoint = self.dnsManager.get_forwarders()
-        self.dns_endpoint = '192.168.0.3'
-        self.dssCmsDomainName = "cms.test.dss-softtelecom.es."
-        self.dssMcrDomainName = "mcr.test.dss-softtelecom.es."
+
+        self.dns_endpoint = None
+        self.dssCmsDomainName = "cms.test.dss-softtelecom.es"
+        self.dssMcrDomainName = "mcr.test.dss-softtelecom.es"
         
-        #print "About to get MON"
-        #self.monManager = util.get_maas(self.so_e.maas_token,'maas',tenant_name=self.so_e.maas_tenant_name)
-        #Should be tested with new SDK
-        #self.monitoring_endpoint = self.monManager.get_address(self.so_e.maas_token)
-        #print self.monitoring_endpoint
-        self.monitoring_endpoint = '192.168.0.90'
-        # Creating a monitor for pulling MaaS information 
-        #self.monitor = SOMonitor(self.so_e,self,self.monitoring_endpoint,'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php','admin','zabbix')
+        self.monitoring_endpoint = None
+        self.monitor = None
+                
+        self.cdn_password = None
+        self.cdn_endpoint = None
+        self.cdn_global_id = None
+        self.cdn_origin = None
         
-        #self.CDNManager = util.get_cdnaas(self.so_e.token,self.so_e.tenant_name)
-        
-        #Previous call will send us back a json like this
-        #{"cdn_endpoint":"160.85.4.104:8182","cdn_origin":"160.85.4.103:8181","cdn_password":"password","cdn_gid":"d3e30c11-8a4d-41b4-b0c0-17de168de2a9"}
-        '''
-        self.cdn_password = self.CDNManager.cdn_password
-        self.cdn_endpoint = self.CDNManager.cdn_mgt
-        self.cdn_global_id = self.CDNManager.cdn_id
-        self.cdn_origin = self.CDNManager.cdn_origin
-        '''
-        self.cdn_password = 'password'
-        self.cdn_endpoint = '160.85.4.104:8182'
-        self.cdn_global_id = 'd3e30c11-8a4d-41b4-b0c0-17de168de2a9'
-        self.cdn_origin = '160.85.4.103:8181'
-        
-        writeLogFile(self.swComponent,"CDN Origin: " + self.cdn_origin,'','')
-        writeLogFile(self.swComponent,"CDN Endpoint: " + self.cdn_endpoint,'','')
-        writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
-        writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
-        
-        #util.dispose_cdnaas(self.so_e.token,self.CDNManager)
         self.timeout = 10
+        
+        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"not ready"}
                
     def run(self):
         #Pushing DNS configurations to DNS SICs
-        #self.performDNSConfig()
+        while self.dependencyStat["DNS"] != "ready":
+            if self.so_e.dns_endpoint != None:  
+                self.dns_endpoint = self.so_e.dns_endpoint
+                writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
+                #self.performDNSConfig()
+                self.dependencyStat["DNS"] = "ready"
+        writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
+                
+        while self.dependencyStat["CDN"] != "ready":
+            if self.so_e.cdn_endpoint != None:
+                self.cdn_password = self.so_e.cdn_password
+                self.cdn_endpoint = self.so_e.cdn_endpoint
+                self.cdn_global_id = self.so_e.cdn_global_id
+                self.cdn_origin = self.so_e.cdn_origin                  
+                #Configuring primary parameters of CDN service - empty for now
+                self.performCDNConfig()
+                writeLogFile(self.swComponent,"CDN Origin: " + self.cdn_origin,'','')
+                writeLogFile(self.swComponent,"CDN Endpoint: " + self.cdn_endpoint,'','')
+                writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
+                writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
+                self.dependencyStat["CDN"] = "ready"
+        writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
         
-        #Configuring primary parameters of CDN service - empty for now
-        self.performCDNConfig()
-        
+        while self.dependencyStat["MON"] != "ready":
+            if self.so_e.monitoring_endpoint != None:  
+                #Now that all DSS SICs finished application deployment we can start monitoring
+                self.monitoring_endpoint = self.so_e.monitoring_endpoint
+                writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
+                self.dependencyStat["MON"] = "ready"
+                writeLogFile(self.swComponent,"MONaaS dependency stat changed to READY",'','')
+                    
         #Pushing local configurations to DSS SICs        
         self.performLocalConfig()
         
         #Wait for DSS SICs to finish application deployment
         self.deploymentPause()  
         
-        #Now that all DSS SICs finished application deployment we can start monitoring
-        #self.performMonConfig()
+        # Creating a monitor for pulling MaaS information
+        # We need it here because we need all teh custome items and everything configured before doing it 
+        self.monitor = SOMonitor(self.so_e,self.so_d,self.monitoring_endpoint,0,'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php','admin','zabbix')
+        self.performMonConfig()
+                
         #writeLogFile(self.swComponent,"Start monitoring service ...",'','')
-        #self.so_d.monitor.start()
+        self.monitor.start()
     
     def deploymentPause(self):
         result = -1
@@ -528,15 +583,15 @@ class SOConfigure(threading.Thread):
                 while (result != 1):
                     time.sleep(2)
                     print "Try to create LB domain"
-                    result = self.dnsManager.create_domain(self.dssCmsDomainName,"info@dss-test.es")
+                    result = self.dnsManager.create_domain(self.dssCmsDomainName + ".","info@dss-test.es")
                     writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
                 print "LB domain created"
                 result = -1
                 while (result != 1):
                     time.sleep(2)
                     print "Try to create LB record"
-                    lb_domain_id = self.dnsManager.get_domain(self.dssCmsDomainName)
-                    dataRecord = {'name': self.dssCmsDomainName, 'type': 'A', 'data': self.instances[item]}
+                    lb_domain_id = self.dnsManager.get_domain(self.dssCmsDomainName + ".")
+                    dataRecord = {'name': self.dssCmsDomainName + ".", 'type': 'A', 'data': self.instances[item]}
                     result = self.dnsManager.create_record(lb_domain_id,dataRecord)
                     writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
                 print "LB record created"
@@ -546,15 +601,15 @@ class SOConfigure(threading.Thread):
                 while (result != 1):
                     time.sleep(2)
                     print "Try to create MCR domain"
-                    result = self.dnsManager.create_domain(self.dssMcrDomainName,"info@dss-test.es")
+                    result = self.dnsManager.create_domain(self.dssMcrDomainName + ".","info@dss-test.es")
                     writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
                 print "MCR domain created"
                 result = -1
                 while (result != 1):
                     time.sleep(2)
                     print "Try to create MCR record"
-                    mcr_domain_id = self.dnsManager.get_domain(self.dssMcrDomainName)
-                    dataRecord = {'name': self.dssMcrDomainName , 'type': 'A', 'data': self.instances[item]}
+                    mcr_domain_id = self.dnsManager.get_domain(self.dssMcrDomainName + ".")
+                    dataRecord = {'name': self.dssMcrDomainName + ".", 'type': 'A', 'data': self.instances[item]}
                     result = self.dnsManager.create_record(mcr_domain_id,dataRecord)
                     writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
                 print "MCR record created"
@@ -590,7 +645,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"'+ token +'","dnsendpoint":"'+ self.dns_endpoint +'"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_endpoint + '","dssdomainname":"' + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp)  ,'','')
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
@@ -616,7 +671,7 @@ class SOConfigure(threading.Thread):
             }
             try:
                 h = http.Http()
-                if 'provision' in api_url:
+                if 'provision' in api_url or 'MON' in api_url:
                     h.timeout = 60
                 else:
                     h.timeout = self.timeout
@@ -626,7 +681,7 @@ class SOConfigure(threading.Thread):
                 writeLogFile(self.swComponent,"Handled " + api_url + " exception." + str(e) ,'','')
                 continue
             response_status = int(response.get("status"))
-            writeLogFile(self.swComponent,"response status is:" + str(response_status)  ,'','')
+            writeLogFile(self.swComponent,"response status is:" + str(response_status) + " Content: " + str(content) ,'','')
             if (response_status < 200 or response_status >= 400):
                 continue
             content_dict = json.loads(content)
@@ -652,50 +707,58 @@ class SOConfigure(threading.Thread):
         res = 0
         while (res != 1):
             time.sleep(1)            
-            res = self.configTrigger('More than 60% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<40')
+            res = self.monitor.configTrigger('More than 60% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<40')
 
         res = 0
         while (res != 1):
             time.sleep(1)            
-            res = self.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
+            res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
                             
         if "mcr" in zabbixName:
             res = 0
             while (res != 1):
-                time.sleep(1)            
-                res = self.configItem("Free disk space in %", zabbixName, "vfs.fs.size[/,pfree]", 0, 10)
+                time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "vfs.fs.size[/,pfree]")
+                if res != 1:            
+                    res = self.monitor.configItem("Free disk space in %", zabbixName, "vfs.fs.size[/,pfree]", 0, 10)
                 
             res = 0
             while (res != 1):
-                time.sleep(1)            
-                # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds    
-                res = self.configItem("DSS RCB CDR data", zabbixName, "DSS.RCB.CDRString", 4, 30)
+                time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "DSS.RCB.CDRString")
+                if res != 1:             
+                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds    
+                    res = self.monitor.configItem("DSS RCB CDR data", zabbixName, "DSS.RCB.CDRString", 4, 30)
             
             res = 0
             while (res != 1):
-                time.sleep(1)            
-                # 4 - Specifies data type "Unsigned" and 30 Specifies this item will be checked every 30 seconds    
-                res = self.configItem("DSS number of active player data", zabbixName, "DSS.Players.CNT", 3, 30)
+                time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "DSS.Players.CNT")
+                if res != 1:            
+                    # 4 - Specifies data type "Unsigned" and 30 Specifies this item will be checked every 30 seconds    
+                    res = self.monitor.configItem("DSS number of active player data", zabbixName, "DSS.Players.CNT", 4, 30)
                 
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.configTrigger('More than 90% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}<10')
+                res = self.monitor.configTrigger('More than 90% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}<10')
                 
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.configTrigger('Less than 30% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}>70')
+                res = self.monitor.configTrigger('Less than 30% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}>70')
                 
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.configTrigger('More than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}>3')
+                res = self.monitor.configTrigger('More than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}>3')
                 
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.configTrigger('Less than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}<=3' )           
+                res = self.monitor.configTrigger('Less than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}<3')
+        
+        writeLogFile(self.swComponent,'All triggers and items added succesfully for host: ' + targetHostName,'','')           
 
 class ServiceOrchestrator(object):
     """
@@ -708,4 +771,5 @@ class ServiceOrchestrator(object):
         self.so_e = ServiceOrchestratorExecution(token, tenant, self.event)
         self.so_d = ServiceOrchestratorDecision(self.so_e, token, self.event)
         LOG.debug('Starting SOD thread...')
-        self.so_d.start()
+        self.so_d.start()   
+        

@@ -12,23 +12,27 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from mcn.sm.Service import Service
+from mcn.sm.service import Service
 
 __author__ = 'andy'
 
 from occi.core_model import Kind as Type
 from occi.core_model import Resource
 
-from mcn.sm.Service import MCNApplication
+from mcn.sm.service import MCNApplication
 
 if __name__ == '__main__':
 
     # defines the service to offer - the service owner defines this
     dss_svc_type = Type('http://schemas.mobile-cloud-networking.eu/occi/sm#',
                   'dss',
-                  title='This is an example DSS service type',
-                  attributes={'mcn.endpoint.DSSCMS':    'immutable',
-                              'mcn.endpoint.DSSMCR':       'immutable'
+                  title='DSS as a Service - DSSaaS',
+                  attributes={'mcn.endpoint.maas':    '',
+                              'mcn.endpoint.dnsas':       '',
+                              'mcn.endpoints.cdn.mgt':       '',
+                              'mcn.endpointa.cdn.origin':       '',
+                              'mcn.cdn.password':       'immutable',
+                              'mcn.cdn.id':       'immutable'
                               },
                   related=[Resource.kind],
                   actions=[])

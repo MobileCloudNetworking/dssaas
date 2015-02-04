@@ -9,6 +9,7 @@ databaseusername="$2"
 databasehost="$3"
 databasepassword="$4"
 dssmcrapiurl="$5"
+#REMEMBER TO PUT AAAaaS CONFIG ATTRIBS HERE (ENDPOINT)
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'

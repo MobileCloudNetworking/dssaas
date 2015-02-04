@@ -216,10 +216,12 @@ class TemplateGenerator:
         template += '  cms_healthmonitor:' + "\n"
         template += '    Type: OS::Neutron::HealthMonitor' + "\n"
         template += '    Properties:' + "\n"
-        template += '      delay : 3' + "\n"            
+        template += '      delay : 10' + "\n"            
         template += '      max_retries : 3' + "\n"            
-        template += '      timeout : 3' + "\n"            
-        template += '      type : HTTP' + "\n"            
+        template += '      timeout : 10' + "\n"            
+        template += '      type : HTTP' + "\n"
+        template += '      url_path : /WebAppDSS/' + "\n"
+        template += '      expected_codes : 200-399'            
         template += "\n"            
         template += '  cms_lb_pool:' + "\n"            
         template += '    Type: OS::Neutron::Pool' + "\n"            
@@ -229,7 +231,7 @@ class TemplateGenerator:
         template += '      protocol: HTTP' + "\n"            
         template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"            
         template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"            
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip, "protocol_port": 80 }' + "\n"            
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"            
         template += "\n"
         
         self.lbNameRandom = self.randomNameGenerator(6)
