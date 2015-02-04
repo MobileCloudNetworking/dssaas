@@ -1,6 +1,0 @@
-#!/bin/bash
-
-pip install paramiko zabbix_api httplib2
-echo "Installing MCN SDK"
-curl -k -o $OPENSHIFT_DATA_DIR/sdk.tar.gz 'http://buyfun.es/sdk.tar.gz'
-pip install $OPENSHIFT_DATA_DIR/sdk.tar.gz
