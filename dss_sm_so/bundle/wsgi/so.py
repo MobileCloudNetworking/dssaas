@@ -492,15 +492,18 @@ class SOConfigure(threading.Thread):
                
     def run(self):
         #Pushing DNS configurations to DNS SICs
-        while self.dependencyStat["DNS"] != "ready":
+        writeLogFile(self.swComponent,"Waiting for DNS config info ...",'','')
+        while self.dependencyStat["DNS"] != "ready":  
             if self.so_e.dns_endpoint != None:  
                 self.dns_endpoint = self.so_e.dns_endpoint
                 writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
                 #self.performDNSConfig()
                 self.dependencyStat["DNS"] = "ready"
+            time.sleep(5)
         writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
-                
-        while self.dependencyStat["CDN"] != "ready":
+        
+        writeLogFile(self.swComponent,"Waiting for CDN config info ...",'','')        
+        while self.dependencyStat["CDN"] != "ready":    
             if self.so_e.cdn_endpoint != None:
                 self.cdn_password = self.so_e.cdn_password
                 self.cdn_endpoint = self.so_e.cdn_endpoint
@@ -513,15 +516,18 @@ class SOConfigure(threading.Thread):
                 writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
                 writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
                 self.dependencyStat["CDN"] = "ready"
+            time.sleep(5)
         writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
         
+        writeLogFile(self.swComponent,"Waiting for Monitoring config info ...",'','')
         while self.dependencyStat["MON"] != "ready":
             if self.so_e.monitoring_endpoint != None:  
                 #Now that all DSS SICs finished application deployment we can start monitoring
                 self.monitoring_endpoint = self.so_e.monitoring_endpoint
                 writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
                 self.dependencyStat["MON"] = "ready"
-                writeLogFile(self.swComponent,"MONaaS dependency stat changed to READY",'','')
+            time.sleep(5)
+        writeLogFile(self.swComponent,"MONaaS dependency stat changed to READY",'','')
                     
         #Pushing local configurations to DSS SICs        
         self.performLocalConfig()
@@ -771,5 +777,4 @@ class ServiceOrchestrator(object):
         self.so_e = ServiceOrchestratorExecution(token, tenant, self.event)
         self.so_d = ServiceOrchestratorDecision(self.so_e, token, self.event)
         LOG.debug('Starting SOD thread...')
-        self.so_d.start()   
-        
+        self.so_d.start()
