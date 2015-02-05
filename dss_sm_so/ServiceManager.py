@@ -30,7 +30,7 @@ if __name__ == '__main__':
                   attributes={
                               'mcn.dss.mgt':              'immutable',
                               'mcn.endpoint.maas':        '',
-                              'mcn.endpoint.dnsas':       '',
+                              'mcn.endpoint.dnsaas':      '',
                               'mcn.endpoints.cdn.mgt':    '',
                               'mcn.endpointa.cdn.origin': '',
                               'mcn.cdn.password':         '',
