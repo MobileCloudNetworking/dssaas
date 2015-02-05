@@ -27,12 +27,14 @@ if __name__ == '__main__':
     dss_svc_type = Type('http://schemas.mobile-cloud-networking.eu/occi/sm#',
                   'dss',
                   title='DSS as a Service - DSSaaS',
-                  attributes={'mcn.endpoint.maas':    '',
+                  attributes={
+                              'mcn.dss.mgt':              'immutable',
+                              'mcn.endpoint.maas':        '',
                               'mcn.endpoint.dnsas':       '',
-                              'mcn.endpoints.cdn.mgt':       '',
-                              'mcn.endpointa.cdn.origin':       '',
-                              'mcn.cdn.password':       '',
-                              'mcn.cdn.id':       ''
+                              'mcn.endpoints.cdn.mgt':    '',
+                              'mcn.endpointa.cdn.origin': '',
+                              'mcn.cdn.password':         '',
+                              'mcn.cdn.id':               ''
                               },
                   related=[Resource.kind],
                   actions=[])
