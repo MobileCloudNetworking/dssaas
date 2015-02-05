@@ -87,28 +87,16 @@ class ServiceOrchestratorExecution():
         """
         LOG.debug('Executing design logic')
 
-    def deploy(self,entity):
+    def deploy(self):
         """
         deploy SICs.
         """
         LOG.debug('Executing deployment logic')
         if self.stack_id is None:
             self.stack_id = self.deployer.deploy(self.template, self.token)
-            
-        result = -1
-        while(result == -1):
-            time.sleep(1)
-            result, listOfAllServers = self.getServerIPs()
-
-        for item in listOfAllServers:
-            if item == "mcn.dss.lb.endpoint":
-                #LOG.debug(str(entity.attributes))
-                entity.attributes['mcn.dss.mgt'] = str(listOfAllServers[item])
-                #LOG.debug(str(entity.attributes))
-                
         #self.event.set()
 
-    def provision(self,entity,attributes):
+    def provision(self,attributes):
         """
         (Optional) if not done during deployment - provision.
         """
@@ -135,9 +123,6 @@ class ServiceOrchestratorExecution():
             if 'mcn.cdn.id' in attributes:
                 self.cdn_global_id = attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
-        
-        LOG.debug(str(entity.attributes))
-        
         # once logic executes, deploy phase is done
         #self.event.set()
 
@@ -404,7 +389,6 @@ class ServiceOrchestratorDecision(threading.Thread):
         result = -1
         # Waits till the deployment of the stack is finished
         while(result == -1):
-            time.sleep(1)
             result, listOfAllServers = self.so_e.getServerIPs()
         
         writeLogFile(self.swComponent,"Update successful",'','')
@@ -793,5 +777,4 @@ class ServiceOrchestrator(object):
         self.so_e = ServiceOrchestratorExecution(token, tenant, self.event)
         self.so_d = ServiceOrchestratorDecision(self.so_e, token, self.event)
         LOG.debug('Starting SOD thread...')
-        self.so_d.start()   
-        
+        self.so_d.start()
