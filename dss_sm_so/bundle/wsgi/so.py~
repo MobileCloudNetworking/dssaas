@@ -102,11 +102,13 @@ class ServiceOrchestratorExecution():
 
         for item in listOfAllServers:
             if item == "mcn.dss.lb.endpoint":
-                entity.attributes['mcn.dss.mgt'] = 'http://' + str(listOfAllServers[item]) + '/WebAppDSS/'
+                #LOG.debug(str(entity.attributes))
+                entity.attributes['mcn.dss.mgt'] = str(listOfAllServers[item])
+                #LOG.debug(str(entity.attributes))
                 
         #self.event.set()
 
-    def provision(self,attributes):
+    def provision(self,entity,attributes):
         """
         (Optional) if not done during deployment - provision.
         """
@@ -133,7 +135,9 @@ class ServiceOrchestratorExecution():
             if 'mcn.cdn.id' in attributes:
                 self.cdn_global_id = attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
-                        
+        
+        LOG.debug(str(entity.attributes))
+        
         # once logic executes, deploy phase is done
         #self.event.set()
 
