@@ -28,13 +28,13 @@ if __name__ == '__main__':
                   'dss',
                   title='DSS as a Service - DSSaaS',
                   attributes={
-                              'mcn.cdn.id':               '',
-                              'mcn.cdn.password':         '',
                               'mcn.dss.mgt':              'immutable',
                               'mcn.endpoint.maas':        '',
-                              'mcn.endpoint.api':         '',
+                              'mcn.endpoint.dnsaas':      '',
                               'mcn.endpoints.cdn.mgt':    '',
-                              'mcn.endpoints.cdn.origin': ''
+                              'mcn.endpointa.cdn.origin': '',
+                              'mcn.cdn.password':         '',
+                              'mcn.cdn.id':               ''
                               },
                   related=[Resource.kind],
                   actions=[])

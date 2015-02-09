@@ -118,8 +118,8 @@ class ServiceOrchestratorExecution():
             if 'mcn.endpoint.maas' in attributes:
                 self.monitoring_endpoint = attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.api' in attributes:
-                self.dns_endpoint = attributes['mcn.endpoint.api']
+            if 'mcn.endpoint.dnsaas' in attributes:
+                self.dns_endpoint = attributes['mcn.endpoint.dnsaas']
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoints.cdn.mgt' in attributes:
                 self.cdn_endpoint = attributes['mcn.endpoints.cdn.mgt']
@@ -167,8 +167,8 @@ class ServiceOrchestratorExecution():
             if 'mcn.endpoint.maas' in updated.attributes:
                 self.monitoring_endpoint = updated.attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.api' in updated.attributes:
-                self.dns_endpoint = updated.attributes['mcn.endpoint.api']
+            if 'mcn.endpoint.dnsaas' in updated.attributes:
+                self.dns_endpoint = updated.attributes['mcn.endpoint.dnsaas']
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoints.cdn.mgt' in updated.attributes:
                 self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
@@ -440,8 +440,7 @@ class ServiceOrchestratorDecision(threading.Thread):
                         else:
                             writeLogFile(self.swComponent,'Configuring ' + item ,'','')
                             writeLogFile(self.swComponent,'Configuring in progress ...' ,'','')
-                            self.configure.provisionInstance(item, listOfAllServers)
-                            self.configure.configInstance(item)
+                            self.configure.configInstance(item,listOfAllServers)
                             writeLogFile(self.swComponent,'instance ' + item + ' configured successfully','','')                            
                             self.configure.deploymentPause()
                             response_status = 0
@@ -646,19 +645,14 @@ class SOConfigure(threading.Thread):
             writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
             
         #configure instances
-        writeLogFile(self.swComponent,"Entering the loop to provision each instance ...",'','')
-        for item in self.instances:
-            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint": 
-                self.provisionInstance(self.instances[item],self.instances)
-                
         writeLogFile(self.swComponent,"Entering the loop to create JSON config file for each instance ...",'','')
         for item in self.instances:
             if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint": 
-                self.configInstance(self.instances[item])            
+                self.configInstance(self.instances[item],self.instances)            
             
         writeLogFile(self.swComponent,"Exiting the loop for JSON config file creation for all instances",'','')
             
-    def provisionInstance(self, target_ip, all_ips):
+    def configInstance(self, target_ip, all_ips):
         #AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
         token = resp["token"]
@@ -667,12 +661,6 @@ class SOConfigure(threading.Thread):
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision','POST','{"user":"SO","token":"'+ token +'","mcr_srv_ip":"'+ all_ips["mcn.dss.mcr.endpoint"] +'","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"'+ all_ips["mcn.dss.db.endpoint"] +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
-        
-    def configInstance(self, target_ip):
-        #AGENT AUTH
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
-        token = resp["token"]
-        writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_endpoint + '","dssdomainname":"' + self.dssCmsDomainName + '"}')
