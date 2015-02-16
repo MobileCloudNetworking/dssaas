@@ -124,8 +124,8 @@ def getDomain(domain_name, tokenId):
     if len(content['data']) > 0:
         if content['status'] == '200':
             return content['data']
-    elif content['status'] == 'Server API not reachable':
-        return -1
+        elif content['status'] == 'Server API not reachable':
+            return -1
         else:
             return 0
     else:
