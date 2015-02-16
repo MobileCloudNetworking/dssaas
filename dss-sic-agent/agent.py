@@ -88,9 +88,9 @@ class Application:
             self.cdn_enabled = 'true'
             
         if self.cdn_enabled == 'true':
-            self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False"}
+            self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False","aaa":"True"}
         else:
-            self.configurationstatus = {"cdn":"True","provision":"False","mon":"False","rcb":"False","dns":"False"}
+            self.configurationstatus = {"cdn":"True","provision":"False","mon":"False","rcb":"False","dns":"False","aaa":"True"}
             
     def __call__(self, environ, start_response):
         self.environ=environ
@@ -177,7 +177,7 @@ class Application:
                 ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled])
                 LOG.debug("Provision script returned : " + str(ret_code))
             else:
-                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"]])
+                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com"])
                 LOG.debug("Provision script returned : " + str(ret_code))
             if ret_code != 1:
                 response_body = json.dumps({"Message":"Provision Finished"})

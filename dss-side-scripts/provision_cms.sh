@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 7 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -9,7 +9,8 @@ databaseusername="$2"
 databasehost="$3"
 databasepassword="$4"
 dssmcrapiurl="$5"
-#REMEMBER TO PUT AAAaaS CONFIG ATTRIBS HERE (ENDPOINT)
+servicecdnenabled="$6"
+dssopenamendpoint="$7"
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'
@@ -18,6 +19,7 @@ dssmcrapicontentmanagementurl='/api/contents'
 dssmcrapiusermanagementurl='/api/users'
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
 #Autoconf
+sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,DSSCSDBNAME,$databasename,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBSERVERURL,$databasehost,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBUSERNAME,$databaseusername,g" WebAppDSSConfig.groovy
@@ -29,6 +31,7 @@ sed -i.bak "s,DSSMCRAPISUPERADMINPASSWORD,$dssmcrapisuperadminpassword,g" WebApp
 sed -i.bak "s,DSSMCRAPILOGINURL,$dssmcrapiloginurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPICONTENTMANAGEMENTURL,$dssmcrapicontentmanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPIUSERMANAGEMENTURL,$dssmcrapiusermanagementurl,g" WebAppDSSConfig.groovy
+sed -i.bak "s,DSSOPENAMENDPOINT,$dssopenamendpoint,g" WebAppDSSConfig.groovy
 cp WebAppDSSConfig.groovy /usr/share/tomcat7/
 cp WebAppDSS.war /var/lib/tomcat7/webapps/
 # Check database aaS is already there

@@ -39,13 +39,21 @@ class SMRegistry(NonePersistentRegistry):
         self.resources[resource.identifier] = resource
 
     def get_resource(self, key, extras):
+        # XXX: Omitting extras is potential dangerous and breaks multitenancy
         return self.resources[key]
+
+    def get_resources(self, extras):
+        # XXX: Omitting extras is potential dangerous and breaks multitenancy
+        return self.resources.values()
 
 
 class MCNApplication(Application):
 
     def __init__(self):
         super(MCNApplication, self).__init__(registry=SMRegistry())
+        from occi.core_model import Link
+        from occi.backend import KindBackend
+        self.register_backend(Link.kind, KindBackend())
 
     def register_backend(self, category, backend):
         return super(MCNApplication, self).register_backend(category, backend)
@@ -64,7 +72,7 @@ class MCNApplication(Application):
             LOG.error('No X-Tenant-Name header supplied.')
             raise HTTPError(400, 'No X-Tenant-Name header supplied.')
 
-        return self._call_occi(environ, response, token=auth, tenant_name=tenant)
+        return self._call_occi(environ, response, token=auth, tenant_name=tenant, registry=self.registry)
 
 
 class Service():
