@@ -161,20 +161,20 @@ class ServiceOrchestratorExecution():
             writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
             result = -1
             while (result != 1):
-        time.sleep(1)
+                time.sleep(1)
                 result = DNSaaSClient.deleteDomain(self.dssCmsDomainName, self.token)
             writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
 
             writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
             result = -1
             while (result != 1):
-        time.sleep(1)
+                time.sleep(1)
                 result = DNSaaSClient.deleteRecord(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
             writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
             writeLogFile(self.swComponent,'Trying to remove MCR domain: ' + self.dssMcrDomainName, '', '')
             result = -1
             while (result != 1):
-        time.sleep(1)
+                time.sleep(1)
                 result = DNSaaSClient.deleteDomain(self.dssMcrDomainName, self.token)
             writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
@@ -545,8 +545,8 @@ class SOConfigure(threading.Thread):
             if self.so_e.dns_endpoint != None:  
                 self.dns_endpoint = self.so_e.dns_endpoint
                 writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
-        #TODO: New DNS object is required
-        DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
+                #TODO: New DNS object is required
+                DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 self.performDNSConfig()
                 self.dependencyStat["DNS"] = "ready"
             time.sleep(5)
@@ -635,12 +635,12 @@ class SOConfigure(threading.Thread):
             
         for item in self.instances:
             if item == "mcn.dss.lb.endpoint":
-        check = -1
-        while(check == -1):
+                check = -1
+                while(check == -1):
                     check = DNSaaSClient.getDomain(self.dssCmsDomainName,self.so_e.token)
-            if check == -1:
-                writeLogFile(self.swComponent,'DNS API not ready yet', '', '')
-            time.sleep(5)
+                    if check == -1:
+                        writeLogFile(self.swComponent,'DNS API not ready yet', '', '')
+                    time.sleep(5)
                 writeLogFile(self.swComponent,'DNS API READY for getting requests', '', '')
                 lbDomainExists = DNSaaSClient.getDomain(self.dssCmsDomainName,self.so_e.token)
                 if str(lbDomainExists) == '0':
@@ -650,28 +650,28 @@ class SOConfigure(threading.Thread):
                         result = DNSaaSClient.createDomain(self.dssCmsDomainName,"info@dss-test.es",self.so_e.token)
                         writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-        else:
+                else:
                     writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
-        lbRecordExists = DNSaaSClient.getRecord(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName,record_type='A',tokenId=self.so_e.token)
+                lbRecordExists = DNSaaSClient.getRecord(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName,record_type='A',tokenId=self.so_e.token)
                 if str(lbRecordExists) == '0':
-            result = -1
+                    result = -1
                     while (result != 1):
                         time.sleep(2)
                         result = DNSaaSClient.createRecord(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName,record_type='A',record_data=self.instances[item],tokenId=self.so_e.token)
                         writeLogFile(self.swComponent,'DNS record creation attempt for: ' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
-        else:
-            writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
+                else:
+                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
 
             elif item == "mcn.dss.mcr.endpoint":
                 check = -1
                 while(check == -1):
                     check = DNSaaSClient.getDomain(self.dssMcrDomainName,self.so_e.token)
-            if check == -1:
+                    if check == -1:
                         writeLogFile(self.swComponent,'DNS API not ready yet', '', '')
                     time.sleep(5)
                 writeLogFile(self.swComponent,'DNS API READY for getting requests', '', '')
-        mcrDomainExists = DNSaaSClient.getDomain(self.dssMcrDomainName,self.so_e.token)
+                mcrDomainExists = DNSaaSClient.getDomain(self.dssMcrDomainName,self.so_e.token)
                 if str(mcrDomainExists) == '0':
                     result = -1
                     while (result != 1):
@@ -679,9 +679,9 @@ class SOConfigure(threading.Thread):
                         result = DNSaaSClient.createDomain(self.dssMcrDomainName,"info@dss-test.es",self.so_e.token)
                         writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-        else:
-            writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
-        mcrRecordExists = DNSaaSClient.getRecord(domain_name=self.dssMcrDomainName,record_name=self.dssMcrRecordName,record_type='A',tokenId=self.so_e.token)
+                else:
+                    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
+                mcrRecordExists = DNSaaSClient.getRecord(domain_name=self.dssMcrDomainName,record_name=self.dssMcrRecordName,record_type='A',tokenId=self.so_e.token)
                 if str(mcrRecordExists) == '0':
                     result = -1
                     while (result != 1):
@@ -689,8 +689,8 @@ class SOConfigure(threading.Thread):
                         result = DNSaaSClient.createRecord(domain_name=self.dssMcrDomainName,record_name=self.dssMcrRecordName,record_type='A',record_data=self.instances[item],tokenId=self.so_e.token)
                         writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
-        else:
-            writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
+                else:
+                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
             
         writeLogFile(self.swComponent,"Exiting the loop to push dns domain names for all instances",'','')
             
