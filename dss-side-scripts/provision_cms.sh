@@ -19,7 +19,7 @@ dssmcrapicontentmanagementurl='/api/contents'
 dssmcrapiusermanagementurl='/api/users'
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
 #Autoconf
-sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" DSSMCRAPIConfig.groovy
+sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBNAME,$databasename,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBSERVERURL,$databasehost,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBUSERNAME,$databaseusername,g" WebAppDSSConfig.groovy
