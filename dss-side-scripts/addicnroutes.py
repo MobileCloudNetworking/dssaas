@@ -13,9 +13,9 @@ try:
     if (total < 6):
         print "Usage: python addicnroutes.py [host] [username] [password] [database] [icn_port]"
         sys.exit(1)
-    con = mdb.connect(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    cur = con.cursor()
     while 1:
+        con = mdb.connect(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        cur = con.cursor()
         idList = []
         cur.execute("SELECT `id`,`player_name`,`playerip` FROM `player` WHERE icn_flag = 0;")
         if cur.rowcount > 0:
@@ -33,12 +33,11 @@ try:
             for item in idList:
                 cur.execute("UPDATE `player` SET icn_flag=1 WHERE id = " + str(item) + ";")
                 time.sleep(5)
-
+        con.close()
         time.sleep(30000)
 
 except mdb.Error as e:
     print "Error " + str(e)
-    sys.exit(1)
-finally:
     if con:
         con.close()
+    sys.exit(1)
