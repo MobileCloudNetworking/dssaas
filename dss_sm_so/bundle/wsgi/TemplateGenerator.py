@@ -17,7 +17,8 @@ class TemplateGenerator:
         self.private_sub_network_id = "70506734-0b95-4a8e-b8b7-4a8a54330db0"
         
         self.key_name = "bart-key"
-        self.cdn_enable = 'true'
+        self.cdn_enable = 'false'
+        self.icn_enable = 'true'
         self.dss_cms_image_name = 'DSS-IMAGE-FINAL'
         self.dss_mcr_image_name = 'DSS-IMAGE-FINAL'
         self.dss_db_image_name = 'DSS-DB-SIC'
@@ -65,7 +66,7 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " &" + "\n"           
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " &" + "\n"
         template += "\n"             
         template += "  " + self.baseCmsResourceName + "_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             
@@ -104,7 +105,7 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " &" + "\n"          
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " &" + "\n"
         template += "\n"             
         template += "  mcr_server_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             

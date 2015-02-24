@@ -28,7 +28,7 @@ LOG = config_logger()
 class fileManager:
         
     def __init__(self):
-        if (len(sys.argv)==3):
+        if (len(sys.argv)==4):
             self.path = sys.argv[1] #final slash is required!!
         else:
             self.path =''
@@ -81,12 +81,16 @@ class Application:
         self.SERVER_ERROR_DB_NOT_FOUND = 'Database not found'
         self.SERVER_ERROR_CALL_INSTANCE = 'Exception raised while trying to call application'
         self.SERVER_ERROR_CALL_PROVISION_SCRIPT = 'Wrong number of parameters for the script'
-        
-        if (len(sys.argv)==3):
+
+        self.icn_port = '9695'
+
+        if (len(sys.argv)==4):
             self.cdn_enabled = str(sys.argv[2]) #values are : true , false
+            self.icn_enabled = str(sys.argv[3]) #values are : true , false
         else:
             self.cdn_enabled = 'true'
-            
+            self.icn_enabled = 'false'
+
         if self.cdn_enabled == 'true':
             self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False","aaa":"True"}
         else:
@@ -174,7 +178,7 @@ class Application:
                 return self.unauthorised()
             
             if 'mcr' in socket.gethostname():
-                ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled])
+                ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port])
                 LOG.debug("Provision script returned : " + str(ret_code))
             else:
                 ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com"])

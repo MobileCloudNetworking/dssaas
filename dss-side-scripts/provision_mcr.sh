@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 9 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -12,8 +12,10 @@ databasename="$2"
 databaseusername="$3"
 databasehost="$4"
 databasepassword="$5"
-corsalloworiginregex="$6"
+corsalloworiginregex="http://$6"
 servicecdnenabled="$7"
+serviceicnenabled="$8"
+icnport="$9"
 corsurlpattern="/api/contents/\*"
 echo $4 > /home/ubuntu/dbhost
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
@@ -31,6 +33,14 @@ sed -i.bak "s,MCRAPICONTENTMANAGEMENTPATTERN,$corsurlpattern,g" DSSMCRAPIConfig.
 sed -i.bak "s,DSSCMSSERVER,$corsalloworiginregex,g" DSSMCRAPIConfig.groovy
 cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
+if [[ $serviceicnenabled == "true" ]]
+then
+    nohup /home/ubuntu/ccnxdir/bin/ccndstart &
+    nohup /home/ubuntu/ccnxdir/bin/ccnr &
+    nohup python /home/ubuntu/addicnroutes.py $databasehost $databaseusername $databasepassword $databasename $icnport &
+    nohup java -jar CCNFileProxy.jar /home/ubuntu/files ccnx:/dss 10000 &
+fi
+
 #Create db if required
 # Check database aaS is already there
 while [[ `echo "status" | mysql -h $databasehost -u $databaseusername -p$databasepassword | grep Uptime` != *Uptime* ]]
