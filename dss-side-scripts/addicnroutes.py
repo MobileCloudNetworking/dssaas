@@ -43,9 +43,9 @@ try:
             while cnt < allRowCount:
                 row = cur.fetchone()
                 ip = row[2]
-                LOG.debug("Running command : " + './ccnxdir/bin/ccndc' + 'add' + 'ccnx:/ccnx.org' + 'udp' + ip + sys.argv[5])
+                LOG.debug("Running command : " + './ccnxdir/bin/ccndc ' + 'add ' + 'ccnx:/ccnx.org ' + 'udp ' + ip + ' ' + sys.argv[5])
                 ret_code = call(['./ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'udp', ip, sys.argv[5]])
-                LOG.debug("return code for player " + row[1] + " with id " + str(row[0]) + " is " + str(ret_code))
+                LOG.debug("return code for player " + row[1] + " with ip: " + ip + " and id: " + str(row[0]) + " is " + str(ret_code))
                 idList.append(row[0])
                 time.sleep(5)
                 cnt += 1
@@ -54,6 +54,7 @@ try:
                 LOG.debug("UPDATE `player` SET icn_flag=1 WHERE id = " + str(item) + ";")
                 cur.execute("UPDATE `player` SET icn_flag=1 WHERE id = " + str(item) + ";")
                 time.sleep(5)
+            con.commit()
         con.close()
         LOG.debug("Connection closed, waiting 30 seconds for next poll")
         time.sleep(30)
