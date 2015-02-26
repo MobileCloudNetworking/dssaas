@@ -35,9 +35,9 @@ cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
 if [[ $serviceicnenabled == "true" ]]
 then
-    nohup /home/ubuntu/ccnxdir/bin/ccndstart &
+    nohup /home/ubuntu/ccnxdir/bin/ccnd &
     nohup /home/ubuntu/ccnxdir/bin/ccnr &
-    nohup python /home/ubuntu/addicnroutes.py $databasehost $databaseusername $databasepassword $databasename $icnport &
+    #nohup python /home/ubuntu/addicnroutes.py $databasehost $databaseusername $databasepassword $databasename $icnport &
     nohup java -jar CCNFileProxy.jar /home/ubuntu/files ccnx:/dss 10000 &
 fi
 
