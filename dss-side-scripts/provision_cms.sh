@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 8 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -11,6 +11,7 @@ databasepassword="$4"
 dssmcrapiurl="$5"
 servicecdnenabled="$6"
 dssopenamendpoint="$7"
+serviceicnenabled="$8"
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'
@@ -19,6 +20,7 @@ dssmcrapicontentmanagementurl='/api/contents'
 dssmcrapiusermanagementurl='/api/users'
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
 #Autoconf
+sed -i.bak "s,SERVICEICNENABLED,$serviceicnenabled,g" WebAppDSSConfig.groovy
 sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBNAME,$databasename,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBSERVERURL,$databasehost,g" WebAppDSSConfig.groovy

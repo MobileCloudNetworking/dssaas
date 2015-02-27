@@ -38,7 +38,7 @@ then
     nohup /home/ubuntu/ccnxdir/bin/ccnd &
     nohup /home/ubuntu/ccnxdir/bin/ccnr &
     #nohup python /home/ubuntu/addicnroutes.py $databasehost $databaseusername $databasepassword $databasename $icnport &
-    nohup java -jar CCNFileProxy.jar /home/ubuntu/files ccnx:/dss 10000 &
+    nohup python icn_putcontents.py &
 fi
 
 #Create db if required

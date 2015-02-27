@@ -181,7 +181,7 @@ class Application:
                 ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port])
                 LOG.debug("Provision script returned : " + str(ret_code))
             else:
-                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com"])
+                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com"],self.icn_enabled)
                 LOG.debug("Provision script returned : " + str(ret_code))
             if ret_code != 1:
                 response_body = json.dumps({"Message":"Provision Finished"})

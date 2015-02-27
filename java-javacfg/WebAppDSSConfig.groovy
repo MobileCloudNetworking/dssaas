@@ -16,6 +16,8 @@ environments {
 		DSS.MCRAPI.url = "DSSMCRAPIURL"
                 //example = "false"
         SERVICE.CDN.ENABLED = "SERVICECDNENABLED"
+                //example = "false"
+        SERVICE.ICN.ENABLED = "SERVICEICNENABLED"
                 //example = "http://localhost"
         SERVICE.CDN.ENABLED = "DSSMCRAPIURL"
 		//example = "8081"
@@ -51,4 +53,3 @@ environments {
         }
     }
 }
-
