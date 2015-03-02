@@ -39,7 +39,7 @@ class IcnContentManager:
         ret_code = -1
         if filename != "" and prefix != "":
             LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccnputfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + repo_path + '/' + filename)
-            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccngetfile', '-v', 'ccnx:/' + prefix + '/' + filename, repo_path + '/' + filename])
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccnputfile', '-v', 'ccnx:' + prefix + '/' + filename, repo_path + '/' + filename])
             ret_code = 0
         return ret_code
 

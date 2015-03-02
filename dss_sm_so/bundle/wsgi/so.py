@@ -76,6 +76,7 @@ class ServiceOrchestratorExecution():
         self.cdn_password = None
         #self.cdn_endpoint = '160.85.4.104:8182'
         self.cdn_endpoint = None
+        self.icn_endpoint = None
         #self.cdn_global_id = 'd3e30c11-8a4d-41b4-b0c0-17de168de2a9'
         self.cdn_global_id = None
         #self.cdn_origin = '160.85.4.103:8181'
@@ -139,6 +140,9 @@ class ServiceOrchestratorExecution():
             if 'mcn.cdn.id' in attributes:
                 self.cdn_global_id = attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
+            if 'mcn.endpoints.icn' in attributes:
+                self.icn_endpoint = attributes['mcn.endpoints.icn']
+                writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
                         
         # once logic executes, deploy phase is done
         #self.event.set()
@@ -215,6 +219,9 @@ class ServiceOrchestratorExecution():
             if 'mcn.cdn.id' in updated.attributes:
                 self.cdn_global_id = updated.attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
+            if 'mcn.endpoints.icn' in updated.attributes:
+                self.icn_endpoint = updated.attributes['mcn.endpoints.icn']
+                writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
 
     def state(self):
         """
@@ -532,11 +539,14 @@ class SOConfigure(threading.Thread):
         self.cdn_password = None
         self.cdn_endpoint = None
         self.cdn_global_id = None
-        self.cdn_origin = None      
+        self.cdn_origin = None
+
+        self.icn_endpoint = None
+
  
         self.timeout = 10
         
-        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"not ready"}
+        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"not ready","ICN":"not ready"}
                
     def run(self):
         #Pushing DNS configurations to DNS SICs
@@ -568,6 +578,17 @@ class SOConfigure(threading.Thread):
                 self.dependencyStat["CDN"] = "ready"
             time.sleep(5)
         writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
+
+        writeLogFile(self.swComponent,"Waiting for ICN config info ...",'','')
+        while self.dependencyStat["ICN"] != "ready":
+            if self.so_e.icn_endpoint != None:
+                self.icn_endpoint = self.so_e.icn_endpoint
+                #Configuring primary parameters of ICN service - empty for now
+                self.performICNConfig()
+                writeLogFile(self.swComponent,"CDN Endpoint: " + self.icn_endpoint,'','')
+                self.dependencyStat["ICN"] = "ready"
+            time.sleep(5)
+        writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
         
         writeLogFile(self.swComponent,"Waiting for Monitoring config info ...",'','')
         while self.dependencyStat["MON"] != "ready":
@@ -696,6 +717,9 @@ class SOConfigure(threading.Thread):
             
     def performCDNConfig(self):
         pass
+
+    def performICNConfig(self):
+        pass
     
     def performLocalConfig(self):
         result = -1
@@ -749,6 +773,10 @@ class SOConfigure(threading.Thread):
         #CDN data to be used by MCR for uploading data
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')
         writeLogFile(self.swComponent,"CDN response is:" + str(resp)  ,'','')
+        #AGENT PUSH ICN EP & ACC INFO
+        #ICN data to be used by CMS for finding closest icn router
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN','POST','{"user":"SO","token":"'+ token +'","icnendpoint":"'+ self.icn_endpoint +'"}')
+        writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
         
     def sendRequestToSICAgent(self, api_url, req_type, json_data):
         response_status = 0

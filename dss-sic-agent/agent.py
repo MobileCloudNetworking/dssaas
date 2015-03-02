@@ -91,10 +91,10 @@ class Application:
             self.cdn_enabled = 'true'
             self.icn_enabled = 'false'
 
-        if self.cdn_enabled == 'true':
-            self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False","aaa":"True"}
+        if self.cdn_enabled == 'true' and self.icn_enabled == 'false':
+            self.configurationstatus = {"cdn":"False", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
         else:
-            self.configurationstatus = {"cdn":"True","provision":"False","mon":"False","rcb":"False","dns":"False","aaa":"True"}
+            self.configurationstatus = {"cdn":"True", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"False"}
             
     def __call__(self, environ, start_response):
         self.environ=environ
@@ -108,6 +108,8 @@ class Application:
             return self.get_hostname()
         elif environ['PATH_INFO'] == '/v1.0/CDN':
             return self.cdn()
+        elif environ['PATH_INFO'] == '/v1.0/ICN':
+            return self.icn()
         elif environ['PATH_INFO'] == '/v1.0/MON':
             return self.mon()
         elif environ['PATH_INFO'] == '/v1.0/DNS':
@@ -181,7 +183,7 @@ class Application:
                 ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port])
                 LOG.debug("Provision script returned : " + str(ret_code))
             else:
-                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com"],self.icn_enabled)
+                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com",self.icn_enabled])
                 LOG.debug("Provision script returned : " + str(ret_code))
             if ret_code != 1:
                 response_body = json.dumps({"Message":"Provision Finished"})
@@ -238,6 +240,35 @@ class Application:
             response_body = json.dumps({"Message":"CDN config Finished"})
             self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
             self.configurationstatus["cdn"] = "True"
+            return [response_body]
+        else:
+            return self.not_found()
+
+    def icn(self):
+        if self.environ['REQUEST_METHOD'] == 'POST':
+            #get JSON from PAYLOAD
+            from cStringIO import StringIO
+            length = self.environ.get('CONTENT_LENGTH', '0')
+            length = 0 if length == '' else int(length)
+            body = self.environ['wsgi.input'].read(length)
+            jsonm = JSONManager()
+            jsonm.jprint(body)
+            icn_json = jsonm.read(body)
+            if (icn_json == -1):
+                return self.servererror(self.SERVER_ERROR_PARSE_JSON)
+            #check auth
+            if not (icn_json["user"]==self.alloweduser and icn_json["token"]==self.allowedtoken):
+                return self.unauthorised()
+
+            try:
+                self.filemg.set_value('icnendpoint', icn_json["icnendpoint"])
+            except (ValueError, KeyError, TypeError):
+                return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
+
+            #everything went fine
+            response_body = json.dumps({"Message":"ICN config Finished"})
+            self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            self.configurationstatus["icn"] = "True"
             return [response_body]
         else:
             return self.not_found()
