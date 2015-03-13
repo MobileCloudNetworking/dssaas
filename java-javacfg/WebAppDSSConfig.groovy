@@ -12,14 +12,12 @@ hibernate {
 // environment specific settings
 environments {
     production {
-		//example = "http://localhost"
-		DSS.MCRAPI.url = "DSSMCRAPIURL"
                 //example = "false"
         SERVICE.CDN.ENABLED = "SERVICECDNENABLED"
                 //example = "false"
         SERVICE.ICN.ENABLED = "SERVICEICNENABLED"
                 //example = "http://localhost"
-        SERVICE.CDN.ENABLED = "DSSMCRAPIURL"
+        DSS.MCRAPI.url = "DSSMCRAPIURL"
 		//example = "8081"
         DSS.MCRAPI.port = "DSSMCRAPIPORT"
 		//example = "sysadmin"
