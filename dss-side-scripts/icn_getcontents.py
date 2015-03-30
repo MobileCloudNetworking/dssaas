@@ -62,9 +62,15 @@ class IcnContentManager:
     def get_file_from_icn(self, filename, prefix, http_server_path):
         ret_code = -1
         if filename != "" and prefix != "":
-            LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccngetfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + http_server_path + filename)
-            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccngetfile', '-v', 'ccnx:/' + prefix + '/' + filename, http_server_path + filename])
-            #ret_code = 0
+            #Using java client
+            #LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccngetfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + http_server_path + filename)
+            #ret_code = call(['/home/ubuntu/ccnxdir/bin/ccngetfile', '-v', 'ccnx:' + prefix + '/' + filename, http_server_path + filename])
+
+            #Using C client
+            f_handler = open(http_server_path + filename, "w")
+            LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + http_server_path + filename)
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
+            #f_handler.close()
         return ret_code
 
     def remove_file(self, filename, http_server_path):
