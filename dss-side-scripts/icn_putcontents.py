@@ -9,6 +9,7 @@ import time
 from subprocess import call
 import sys
 import os
+import httplib2 as http
 
 def config_logger(log_level=logging.DEBUG):
     logging.basicConfig(format='%(levelname)s %(asctime)s: %(message)s',
@@ -43,25 +44,67 @@ class IcnContentManager:
             #ret_code = 0
         return ret_code
 
+    def doRequest(self, target_url, req_type, json_data):
+        response_status = 0
+        while (response_status < 200 or response_status >= 400):
+            time.sleep(1)
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+            try:
+                h = http.Http()
+                h.timeout = 30
+
+                LOG.debug("Sending request to:" + target_url)
+                response, content = h.request(target_url, req_type, json_data, headers)
+            except Exception as e:
+                LOG.debug("Handled " + target_url + " exception." + str(e))
+                continue
+            response_status = int(response.get("status"))
+            LOG.debug("response status is:" + str(response_status) + " Content: " + str(content))
+            if (response_status < 200 or response_status >= 400):
+                continue
+            content_dict = json.loads(content)
+            return content_dict
+
 if __name__ == "__main__":
     total = len(sys.argv)
-    if (total < 1):#should be impossible to happen
-        print ("Usage: python icn_getcontents.py [<FILE_REPOSITORY_PATH> default: ./files] [<ICN_PREFIX> default: /dss]")
+    if (total < 2):#should be impossible to happen
+        print ("Usage: python icn_getcontents.py <ICN_END_POINT> [<FILE_REPOSITORY_PATH> default: ./files] [<ICN_PREFIX> default: /dss]")
         sys.exit(1)
 
+    icn_endpoint = sys.argv[1]
+    LOG.debug("ICN endpoint set to: " + icn_endpoint)
+
     try:
-        repo_path = sys.argv[1]
+        repo_path = sys.argv[2]
     except:
         repo_path = './files'
     LOG.debug("URL to poll set to: " + repo_path)
 
     try:
-        icn_prefix = sys.argv[2]
+        icn_prefix = sys.argv[3]
     except:
         icn_prefix = '/dss'
     LOG.debug("ICN prefix set to: " + icn_prefix)
 
     cntManager = IcnContentManager()
+
+    #SO push DSS prefix in ICN network
+    resp = cntManager.doRequest('http://' + icn_endpoint + '/ccnx/api/v1.0/endpoints/server','get','')
+    LOG.debug("ICN get ICN server endpoints response is:" + str(resp)  ,'','')
+
+    if len(resp) <= 0:
+        LOG.debug("No icn server found. Now we exit ...")
+        sys.exit(1)
+
+    for item in resp:
+        ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/dss','tcp',item["public_ip"],'9695'])
+        LOG.debug("ICN prefix route return code for " + item + "is " + ret_code)
+        ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/ccnx.org','tcp',item["public_ip"],'9695'])
+        LOG.debug("ICN ccnx.org route return code for " + item + "is " + ret_code)
+
     oldCntList =[]
     while 1:
         cntList = cntManager.generate_contentlist(repo_path)

@@ -268,6 +268,11 @@ class Application:
             #everything went fine
             response_body = json.dumps({"Message":"ICN config Finished"})
             self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            if 'mcr' in socket.gethostname() and self.icn_enabled == 'true':
+                ret_code = call(['nohup', 'python', 'icn_putcontents.py', '&'])
+                LOG.debug("icn python run script returned : " + str(ret_code))
+            else:
+                LOG.debug("Not an MCR host or ICN service not enabled")
             self.configurationstatus["icn"] = "True"
             return [response_body]
         else:
