@@ -64,7 +64,14 @@ class IcnContentManager:
         if filename != "" and prefix != "":
             LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccngetfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + http_server_path + filename)
             ret_code = call(['/home/ubuntu/ccnxdir/bin/ccngetfile', '-v', 'ccnx:/' + prefix + '/' + filename, http_server_path + filename])
-            ret_code = 0
+            #ret_code = 0
+        return ret_code
+
+    def remove_file(self, filename, http_server_path):
+        ret_code = -1
+        if filename != "":
+            LOG.debug("Running command: " + 'rm ' + http_server_path + filename)
+            ret_code = call(['rm', http_server_path + filename])
         return ret_code
 
 if __name__ == "__main__":
@@ -100,9 +107,20 @@ if __name__ == "__main__":
                     LOG.debug("Downloading file " + cntList[i])
                     ret_code = cntManager.get_file_from_icn(cntList[i], icn_prefix, http_server_path)
                     if ret_code == 0:
+                        LOG.debug("File " + cntList[i] + " successfully downloaded.")
                         i += 1
                 else:
                     LOG.debug("File " + cntList[i] + " has been already downloaded.")
+                    i += 1
+            i = 0
+            while i < len(oldCntList):
+                if oldCntList[i] not in cntList:
+                    LOG.debug("Removing file " + oldCntList[i])
+                    ret_code = cntManager.remove_file(oldCntList[i], http_server_path)
+                    if ret_code == 0:
+                        LOG.debug("File " + oldCntList[i] + " successfully removed.")
+                        i += 1
+                else:
                     i += 1
             LOG.debug("Contentlist process complete. Next poll in 30 seconds ...")
             oldCntList = cntList
