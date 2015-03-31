@@ -93,17 +93,17 @@ if __name__ == "__main__":
 
     #SO push DSS prefix in ICN network
     resp = cntManager.doRequest('http://' + icn_endpoint + '/ccnx/api/v1.0/endpoints/server','get','')
-    LOG.debug("ICN get ICN server endpoints response is:" + str(resp)  ,'','')
+    LOG.debug("ICN get ICN server endpoints response is:" + str(resp))
 
     if len(resp) <= 0:
         LOG.debug("No icn server found. Now we exit ...")
         sys.exit(1)
 
-    for item in resp:
+    for item in resp["routers"]:
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/dss','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN prefix route return code for " + item + "is " + ret_code)
+        LOG.debug("ICN prefix route return code for " + item["public_ip"] + "is " + str(ret_code))
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/ccnx.org','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN ccnx.org route return code for " + item + "is " + ret_code)
+        LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + "is " + str(ret_code))
 
     oldCntList =[]
     while 1:
