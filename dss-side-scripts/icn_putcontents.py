@@ -91,7 +91,6 @@ if __name__ == "__main__":
 
     cntManager = IcnContentManager()
 
-    #SO push DSS prefix in ICN network
     resp = cntManager.doRequest('http://' + icn_endpoint + '/ccnx/api/v1.0/endpoints/server','get','')
     LOG.debug("ICN get ICN server endpoints response is:" + str(resp))
 
