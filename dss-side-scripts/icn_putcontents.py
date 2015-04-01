@@ -100,9 +100,9 @@ if __name__ == "__main__":
 
     for item in resp["routers"]:
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/dss','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN prefix route return code for " + item["public_ip"] + "is " + str(ret_code))
+        LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/ccnx.org','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + "is " + str(ret_code))
+        LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
 
     oldCntList =[]
     while 1:
