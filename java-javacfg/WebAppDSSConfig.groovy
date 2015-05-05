@@ -5,7 +5,7 @@ dataSource {
     password = ""
 }
 hibernate {
-    cache.use_second_level_cache = true
+    cache.use_second_level_cache = false
     cache.use_query_cache = false
     cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory'
 }
@@ -48,6 +48,25 @@ environments {
             // Credentials
             username = DSS.CS.DBUsername
             password = DSS.CS.DBPassword
+            properties {
+                maxActive = 50
+                maxIdle = 25
+                minIdle = 5
+                initialSize = 5
+
+                numTestsPerEvictionRun = 3
+                maxWait = 10000
+
+                testOnBorrow = true
+                testWhileIdle = true
+                testOnReturn = true
+
+                validationQuery = "select 1"
+                validationQueryTimeout = 3
+
+                minEvictableIdleTimeMillis = 1000 * 60 * 5
+                timeBetweenEvictionRunsMillis = 1000 * 60 * 5
+            }
         }
     }
 }
