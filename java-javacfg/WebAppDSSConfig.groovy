@@ -16,7 +16,7 @@ environments {
         SERVICE.CDN.ENABLED = "SERVICECDNENABLED"
                 //example = "false"
         SERVICE.ICN.ENABLED = "SERVICEICNENABLED"
-                //example = "http://localhost"
+                //example = "localhost"
         DSS.MCRAPI.url = "DSSMCRAPIURL"
 		//example = "8081"
         DSS.MCRAPI.port = "DSSMCRAPIPORT"

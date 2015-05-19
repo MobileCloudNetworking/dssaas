@@ -893,12 +893,12 @@ class SOConfigure(threading.Thread):
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.monitor.configTrigger('More than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}>3')
+                res = self.monitor.configTrigger('More than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}>30000')
                 
             res = 0
             while (res != 1):
                 time.sleep(1)            
-                res = self.monitor.configTrigger('Less than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}<3')
+                res = self.monitor.configTrigger('Less than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}<1')
         
         writeLogFile(self.swComponent,'All triggers and items added succesfully for host: ' + targetHostName,'','')           
 
@@ -907,7 +907,7 @@ class ServiceOrchestrator(object):
     Sample SO.
     """
 
-    def __init__(self, token, tenant):
+    def __init__(self, token, tenant, isFirst = True):
         # this python thread event is used to notify the SOD that the runtime phase can execute its logic
         self.event = threading.Event()
         self.so_e = ServiceOrchestratorExecution(token, tenant, self.event)

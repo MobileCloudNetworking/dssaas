@@ -29,6 +29,7 @@ except IOError:
 #
 
 import so
+import e2eso
 
 from sdk.mcn import occi_ext
 
@@ -38,9 +39,13 @@ class MyBackend(occi_ext.Backend):
     def create(self, entity, extras):
         token = extras['token']
         tenant = extras['tenant_name']
-        self.so = so.ServiceOrchestrator(token, tenant)
-        self.so.so_e.design()
-        entity.actions = [occi_ext.DEPLOY_ACTION]
+        if not hasattr(self,'e2eso'):
+            self.e2eso = e2eso.E2EServiceOrchestrator(token, tenant)
+        else:
+            if not hasattr(self,'so'):
+                self.so = so.ServiceOrchestrator(token, tenant)
+                self.so.so_e.design()
+                entity.actions = [occi_ext.DEPLOY_ACTION]
 
     def retrieve(self, entity, extras):
         if occi_ext.DEPLOY_ACTION in entity.actions:
