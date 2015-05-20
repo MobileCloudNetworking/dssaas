@@ -1,5 +1,4 @@
-#   Copyright 2014 Zuercher Hochschule fuer Angewandte Wissenschaften
-#   Copyright (c) 2013-2015, Intel Performance Learning Solutions Ltd, Intel Corporation.
+#   Copyright 2014-2015 Zuercher Hochschule fuer Angewandte Wissenschaften
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -14,27 +13,82 @@
 #   limitations under the License.
 
 import json
+import logging
 import os
 from Queue import Queue
 import requests
-import threading
 import time
+import threading
 import uuid
 
-import DNSaaSClient
 from occi.core_model import Link, Resource
-from sdk.mcn import util
 from sdk import services
-from so import LOG
+from sdk.mcn import util
+
 
 BUNDLE_DIR = os.environ.get('OPENSHIFT_REPO_DIR', '.')
 STG_FILE = 'service_manifest.json'
 ITG_FILE = 'itg.yaml'
 
 
-# TODO use interface to be defined inside of mcn.so
-# TODO data structures used in this need revision  # SOExecution
-class E2EServiceOrchestratorExecution():
+def config_logger(log_level=logging.DEBUG):
+    logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p',
+                        log_level=log_level)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(log_level)
+    return logger
+
+LOG = config_logger()
+
+
+class Execution(object):
+    """
+    Interface to the CC methods. No decision is taken here on the service
+    """
+
+    def __init__(self, token, tenant):
+        self.token = token
+        self.tenant = tenant
+        self.resolver = Resolver(token, tenant)
+
+    def design(self):
+        raise NotImplementedError()
+
+    def deploy(self):
+        raise NotImplementedError()
+
+    def provision(self):
+        raise NotImplementedError()
+
+    def update(self, old, new, extras):
+        raise NotImplementedError()
+
+    def dispose(self):
+        raise NotImplementedError()
+
+    def state(self):
+        raise NotImplementedError()
+
+    def notify(self, entity, attributes, extras):
+        pass
+
+
+class Decision(object):
+
+    def __init__(self, so_e, tenant, token):
+        self.so_e = so_e
+        self.tenant = tenant
+        self.token = token
+
+    def run(self):
+        raise NotImplementedError()
+
+    def stop(self):
+        raise NotImplementedError()
+
+
+class Resolver():
 
     def __init__(self, token, tenant):
         self.token = token
@@ -46,11 +100,6 @@ class E2EServiceOrchestratorExecution():
         self.results_q = Queue()
         self.jobs = []
         self.service_inst_endpoints = [] # contains endpoint, type, attribs of instance
-        self.deployer = util.get_deployer(
-            self.token,
-            url_type='public',
-            tenant_name=self.tenant,
-            region=self.region)  # XXX if created once, can't do multi-region nicely
 
     def design(self):
         """
@@ -65,16 +114,15 @@ class E2EServiceOrchestratorExecution():
         self.stg['depends_on'] = self.__sm_stg_ops(self.stg['depends_on'])
 
     def __get_endpoint(self, svc_type):
-        # TODO move as part of the SM
+        # XXX note that currently all services in the service manifest must be in the same region!!!
         ep = services.get_service_endpoint(
             svc_type,
             self.token,
             tenant_name=self.tenant,
-            region=self.region)  # XXX if the region is part of the stg then we've geo-placement!
+            region=self.region)
         return ep
 
     def __sm_stg_ops(self, svc_list):
-        # TODO move as part of the SM
         # purpose: take the stg and insert valid SM endpoints, maintain the input params of service
         svc_type_endpoint = []
 
@@ -83,7 +131,7 @@ class E2EServiceOrchestratorExecution():
                 # XXX if there are more than two keys this will be a prob
                 ep = self.__get_endpoint(svc_type.keys()[0])
                 if ep is None:
-                    raise RuntimeError(svc_type.keys()[0]  +' endpoint could not be found - is the service registered?')
+                    raise RuntimeError(svc_type.keys()[0] + ' endpoint could not be found - is the service registered?')
                 LOG.info('* Service type: ' + svc_type.keys()[0].__repr__() + ' is instantiated at: ' + ep)
 
                 # maintain inputs dict
@@ -96,12 +144,11 @@ class E2EServiceOrchestratorExecution():
                 }
                 svc_type_endpoint.append(type_ep)
             else:
-                LOG.info('stop feeding me crap!')  # TODO better exception
+                LOG.info('stop feeding me crap!')
                 raise RuntimeError('stop feeding me crap!')
 
         return svc_type_endpoint
 
-    # XXX this should be moved into a "workflow" like library under the mcn.so namespace
     # deploy: only send instantiation requests
     # wait until all are complete
     # when all complete, store attributes against service type
@@ -123,20 +170,7 @@ class E2EServiceOrchestratorExecution():
             self.service_inst_endpoints.append(res)
 
         LOG.info('---> Creation of service dependencies is complete. Endpoints: ' + self.service_inst_endpoints.__repr__())
-
-        # step two: create dependent resources, while service dependencies are being instantiated
-        #           the provisioning phase should be responsible for "stitching" these together
-        # if len(self.stg['resources']) > 0:
-        #     LOG.info('Creating resources of this service...')
-        #     if self.stack_id is None:
-        #         # TODO read the location of the ITG from the STG
-        #         with open(os.path.join(BUNDLE_DIR, 'data', ITG_FILE)) as itg_content:
-        #             self.itg = itg_content.read()
-        #             itg_content.close()
-        #
-        #         self.stack_id = self.deployer.deploy(self.itg, self.token)
-
-        LOG.info('---> All services and resources are now deployed.')
+        LOG.info('---> All services are now deployed.')
         LOG.info('============ DEPLOY ============')
 
     def __deploy_services(self, services, jobs, svc_params={}):
@@ -152,10 +186,9 @@ class E2EServiceOrchestratorExecution():
         LOG.info('dependant services deployment requests ready!')
 
         # assumes that all creation requests mode (parallel|serial) are managed by DeployTask
-        # TODO some throttling may be needed here - allow only 5 and then wait X secs to allow the next batch
+        # XXX some throttling may be needed here - allow only 5 and then wait X secs to allow the next batch
         for job in jobs:
             job.start()
-            # time.sleep(5)
 
         LOG.info('Dependant services deployment requests sent!')
 
@@ -191,31 +224,33 @@ class E2EServiceOrchestratorExecution():
 
         LOG.info('============ PROVISION ============')
 
-        # XXX dirty hack - provision the DNS service in advance - will need monitoring ep
-        t_mon_ep = ''
-        for svc_iep in self.service_inst_endpoints:
-            if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#maas':
-                t_mon_ep = svc_iep[0]['location']
-                break
-        for svc_iep in self.service_inst_endpoints:
-            if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas':
-                heads = {'Content-type': 'text/occi',
-                         'Accept': 'application/occi+json',
-                         'X-Auth-Token': self.token,
-                         'X-Tenant-Name': self.tenant}
-                r = requests.get(t_mon_ep, headers=heads)
-                r = json.loads(r.content)
-                mon_ep = r['attributes']['mcn.endpoint.maas']
-                heads['X-OCCI-Attribute'] = 'mcn.endpoint.maas="' + mon_ep + '"'
-                r = requests.post(svc_iep[0]['location'], headers=heads)
-                r.raise_for_status()
-                break
+        # dirty hack - provision the DNS service in advance - will need monitoring ep
+        # t_mon_ep = ''
+        # for svc_iep in self.service_inst_endpoints:
+        #     if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#maas':
+        #         t_mon_ep = svc_iep[0]['location']
+        #         break
+        # for svc_iep in self.service_inst_endpoints:
+        #     if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas':
+        #         heads = {'Content-type': 'text/occi',
+        #                  'Accept': 'application/occi+json',
+        #                  'X-Auth-Token': self.token,
+        #                  'X-Tenant-Name': self.tenant}
+        #         r = requests.get(t_mon_ep, headers=heads)
+        #         r = json.loads(r.content)
+        #         mon_ep = r['attributes']['mcn.endpoint.maas']
+        #         heads['X-OCCI-Attribute'] = 'mcn.endpoint.maas="' + mon_ep + '"'
+        #         r = requests.post(svc_iep[0]['location'], headers=heads)
+        #         r.raise_for_status()
+        #         break
 
         update_jobs = []
         svc_reps = self.__get_services_rep(live)
 
-        # XXX argh!!!! more dirty hacks!!!
-        self.post_provision(svc_reps)
+        # argh!!!! more dirty hacks!!!
+        # this is to be removed, but
+        # TODO pre and post operations should be supported for lifecycle
+        # self.post_provision(svc_reps)
 
         # get params for each service
         for svc_type, svc_rep in svc_reps.iteritems():
@@ -245,78 +280,55 @@ class E2EServiceOrchestratorExecution():
                 update_job = {'params': occi_params, 'inst_ep': svc_rep['location']}
                 update_jobs.append(update_job)
 
-        # TODO execute the updates using update_jobs
         queue = Queue()
         for update_job in update_jobs:
             pt = ProvisionTask(self.tenant, self.token, update_job, queue)
             pt.start()
 
         prov_results = []
-        # TODO wait until all provision tasks are complete
         while len(update_jobs) != len(prov_results):
             res = queue.get()
             prov_results.append(res)
 
         LOG.info('---> All services and resources are now provisioned.')
 
-        # TODO to be extracted and made general purpose so anyone can add their own
         # post-provision logic
         # self.post_provision(svc_reps)
 
         LOG.info('============ PROVISION ============')
 
-    def post_provision(self, svc_reps):
-        if 'http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas' in svc_reps:
-            # configure DNS
-            svc_loc = svc_reps['http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas']['location']
-            heads = {'Content-type': 'text/occi',
-                     'Accept': 'application/occi+json',
-                     'X-Auth-Token': self.token,
-                     'X-Tenant-Name': self.tenant}
-            r = requests.get(svc_loc, headers=heads)
-            r = json.loads(r.content)
-            api = r['attributes']['mcn.endpoint.api']
-            fwdr = r['attributes']['mcn.endpoint.forwarder']
-
-            LOG.debug('DNS API: ' + api)
-            LOG.debug('DNS Forwarder: ' + fwdr)
-            DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS = 'http://' + api + ':8080'
-
-            domain = 'epc.mnc001.mcc001.3gppnetwork.org'
-            LOG.info('Creating DNS Domain... ' + domain)
-            is_ready = False
-            while not is_ready:
-                result = DNSaaSClient.createDomain(domain,
-                                                   'admin@mcn.pt',
-                                                   tokenId=self.token)
-                if result == "Server API not reachable":
-                    LOG.warn('DNS Service not ready to provide service yet.')
-                    time.sleep(13)  # wait for the API to become available
-                else:
-                    is_ready = True
-                    LOG.debug('Result of create domain: ' + result.__repr__())
-
-            # LOG.info('Creating DNS A Record... ns -> ' + fwdr)
-            # res = DNSaaSClient.createRecord(domain_name=domain,
-            #                           record_name='ns',
-            #                           record_type='A',
-            #                           record_data=fwdr,
-            #                           tokenId=self.token)
-            # LOG.debug('Result of create record: ' + res.__repr__())
-            # if res == 0:
-            #     raise RuntimeError('Failure in creating record')
-            # LOG.info('Creating DNS A Record... dns -> ' + fwdr)
-            # res = DNSaaSClient.createRecord(domain_name=domain,
-            #                           record_name='dns',
-            #                           record_type='A',
-            #                           record_data=fwdr,
-            #                           tokenId=self.token)
-            # if res == 0:
-            #     raise RuntimeError('Failure in creating record')
-            # LOG.debug('Result of create record: ' + res.__repr__())
+    # def post_provision(self, svc_reps):
+    #     if 'http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas' in svc_reps:
+    #         # configure DNS
+    #         svc_loc = svc_reps['http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas']['location']
+    #         heads = {'Content-type': 'text/occi',
+    #                  'Accept': 'application/occi+json',
+    #                  'X-Auth-Token': self.token,
+    #                  'X-Tenant-Name': self.tenant}
+    #         r = requests.get(svc_loc, headers=heads)
+    #         r = json.loads(r.content)
+    #         api = r['attributes']['mcn.endpoint.api']
+    #         fwdr = r['attributes']['mcn.endpoint.forwarder']
+    #
+    #         LOG.debug('DNS API: ' + api)
+    #         LOG.debug('DNS Forwarder: ' + fwdr)
+    #         # DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS = 'http://' + api + ':8080'
+    #
+    #         domain = 'epc.mnc001.mcc001.3gppnetwork.org'
+    #         LOG.info('Creating DNS Domain... ' + domain)
+    #         is_ready = False
+    #         while not is_ready:
+    #             # result = DNSaaSClient.createDomain(domain,
+    #             #                                    'admin@mcn.pt',
+    #             #                                    tokenId=self.token)
+    #             if result == "Server API not reachable":
+    #                 LOG.warn('DNS Service not ready to provide service yet.')
+    #                 time.sleep(13)  # wait for the API to become available
+    #             else:
+    #                 is_ready = True
+    #                 # LOG.debug('Result of create domain: ' + result.__repr__())
 
     def __get_param_svc_type(self, svc_type):
-
         svc_params = []
         for req in self.stg['depends_on']:
             if req.keys()[0] == svc_type:
@@ -340,11 +352,6 @@ class E2EServiceOrchestratorExecution():
         for job in self.jobs:
             job.destroy()
 
-        # destroy the resources
-        if self.stack_id is not None:
-            LOG.info('destroying resources associated with stack id: ' + self.stack_id)
-            self.deployer.dispose(self.stack_id, self.token)
-            self.stack_id = None
         LOG.info('============ DISPOSE ============')
 
     def __get_service_dependencies(self):
@@ -426,14 +433,12 @@ class E2EServiceOrchestratorExecution():
                 # deps = self.__get_dependent_service(svc['type'], self.stg['depends_on'])
                 insts = insts + svc['location'] + ' '
         insts = insts[0:-1]
-
-        # XXX this is an internal attribute, not to be exposed by SM
         a_out['mcn.so.svcinsts'] = insts
 
         LOG.info('Attributes of E2E service: ' + a_out.__repr__())
 
         LOG.info('============ STATE ============')
-        return a_out  # , occi_links
+        return a_out
 
 
 class ProvisionTask(threading.Thread):
@@ -523,7 +528,6 @@ class ProvisionTask(threading.Thread):
         return attr_hash
 
 
-# used in an SO - place in an ext lib
 class DeployTask(threading.Thread):
     # will provision one service or an array of services.
     # if an array is presented, then these services are to be processed in series
@@ -680,35 +684,20 @@ class DeployTask(threading.Thread):
                 LOG.info('HTTP Error: should do something more here!' + err.message)
                 raise err
 
-
-class E2EServiceOrchestrator(object):
-    """
-    Sample SO.
-    """
-    def __init__(self, token, tenant_name):
-        self.so_e = E2EServiceOrchestratorExecution(token, tenant_name)
-        self.so_e.design()
-        self.so_e.deploy()
-        self.so_e.provision(live=True)
-
-        stack_output = self.so_e.state()
-        LOG.info('stack output: ' + stack_output.__repr__())
-
-'''
+# basic test
 if __name__ == '__main__':
 
-    token = '0426fb1d02614b99a4c33879c3a12680'
-    tenant = 'mcntub'
+    token = 'e383301a2ae5492ba168a9e50968eecd'
+    tenant = 'edmo'
 
-    so = E2EServiceOrchestrator(token, tenant)
-    so.so_e.design()
-    so.so_e.deploy()
-    so.so_e.provision(live=True)
+    res = Resolver(token, tenant)
+    res.design()
+    res.deploy()
+    res.provision(live=True)
 
-    # LOG.info('instantiated service dependencies: ' + so.so_e.service_inst_endpoints.__repr__())
-    # # LOG.info('instantiated resource dependencies (heat stack id): ' + so.so_e.stack_id)
-    stack_output = so.so_e.state()
+    # LOG.info('instantiated service dependencies: ' + res.service_inst_endpoints.__repr__())
+    # # LOG.info('instantiated resource dependencies (heat stack id): ' + res.stack_id)
+    stack_output = res.state()
     LOG.info('stack output: ' + stack_output.__repr__())
 
-    # so.so_e.dispose()
-'''
+    res.dispose()

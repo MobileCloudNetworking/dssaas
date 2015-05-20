@@ -1,4 +1,4 @@
-# Copyright 2014 Zuercher Hochschule fuer Angewandte Wissenschaften
+# Copyright 2014-2015 Zuercher Hochschule fuer Angewandte Wissenschaften
 # Copyright (c) 2013-2015, Intel Performance Learning Solutions Ltd, Intel Corporation.
 # All Rights Reserved.
 #
@@ -21,23 +21,22 @@ import json
 from mako.template import Template
 import os
 import random
-import requests
 import shutil
 import tempfile
 from threading import Thread
 from urlparse import urlparse
+import uuid
 
-from mcn.sm import CONFIG
-from mcn.sm import LOG
+from occi.core_model import Resource, Link
+from sm.config import CONFIG
+from sm.log import LOG
+from sm.retry_http import http_retriable_request
 
 
 HTTP = 'http://'
 
-# TODO if error report verbosely and perform recovery
-
 
 class ServiceParameters():
-    #TODO move this class into Service.py
     def __init__(self):
         self.service_params = {}
         service_params_file_path = CONFIG.get('service_manager', 'service_params', '')
@@ -187,7 +186,7 @@ class InitSO(Task):
         url = self.nburl + '/app/'
         LOG.debug('Requesting container to execute SO Bundle: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
-        r = _do_cc_request('POST', url, heads)
+        r = http_retriable_request('POST', url, headers=heads, authenticate=True)
 
         loc = r.headers.get('Location', '')
         if loc == '':
@@ -211,7 +210,7 @@ class InitSO(Task):
         headers = {'Accept': 'text/occi'}
         LOG.debug('Requesting container\'s git URL ' + url)
         LOG.info('Sending headers: ' + headers.__repr__())
-        r = _do_cc_request('GET', url, headers)
+        r = http_retriable_request('GET', url, headers=headers, authenticate=True)
 
         attrs = r.headers.get('X-OCCI-Attribute', '')
         if attrs == '':
@@ -232,9 +231,9 @@ class InitSO(Task):
     def __ensure_ssh_key(self):
         url = self.nburl + '/public_key/'
         heads = {'Accept': 'text/occi'}
-        resp = _do_cc_request('GET', url, heads)
+        resp = http_retriable_request('GET', url, headers=heads, authenticate=True)
         locs = resp.headers.get('x-occi-location', '')
-        #Split on spaces, test if there is at least one key registered
+        # Split on spaces, test if there is at least one key registered
         if len(locs.split()) < 1:
             LOG.debug('No SM SSH registered. Registering default SM SSH key.')
             occi_key_name, occi_key_content = self.__extract_public_key()
@@ -244,7 +243,7 @@ class InitSO(Task):
                                   'X-OCCI-Attribute':'occi.key.name="' + occi_key_name + '", occi.key.content="' +
                                                      occi_key_content + '"'
             }
-            _do_cc_request('POST', url, create_key_headers)
+            http_retriable_request('POST', url, headers=create_key_headers, authenticate=True)
         else:
             LOG.debug('Valid SM SSH is registered with OpenShift.')
 
@@ -368,13 +367,7 @@ class ActivateSO(Task):
 
         LOG.debug('Initialising SO with: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
-
-        try:
-            r = requests.put(url, headers=heads)
-            r.raise_for_status()
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
+        http_retriable_request('PUT', url, headers=heads)
 
 
 class DeploySO(Task):
@@ -406,19 +399,14 @@ class DeploySO(Task):
             heads['X-OCCI-Attribute'] = occi_attrs
         LOG.debug('Deploying SO with: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
-
-        try:
-            r = requests.post(url, headers=heads, params=params)
-            r.raise_for_status()
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
+        http_retriable_request('POST', url, headers=heads, params=params)
 
         self.entity.attributes['mcn.service.state'] = 'deploy'
         LOG.debug('SO Deployed ')
         return self.entity, self.extras
 
 
+# TODO this can only be executed when heat has completed!!!!
 class ProvisionSO(Task):
     def __init__(self, entity, extras):
         Task.__init__(self, entity, extras, state='provision')
@@ -439,13 +427,7 @@ class ProvisionSO(Task):
             heads['X-OCCI-Attribute'] = occi_attrs
         LOG.debug('Provisioning SO with: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
-
-        try:
-            r = requests.post(url, headers=heads, params=params)
-            r.raise_for_status()
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
+        http_retriable_request('POST', url, headers=heads, params=params)
 
         self.entity.attributes['mcn.service.state'] = 'provision'
         return self.entity, self.extras
@@ -457,6 +439,7 @@ class RetrieveSO(Task):
         Task.__init__(self, entity, extras, 'retrieve')
         repo_uri = self.entity.extras['repo_uri']
         self.host = urlparse(repo_uri).netloc.split('@')[1]
+        self.registry = self.extras['registry']
 
     def run(self):
         # example request to the SO
@@ -464,7 +447,7 @@ class RetrieveSO(Task):
         #   -H 'X-Auth-Token: '$KID \
         #   -H 'X-Tenant-Name: '$TENANT
 
-        if self.entity.attributes['mcn.service.state'] in ['activate', 'deploy', 'provision']:
+        if self.entity.attributes['mcn.service.state'] in ['activate', 'deploy', 'provision', 'update']:
             heads = {
                 'Content-Type': 'text/occi',
                 'Accept': 'text/occi',
@@ -472,13 +455,7 @@ class RetrieveSO(Task):
                 'X-Tenant-Name': self.extras['tenant_name']}
             LOG.info('Getting state of service orchestrator with: ' + self.host + '/orchestrator/default')
             LOG.info('Sending headers: ' + heads.__repr__())
-
-            try:
-                r = requests.get(HTTP + self.host + '/orchestrator/default', headers=heads)
-                r.raise_for_status()
-            except requests.HTTPError as err:
-                LOG.error('HTTP Error: should do something more here!' + err.message)
-                raise err
+            r = http_retriable_request('GET', HTTP + self.host + '/orchestrator/default', headers=heads)
 
             attrs = r.headers['x-occi-attribute'].split(', ')
             for attr in attrs:
@@ -488,8 +465,36 @@ class RetrieveSO(Task):
                         kv[1] = kv[1][1:-1]  # scrub off quotes
                     self.entity.attributes[kv[0]] = kv[1]
                     LOG.debug('OCCI Attribute: ' + kv[0] + ' --> ' + kv[1])
+
+            # Assemble the SIG
+            svcinsts = ''
+            try:
+                svcinsts = self.entity.attributes['mcn.so.svcinsts']
+                del self.entity.attributes['mcn.so.svcinsts']  # remove this, not be be used anywhere else
+            except KeyError:
+                LOG.warn('There was no service instance endpoints - ignore if not a composition.')
+                pass
+
+            if self.registry is None:
+                LOG.error('No registry!')
+
+            if len(svcinsts) > 0:
+                svcinsts = svcinsts.split()  # all instance EPs
+                for svc_loc in svcinsts:
+                    # TODO get the service instance resource representation
+                    # source resource is self.entity
+                    compos = svc_loc.split('/')
+                    key = '/' + compos[3] + '/' + compos[4]
+                    target = Resource(key, Resource.kind, [])  # target resource
+                    target.attributes['mcn.sm.endpoint'] = svc_loc
+                    self.registry.add_resource(key, target, None)
+
+                    key = '/link/'+str(uuid.uuid4())
+                    link = Link(key, Link.kind, [], self.entity, target)
+                    self.registry.add_resource(key, link, None)
+                    self.entity.links.append(link)
         else:
-            LOG.debug('Cannot GET entity as it is not in the activated, deployed or provisioned state')
+            LOG.debug('Cannot GET entity as it is not in the activated, deployed or provisioned, updated state')
 
         return self.entity, self.extras
 
@@ -532,12 +537,7 @@ class UpdateSO(Task):
         LOG.debug('Provisioning SO with: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
 
-        try:
-            r = requests.post(url, headers=heads)
-            r.raise_for_status()
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
+        http_retriable_request('POST', url, headers=heads)
 
         self.entity.attributes['mcn.service.state'] = 'update'
         return self.entity, self.extras
@@ -567,12 +567,7 @@ class DestroySO(Task):
         LOG.info('Disposing service orchestrator with: ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
 
-        try:
-            r = requests.delete(url, headers=heads)
-            r.raise_for_status()
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
+        http_retriable_request('DELETE', url, headers=heads)
 
         url = self.nburl + self.entity.identifier.replace('/' + self.entity.kind.term + '/', '/app/')
         heads = {'Content-Type': 'text/occi',
@@ -580,35 +575,6 @@ class DestroySO(Task):
                  'X-Tenant-Name': self.extras['tenant_name']}
         LOG.info('Disposing service orchestrator container via CC... ' + url)
         LOG.info('Sending headers: ' + heads.__repr__())
-        _do_cc_request('DELETE', url, heads)
+        http_retriable_request('DELETE', url, headers=heads, authenticate=True)
 
         return self.entity, self.extras
-
-
-def _do_cc_request(verb, url, heads):
-    """
-    Do a simple HTTP request.
-
-    :param verb: One of POST, DELETE, GET
-    :param url: The URL to use.
-    :param heads: The headers.
-    :return: the response headers.
-    """
-    user = CONFIG.get('cloud_controller', 'user')
-    pwd = CONFIG.get('cloud_controller', 'pwd')
-    if verb in ['POST', 'DELETE', 'GET']:
-        try:
-            if verb == 'POST':
-                r = requests.post(url, headers=heads, auth=(user, pwd))
-            elif verb == 'DELETE':
-                r = requests.delete(url, headers=heads, auth=(user, pwd))
-            elif verb == 'GET':
-                r = requests.get(url, headers=heads, auth=(user, pwd))
-
-            r.raise_for_status()
-            return r
-        except requests.HTTPError as err:
-            LOG.error('HTTP Error: should do something more here!' + err.message)
-            raise err
-    else:
-        LOG.error('Supplied verb is unknown: ' + verb)
