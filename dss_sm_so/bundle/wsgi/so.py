@@ -720,7 +720,7 @@ class SOConfigure(threading.Thread):
 
     def performICNConfig(self):
         #SO push DSS prefix in ICN network
-        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/ccnx/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
+        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
         writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
 
         result = -1
@@ -743,7 +743,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"MCR ip address is:" + mcr_ip_address  ,'','')
 
         #SO adds MCR route to ICN network
-        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/ccnx/api/v1.0/routers','POST','{"public_ip":"' + mcr_ip_address + '","hostname":"' + mcr_hostname + '","layer":"100","cell_id":"0"}')
+        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/routers','POST','{"public_ip":"' + mcr_ip_address + '","hostname":"' + mcr_hostname + '","layer":"100","cell_id":"0"}')
         writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
     
     def performLocalConfig(self):
