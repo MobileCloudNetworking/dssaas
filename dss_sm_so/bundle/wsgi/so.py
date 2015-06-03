@@ -59,6 +59,7 @@ class ServiceOrchestratorExecution():
         # Generate DSS basic template...
         self.token = token
         self.tenant_name = tenant
+        self.region_name = 'UBern'
         self.templateManager = TemplateGenerator()
         self.template = self.templateManager.getTemplate()
         self.templateUpdate = ""
@@ -84,7 +85,7 @@ class ServiceOrchestratorExecution():
         # make sure we can talk to deployer...
         writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
         print "About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name)
-        self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name)
+        self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name, region=self.region_name)
         print "Got the deployer"
     
     def design(self):
