@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# pip install paramiko zabbix_api httplib2
+pip install paramiko zabbix_api httplib2 requests
 
 echo "Installing Base Dependencies"
 curl -k -o $OPENSHIFT_DATA_DIR/dl-cache.tgz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=78068cf2a7e9d6039db590f90779f983&download'

@@ -68,6 +68,10 @@ class SOMonitor(threading.Thread):
                 for item in serverList:
                     writeLogFile(self.swComponent,item ,'','')
                     if len(item) > 1:
+                        if 'mcr' in item:
+                            self.so_d.playerCount = self.getMetric(item.replace("_","-"),"DSS.Players.CNT")
+                            writeLogFile(self.swComponent,"Number of active players: " + str(self.so_d.playerCount),'','')
+
                         res = self.getProblematicTriggers(item.replace("_","-"))
                         for trigger in res:
                             self.so_d.hostsWithIssues.append(trigger)
@@ -239,7 +243,34 @@ class SOMonitor(threading.Thread):
                     return 1
         #'Item is not added to the host yet     
         return -1
-    
+
+    def getMetric(self, hostName, itemKey):
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "item.get",
+                        "params":{
+                                  "output": "extend",
+                                  "hostids": str(hostId[0]['hostid']),
+                                  "search": {
+                                             "key_": itemKey
+                                             },
+                                  "sortfield": "name"
+                                  },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]) > 0:
+                    return content["result"][0]["lastvalue"]
+                else:
+                    return None
+        else:
+            return None
+
     def doRequestMaaS(self, method, body):
         '''
         Method to perform requests to the MaaS.
