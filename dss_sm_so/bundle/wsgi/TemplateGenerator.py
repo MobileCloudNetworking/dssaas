@@ -73,14 +73,15 @@ class TemplateGenerator:
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
         template += "  " + self.baseCmsResourceName + "_floating_ip:" + "\n"             
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
         template += '      port_id: { Ref : ' + self.baseCmsResourceName + '_port }' + "\n"
-        
+
         return template             
     
     def getBaseMcrTemplate(self):
@@ -112,7 +113,8 @@ class TemplateGenerator:
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
         template += "  mcr_server_floating_ip:" + "\n"             
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
@@ -200,7 +202,8 @@ class TemplateGenerator:
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += "\n"
