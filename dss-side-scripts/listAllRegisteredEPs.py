@@ -26,7 +26,7 @@ try:
 except:
 	auth_Url = 'http://dummy:5000/v2.0'
 
-keystone = client.Client(username=user_name,password=passwd,tenant_name=tenant_Name,auth_url=auth_Url)
+keystone = client.Client(username=user_name, password=passwd, tenant_name=tenant_Name, auth_url=auth_Url)
 
 ep_list = keystone.endpoints.list()
 
