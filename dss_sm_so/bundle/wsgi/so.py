@@ -312,8 +312,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.hostsWithIssues = []
         self.playerCount = 0
         self.decisionMapMCR = [{"More than 90% hard disk usage on {HOST.NAME}":0},
-                               {"Less than 30% hard disk usage on {HOST.NAME}":0},
-                               {"Number of active players on {HOST.NAME}":0}]
+                               {"Less than 30% hard disk usage on {HOST.NAME}":0}]
+                               #{"Number of active players on {HOST.NAME}":0}]
 
         self.decisionMapCMS = [{"More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":0},
                                {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":0}]
@@ -416,33 +416,34 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         self.numberOfScaleUpsPerformed -= 1
                         #scaleTriggered = True
                         writeLogFile(self.swComponent,"IN MCR scaleDown",'','')
-                #Back to CMS check
-                if self.lastCmsScale == 0:
-                    diff = 0
-                else:
-                    diff = int(time.time() - self.lastCmsScale)
-                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScaleThreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')
-                if item[item.keys()[0]] >= 0 and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
-                    #Calculate the player scaling situation
-                    numOfCmsNeeded = cmsCount
-                    if item.keys()[0] == "Number of active players on {HOST.NAME}":
-                        numOfCmsNeeded = int((self.playerCount/self.playerCountLimit) + 1)
-                        writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded),'','')
+            #Back to CMS check
+            if self.lastCmsScale == 0:
+                diff = 0
+            else:
+                diff = int(time.time() - self.lastCmsScale)
+            #writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScaleThreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')
+            #if item[item.keys()[0]] >= 0 and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
+            if diff > self.cmsScaleThreshold or self.lastCmsScale == 0:
+                #Calculate the player scaling situation
+                numOfCmsNeeded = cmsCount
+                #if item.keys()[0] == "Number of active players on {HOST.NAME}":
+                numOfCmsNeeded = int((self.playerCount/self.playerCountLimit) + 1)
+                writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
 
-                    #CMS scale out because more than specific number of players
-                    if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
-                        self.lastCmsScale = time.time()
-                        self.so_e.templateManager.templateToScaleOut()
-                        self.numberOfScaleOutsPerformed += 1
-                        scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
-                    #CMS scale out because less than specific number of players
-                    elif  numOfCmsNeeded < cmsCount and self.numberOfScaleOutsPerformed > 0 and cmsScaleInTriggered:
-                        self.lastCmsScale = time.time()
-                        self.so_e.templateManager.templateToScaleIn()
-                        self.numberOfScaleOutsPerformed -= 1
-                        scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
+                #CMS scale out because more than specific number of players
+                if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
+                    self.lastCmsScale = time.time()
+                    self.so_e.templateManager.templateToScaleOut()
+                    self.numberOfScaleOutsPerformed += 1
+                    scaleTriggered = True
+                    writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
+                #CMS scale out because less than specific number of players
+                elif  numOfCmsNeeded < cmsCount and self.numberOfScaleOutsPerformed > 0 and cmsScaleInTriggered:
+                    self.lastCmsScale = time.time()
+                    self.so_e.templateManager.templateToScaleIn()
+                    self.numberOfScaleOutsPerformed -= 1
+                    scaleTriggered = True
+                    writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
 
             # Call SO execution if scaling required
             writeLogFile(self.swComponent,str(scaleTriggered),'','')
