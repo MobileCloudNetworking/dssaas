@@ -421,15 +421,11 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 diff = 0
             else:
                 diff = int(time.time() - self.lastCmsScale)
-            #writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScaleThreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')
-            #if item[item.keys()[0]] >= 0 and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
-            if diff > self.cmsScaleThreshold or self.lastCmsScale == 0:
-                #Calculate the player scaling situation
-                numOfCmsNeeded = cmsCount
-                #if item.keys()[0] == "Number of active players on {HOST.NAME}":
-                numOfCmsNeeded = int((self.playerCount/self.playerCountLimit) + 1)
-                writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
 
+            #Calculate the player scaling situation
+            numOfCmsNeeded = int((float(self.playerCount)/self.playerCountLimit) + 1)
+            writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
+            if diff > self.cmsScaleThreshold or self.lastCmsScale == 0:
                 #CMS scale out because more than specific number of players
                 if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
                     self.lastCmsScale = time.time()
@@ -585,8 +581,8 @@ class SOConfigure(threading.Thread):
                 self.dns_endpoint = self.so_e.dns_endpoint
                 writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
                 #TODO: New DNS object is required
-                DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
-                self.performDNSConfig()
+                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
+                #self.performDNSConfig()
                 self.dependencyStat["DNS"] = "ready"
             time.sleep(5)
         writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
@@ -618,7 +614,7 @@ class SOConfigure(threading.Thread):
             if self.so_e.icn_endpoint != None:
                 self.icn_endpoint = self.so_e.icn_endpoint
                 #Configuring primary parameters of ICN service - empty for now
-                self.performICNConfig()
+                #self.performICNConfig()
                 writeLogFile(self.swComponent,"CDN Endpoint: " + self.icn_endpoint,'','')
                 self.dependencyStat["ICN"] = "ready"
             time.sleep(5)
