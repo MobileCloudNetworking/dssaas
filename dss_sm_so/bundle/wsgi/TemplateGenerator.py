@@ -37,6 +37,8 @@ class TemplateGenerator:
         
         self.baseCmsResourceName = ""
         self.lbNameRandom = ""
+
+        self.cmsHostToRemove = None
     
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
@@ -249,7 +251,10 @@ class TemplateGenerator:
         template += '{ Ref: ' + self.getCmsBaseName() +' }' 
         for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
             template += ', { Ref: ' + self.getCmsBaseName() +' }'
-            
+
+        self.cmsCounter = self.numberOfCmsInstances + 1
+        self.cmsHostToRemove = self.getCmsBaseName()
+
         template += ' ]' + "\n"           
         template += '      pool_id: { Ref: cms_lb_pool }' + "\n"           
         template += '      protocol_port: 80' + "\n"           

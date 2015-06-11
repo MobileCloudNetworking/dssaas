@@ -80,7 +80,7 @@ class SOMonitor(threading.Thread):
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
                 time.sleep(5)
-                
+
     #Add trigger to zabbix and update decision array            
     def configTrigger(self, tName, zName, tCondition):
         triggerName = tName
@@ -270,6 +270,29 @@ class SOMonitor(threading.Thread):
                     return None
         else:
             return None
+
+    def removeHost(self, hostName):
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "host.delete",
+                        "params":[
+                            {"hostid": str(hostId[0]['hostid'])}
+                        ],
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]["hostids"]) > 0:
+                    writeLogFile(self.swComponent,'Host successfully deleted:' + hostName, status, content)
+                    return 1
+                else:
+                    writeLogFile(self.swComponent,'Host ' + hostName + ' not found', status, content)
+        #Probably host doesn't exist or deletion failed
+        return -1
 
     def doRequestMaaS(self, method, body):
         '''

@@ -352,6 +352,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
         # Decision loop
         while(1):
+            instanceListInCaseOfScaleIn = None
             writeLogFile(self.swComponent,"Start of decision loop ...",'','')
             time.sleep(3)
             cmsCount = self.so_e.getNumberOfCmsInstances()
@@ -440,18 +441,36 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     self.numberOfScaleOutsPerformed -= 1
                     scaleTriggered = True
                     writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
+                    # Get a backup of the server name list
+                    result = -1
+                    while (result < 0):
+                        time.sleep(1)
+                        result, instanceListInCaseOfScaleIn = self.so_e.getServerNamesList()
 
             # Call SO execution if scaling required
             writeLogFile(self.swComponent,str(scaleTriggered),'','')
             if scaleTriggered == True:
                 self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
+
+                # find the deleted host from the server list backup
+                zHostToDelete = None
+                if instanceListInCaseOfScaleIn is not None:
+                    for item in instanceListInCaseOfScaleIn:
+                        if self.so_e.templateManager.cmsHostToRemove in item:
+                            zHostToDelete = item
+
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 self.so_e.update_stack()
                 #writeLogFile(self.swComponent,"Update successful",'','')
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
                 #writeLogFile(self.swComponent,"Check config stat of instances",'','')
                 # Checking configuration status of the instances after scaling
+
+                #Removing the deleted host from zabbix server
+                if zHostToDelete is not None:
+                    self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
+
                 self.checkConfigurationStats()
                 self.configure.monitor.mode = "checktriggers"
 
@@ -886,16 +905,6 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,targetHostName,'','')
         zabbixName = targetHostName.replace("_","-")
 
-        res = 0
-        while (res != 1):
-            time.sleep(1)
-            res = self.monitor.configTrigger('More than 60% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<40')
-
-        res = 0
-        while (res != 1):
-            time.sleep(1)
-            res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
-
         if "mcr" in zabbixName:
             res = 0
             while (res != 1):
@@ -929,16 +938,16 @@ class SOConfigure(threading.Thread):
             while (res != 1):
                 time.sleep(1)
                 res = self.monitor.configTrigger('Less than 30% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}>70')
+        else:
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.configTrigger('More than 60% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<40')
 
-            #res = 0
-            #while (res != 1):
-            #    time.sleep(1)
-            #    res = self.monitor.configTrigger('More than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}>30000')
-
-            #res = 0
-            #while (res != 1):
-            #    time.sleep(1)
-            #    res = self.monitor.configTrigger('Less than 3 players active on {HOST.NAME}', zabbixName, ':DSS.Players.CNT.last(0)}<1')
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
 
         writeLogFile(self.swComponent,'All triggers and items added succesfully for host: ' + targetHostName,'','')
 
