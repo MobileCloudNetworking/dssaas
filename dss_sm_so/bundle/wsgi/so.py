@@ -189,6 +189,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 time.sleep(1)
                 result = DNSaaSClient.deleteDomain(self.dssMcrDomainName, self.token)
             writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
+        # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
     def update_stack(self):
         """
