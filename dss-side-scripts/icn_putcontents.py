@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     cntManager = IcnContentManager()
 
-    resp = cntManager.doRequest('http://' + icn_endpoint + '/icnaas/api/v1.0/endpoints/server','get','')
+    resp = cntManager.doRequest(icn_endpoint + '/icnaas/api/v1.0/endpoints/server','get','')
     LOG.debug("ICN get ICN server endpoints response is:" + str(resp))
 
     if len(resp) <= 0:

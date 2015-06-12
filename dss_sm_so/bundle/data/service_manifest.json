@@ -1,6 +1,6 @@
 {
-    "service_type": "http://schemas.mobile-cloud-networking.eu/occi/sm#test-compo",
-    "service_description": "Test composed service",
+    "service_type": "http://schemas.mobile-cloud-networking.eu/occi/sm#dss",
+    "service_description": "DSS as a service",
     "service_attributes": {
         "mcn.endpoint.icnaas": "immutable",
         "mcn.endpoints.cdn.origin": "immutable",
@@ -12,5 +12,11 @@
         "mcn.cdn.id": "immutable"
     },
     "service_endpoint": "http://54.171.14.235:8888/dss/",
-    "depends_on": []
+    "depends_on":  [
+      { "http://schemas.mobile-cloud-networking.eu/occi/sm#icnaas": {
+          "inputs": [
+            "http://schemas.mobile-cloud-networking.eu/occi/sm#maas#mcn.endpoint.maas"
+          ] }
+      }
+    ]
 }

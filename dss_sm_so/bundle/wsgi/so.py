@@ -96,12 +96,14 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         Do initial design steps here.
         """
         LOG.debug('Executing design logic')
-        #self.resolver.design()
+        self.resolver.design()
 
     def deploy(self,entity):
         """
         deploy SICs.
         """
+        LOG.debug('Deploy service dependencies')
+        self.resolver.deploy()
         LOG.debug('Executing deployment logic')
         if self.stack_id is None:
             self.stack_id = self.deployer.deploy(self.template, self.token)
@@ -117,37 +119,42 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
 
         #self.event.set()
 
-    def provision(self,attributes):
+    def provision(self, entity, attrib):
         """
         (Optional) if not done during deployment - provision.
         """
-        #self.resolver.provision()
-        writeLogFile(self.swComponent,str(attributes), '', '')
-        if attributes:
-            LOG.debug('DSS SO provision - attributes')
-            writeLogFile(self.swComponent,'Got DSS SO attributes in provision', '', '')
-            #print attributes
-            if 'mcn.endpoint.maas' in attributes:
-                self.monitoring_endpoint = attributes['mcn.endpoint.maas']
+        self.resolver.provision()
+        LOG.debug('DSS SO provision - Getting EPs')
+        for ep_entity in self.resolver.service_inst_endpoints:
+            for item in ep_entity:
+                if 'mcn.endpoint.icnaas' in item['attributes']:
+                    # The endpoint includes http:// part
+                    self.icn_endpoint = item['attributes']['mcn.endpoint.icnaas']
+                    writeLogFile(self.swComponent,'ICN EP is: ' + item['attributes']['mcn.endpoint.icnaas'], '', '')
+
+        if entity.attributes:
+            writeLogFile(self.swComponent,'Got DSS SO attributes on provision call', '', '')
+            if 'mcn.endpoint.maas' in entity.attributes:
+                self.monitoring_endpoint = entity.attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.api' in attributes:
-                self.dns_endpoint = attributes['mcn.endpoint.api']
+            if 'mcn.endpoint.api' in entity.attributes:
+                self.dns_endpoint = entity.attributes['mcn.endpoint.api']
                 DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
-            if 'mcn.endpoints.cdn.mgt' in attributes:
-                self.cdn_endpoint = attributes['mcn.endpoints.cdn.mgt']
+            if 'mcn.endpoints.cdn.mgt' in entity.attributes:
+                self.cdn_endpoint = entity.attributes['mcn.endpoints.cdn.mgt']
                 writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
-            if 'mcn.endpoints.cdn.origin' in attributes:
-                self.cdn_origin = attributes['mcn.endpoints.cdn.origin']
+            if 'mcn.endpoints.cdn.origin' in entity.attributes:
+                self.cdn_origin = entity.attributes['mcn.endpoints.cdn.origin']
                 writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
-            if 'mcn.cdn.password' in attributes:
-                self.cdn_password = attributes['mcn.cdn.password']
+            if 'mcn.cdn.password' in entity.attributes:
+                self.cdn_password = entity.attributes['mcn.cdn.password']
                 writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
-            if 'mcn.cdn.id' in attributes:
-                self.cdn_global_id = attributes['mcn.cdn.id']
+            if 'mcn.cdn.id' in entity.attributes:
+                self.cdn_global_id = entity.attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
-            if 'mcn.endpoints.icn' in attributes:
-                self.icn_endpoint = attributes['mcn.endpoints.icn']
+            if 'mcn.endpoint.icnaas' in entity.attributes:
+                self.icn_endpoint = entity.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
 
         # once logic executes, deploy phase is done
@@ -228,24 +235,24 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             if 'mcn.cdn.id' in updated.attributes:
                 self.cdn_global_id = updated.attributes['mcn.cdn.id']
                 writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
-            if 'mcn.endpoints.icn' in updated.attributes:
-                self.icn_endpoint = updated.attributes['mcn.endpoints.icn']
+            if 'mcn.endpoint.icnaas' in updated.attributes:
+                self.icn_endpoint = updated.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
 
     def state(self):
         """
         Report on state.
         """
-        #resolver_state = self.resolver.state()
+        resolver_state = self.resolver.state()
         #LOG.info('Resolver state:')
         #LOG.info(resolver_state.__repr__())
         LOG.debug('Executing state retrieval logic')
         if self.stack_id is not None:
             tmp = self.deployer.details(self.stack_id, self.token)
+            if tmp.get('output', None) is not None:
+                return tmp['state'], self.stack_id, tmp['output']
 
-            return tmp['state'], self.stack_id, tmp['output']
-        else:
-            return 'Unknown', 'N/A'
+        return 'Unknown', 'N/A'
 
     # This is not part of the SOE interface
     #def update(self, updated_service):
@@ -634,8 +641,8 @@ class SOConfigure(threading.Thread):
             if self.so_e.icn_endpoint != None:
                 self.icn_endpoint = self.so_e.icn_endpoint
                 #Configuring primary parameters of ICN service - empty for now
-                #self.performICNConfig()
-                writeLogFile(self.swComponent,"CDN Endpoint: " + self.icn_endpoint,'','')
+                self.performICNConfig()
+                writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
                 self.dependencyStat["ICN"] = "ready"
             time.sleep(5)
         writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
@@ -780,7 +787,8 @@ class SOConfigure(threading.Thread):
 
     def performICNConfig(self):
         #SO push DSS prefix in ICN network
-        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
+        #resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
+        resp = self.sendRequestToSICAgent(self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
         writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
 
         result = -1
@@ -803,7 +811,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"MCR ip address is:" + mcr_ip_address  ,'','')
 
         #SO adds MCR route to ICN network
-        resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/routers','POST','{"public_ip":"' + mcr_ip_address + '","hostname":"' + mcr_hostname + '","layer":"100","cell_id":"0"}')
+        resp = self.sendRequestToSICAgent(self.icn_endpoint + '/icnaas/api/v1.0/routers','POST','{"public_ip":"' + mcr_ip_address + '","hostname":"' + mcr_hostname + '","layer":"100","cell_id":"0"}')
         writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
 
     def performLocalConfig(self):

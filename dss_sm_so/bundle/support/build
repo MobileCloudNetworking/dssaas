@@ -15,4 +15,5 @@ pip install $OPENSHIFT_DATA_DIR/sdk.tar.gz
 
 echo "Installing MCN SM SO lib"
 curl -k -o $OPENSHIFT_DATA_DIR/sm.tar.gz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=3ec7178ae3587866a0d94e27af95024b&download'
+#curl -k -o $OPENSHIFT_DATA_DIR/sm.tar.gz 'http://www.buyfun.es/sm-0.3.tar.gz'
 pip install $OPENSHIFT_DATA_DIR/sm.tar.gz
