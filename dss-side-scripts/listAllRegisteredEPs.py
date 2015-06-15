@@ -59,10 +59,14 @@ def main(argv):
     if s_id is None:
         for item in ep_list:
             print "Service ID: \"" + item._info['service_id'] + "\" Region: \"" + item._info['region'] + "\" Public URL: \"" + item._info['publicurl'] + "\" Endpoint ID: \"" + item._info['id'] + "\"\n"
+        return 1
     else:
         for item in ep_list:
             if item._info['service_id'] == s_id:
                 print "Service ID: \"" + item._info['service_id'] + "\" Region: \"" + item._info['region'] + "\" Public URL: \"" + item._info['publicurl'] + "\" Endpoint ID: \"" + item._info['id'] + "\"\n"
+                return 1
+    print "Endpoint not found."
+    return 0
 
 if __name__ == "__main__":
     main(sys.argv[1:])
