@@ -1,4 +1,4 @@
-# Copyright 2014 Zuercher Hochschule fuer Angewandte Wissenschaften
+# Copyright 2014-2015 Zuercher Hochschule fuer Angewandte Wissenschaften
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,16 +12,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from sm.service import Service
-from sm.service import MApplication
 
 __author__ = 'andy'
 
-from occi.core_model import Kind as Type
-from occi.core_model import Resource
+from sm.service import Service
+from sm.service import MApplication
 
 if __name__ == '__main__':
-    # Create a service
+
+    # Create a service...
     srv = Service(MApplication())
     # Run the service manager
     srv.run()
