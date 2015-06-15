@@ -1,6 +1,6 @@
 {
-    "service_type": "http://schemas.mobile-cloud-networking.eu/occi/sm#dss",
-    "service_description": "DSS as a service",
+    "service_type": "http://schemas.mobile-cloud-networking.eu/occi/sm#dssaas",
+    "service_description": "DSS as a service -- DSSaaS",
     "service_attributes": {
         "mcn.endpoint.icnaas": "immutable",
         "mcn.endpoints.cdn.origin": "immutable",
