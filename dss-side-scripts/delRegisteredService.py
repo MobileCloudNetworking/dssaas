@@ -24,7 +24,7 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'Usage: python delRegisteredService.py -s <ENDPOINT_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
+            print 'Usage: python delRegisteredService.py -s <SERVICE_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
             exit(0)
         elif opt in ("-u", "--username"):
             user_name = arg
