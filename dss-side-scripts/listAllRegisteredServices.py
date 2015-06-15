@@ -61,11 +61,16 @@ def main(argv):
             print "Service ID: \"" + item._info['id'] + "\" Description: \"" + item._info['description'] + "\" Type: \"" + item._info['type'] + "\"\n"
         return 1
     else:
+        service_found = 0
         for item in service_list:
             if s_name in item._info['type']:
                 print "Service ID: \"" + item._info['id'] + "\" Description: \"" + item._info['description'] + "\" Type: \"" + item._info['type'] + "\"\n"
+                service_found = 1
+
+    if service_found == 1:
         return 1
-    print "Service not found."
+    else:
+        print "Service not found."
     return 0
 
 if __name__ == "__main__":

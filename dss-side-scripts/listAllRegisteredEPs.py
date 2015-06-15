@@ -65,6 +65,7 @@ def main(argv):
             if item._info['service_id'] == s_id:
                 print "Service ID: \"" + item._info['service_id'] + "\" Region: \"" + item._info['region'] + "\" Public URL: \"" + item._info['publicurl'] + "\" Endpoint ID: \"" + item._info['id'] + "\"\n"
                 return 1
+
     print "Endpoint not found."
     return 0
 
