@@ -21,25 +21,7 @@ from occi.core_model import Kind as Type
 from occi.core_model import Resource
 
 if __name__ == '__main__':
-
-    # defines the service to offer - the service owner defines this
-    dss_svc_type = Type('http://schemas.mobile-cloud-networking.eu/occi/sm#',
-                  'dss',
-                  title='DSS as a Service - DSSaaS',
-                  attributes={
-                              'mcn.cdn.id':               '',
-                              'mcn.cdn.password':         '',
-                              'mcn.dss.mgt':              'immutable',
-                              'mcn.endpoint.maas':        '',
-                              'mcn.endpoint.api':         '',
-                              'mcn.endpoints.cdn.mgt':    '',
-                              'mcn.endpoints.cdn.origin': ''
-                              },
-                  related=[Resource.kind],
-                  actions=[])
-
     # Create a service
-    srv = Service(MApplication(), dss_svc_type)
-
+    srv = Service(MApplication())
     # Run the service manager
     srv.run()
