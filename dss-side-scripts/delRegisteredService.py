@@ -1,5 +1,5 @@
 # A piece of code to get the list of registered services on keystone
-# Execution example: python delRegisteredEP.py -e <ENDPOINT_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]
+# Execution example: python delRegisteredService.py -s <SERVICE_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]
 
 
 __author__ = 'Mohammad'
@@ -11,20 +11,20 @@ from keystoneclient.v2_0 import client
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"he:u:p:t:a:",["endpoint_id=","username=","password=","tenant_name=","auth_url="])
+        opts, args = getopt.getopt(argv,"hs:u:p:t:a:",["service_id=","username=","password=","tenant_name=","auth_url="])
     except getopt.GetoptError:
-        print 'Usage: python delRegisteredEP.py -e <ENDPOINT_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
+        print 'Usage: python delRegisteredService.py -s <SERVICE_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
         exit(0)
 
     user_name = None
     passwd = None
     tenant_name = None
     auth_url = None
-    e_id = None
+    s_id = None
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'Usage: python delRegisteredEP.py -e <ENDPOINT_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
+            print 'Usage: python delRegisteredService.py -s <ENDPOINT_ID> -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL]'
             exit(0)
         elif opt in ("-u", "--username"):
             user_name = arg
@@ -34,8 +34,8 @@ def main(argv):
             tenant_name = arg
         elif opt in ("-a", "--auth_url"):
             auth_url = arg
-        elif opt in ("-e", "--endpoint_id"):
-            e_id = arg
+        elif opt in ("-s", "--service_id"):
+            s_id = arg
 
     if user_name is None:
         user_name = 'dummy'
@@ -49,21 +49,21 @@ def main(argv):
     if auth_url is None:
         auth_url = 'http://dummy:5000/v2.0'
 
-    if e_id is None:
-        print 'Endpoint ID is mandatory!'
+    if s_id is None:
+        print 'Service ID is mandatory!'
         exit(0)
 
     keystone = client.Client(username=user_name, password=passwd, tenant_name=tenant_name, auth_url=auth_url)
 
-    ep_list = keystone.endpoints.list()
+    service_list = keystone.services.list()
 
-    for item in ep_list:
-        if item._info['id'] == e_id:
-            res = keystone.endpoints.delete(e_id)
+    for item in service_list:
+        if item._info['id'] == s_id:
+            res = keystone.services.delete(s_id)
             print res.__repr__()
             return 1
 
-    print "EP not found."
+    print "Service not found."
 
 if __name__ == "__main__":
     main(sys.argv[1:])

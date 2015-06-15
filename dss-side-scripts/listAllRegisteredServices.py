@@ -1,5 +1,5 @@
 # A piece of code to get the list of registered services on keystone
-# Execution example: python listAllRegisteredEPs.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]
+# Execution example: python listAllRegisteredServices.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]
 
 
 __author__ = 'Mohammad'
@@ -13,7 +13,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hu:p:t:a:s:",["username=","password=","tenant_name=","auth_url=","service_id="])
     except getopt.GetoptError:
-        print 'Usage: python listAllRegisteredEPs.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]'
+        print 'Usage: python listAllRegisteredServices.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]'
         exit(0)
 
     user_name = None
@@ -24,7 +24,7 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'Usage: python listAllRegisteredEPs.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]'
+            print 'Usage: python listAllRegisteredServices.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]'
             exit(0)
         elif opt in ("-u", "--username"):
             user_name = arg
@@ -54,15 +54,15 @@ def main(argv):
 
     keystone = client.Client(username=user_name, password=passwd, tenant_name=tenant_name, auth_url=auth_url)
 
-    ep_list = keystone.endpoints.list()
+    service_list = keystone.services.list()
 
     if s_id is None:
-        for item in ep_list:
-            print "Service ID: \"" + item._info['service_id'] + "\" Region: \"" + item._info['region'] + "\" Public URL: \"" + item._info['publicurl'] + "\" Endpoint ID: \"" + item._info['id'] + "\"\n"
+        for item in service_list:
+            print "Service ID: \"" + item._info['id'] + "\" Description: \"" + item._info['description'] + "\" Type: \"" + item._info['type'] + "\"\n"
     else:
-        for item in ep_list:
-            if item._info['service_id'] == s_id:
-                print "Service ID: \"" + item._info['service_id'] + "\" Region: \"" + item._info['region'] + "\" Public URL: \"" + item._info['publicurl'] + "\" Endpoint ID: \"" + item._info['id'] + "\"\n"
+        for item in service_list:
+            if item._info['id'] == s_id:
+                print "Service ID: \"" + item._info['id'] + "\" Description: \"" + item._info['description'] + "\" Type: \"" + item._info['type'] + "\"\n"
 
 if __name__ == "__main__":
     main(sys.argv[1:])
