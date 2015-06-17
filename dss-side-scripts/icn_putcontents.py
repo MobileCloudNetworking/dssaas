@@ -39,8 +39,8 @@ class IcnContentManager:
     def insert_file_to_icn(self, filename, prefix, repo_path):
         ret_code = -1
         if filename != "" and prefix != "":
-            LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccnputfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + repo_path + '/' + filename)
-            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccnputfile', '-v', 'ccnx:' + prefix + '/' + filename, repo_path + '/' + filename])
+            LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccnputfile ' + '-allownonlocal ' + 'ccnx:' + prefix + '/' + filename + ' ' + repo_path + '/' + filename)
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccnputfile', '-allownonlocal', 'ccnx:' + prefix + '/' + filename, repo_path + '/' + filename])
             #ret_code = 0
         return ret_code
 
@@ -99,8 +99,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for item in resp["routers"]:
+        LOG.debug("Executing: " + '/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/dss tcp ',item["public_ip"],' 9695')
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/dss','tcp',item["public_ip"],'9695'])
         LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
+        LOG.debug("Executing: " + '/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ',item["public_ip"],' 9695')
         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/ccnx.org','tcp',item["public_ip"],'9695'])
         LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
 
