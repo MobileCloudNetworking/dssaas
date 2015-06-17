@@ -71,7 +71,7 @@ class IcnContentManager:
 if __name__ == "__main__":
     total = len(sys.argv)
     if (total < 2):#should be impossible to happen
-        print ("Usage: python icn_getcontents.py <ICN_END_POINT> [<FILE_REPOSITORY_PATH> default: ./files] [<ICN_PREFIX> default: /dss]")
+        print ("Usage: python icn_putcontents.py <ICN_END_POINT> [<FILE_REPOSITORY_PATH> default: ./files] [<ICN_PREFIX> default: /dss]")
         sys.exit(1)
 
     icn_endpoint = sys.argv[1]
