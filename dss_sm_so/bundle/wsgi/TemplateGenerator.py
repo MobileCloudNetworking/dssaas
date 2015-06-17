@@ -16,11 +16,11 @@ class TemplateGenerator:
         self.private_network_id = "a8cbfc3c-42d0-4431-86ec-4597d38bbb52"
         self.private_sub_network_id = "70506734-0b95-4a8e-b8b7-4a8a54330db0"
         
-        self.key_name = "bart-key"
+        self.key_name = "bern-key"
         self.cdn_enable = 'false'
         self.icn_enable = 'true'
-        self.dss_cms_image_name = 'DSS-IMAGE-FINAL'
-        self.dss_mcr_image_name = 'DSS-IMAGE-FINAL'
+        self.dss_cms_image_name = 'DSS-ICN-IMG-S'
+        self.dss_mcr_image_name = 'DSS-ICN-IMG-S'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'

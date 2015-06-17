@@ -115,7 +115,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
 
         for item in listOfAllServers:
             if item == "mcn.dss.lb.endpoint":
-                entity.attributes['mcn.dss.mgt'] = 'http://' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '/WebAppDSS/'
+                entity.attributes['mcn.endpoint.dssaas'] = 'http://' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '/WebAppDSS/'
 
         #self.event.set()
 
