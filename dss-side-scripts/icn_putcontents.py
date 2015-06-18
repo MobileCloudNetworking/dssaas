@@ -110,12 +110,19 @@ if __name__ == "__main__":
                 LOG.debug("Route " + desired_route + ' not found, try to add the route:')
 
                 LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/dss tcp ' + item["public_ip"] + ' 9695')
-                ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/dss', 'tcp', item["public_ip"], '9695'])
-                LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
+                #ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/dss', 'tcp', item["public_ip"], '9695'])
+                first_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:' + icn_prefix + ' tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                for line in first_route_out_p.stdout:
+                    LOG.debug(line)
+                #LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
 
                 LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
-                ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', item["public_ip"], '9695'])
-                LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
+                #ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', item["public_ip"], '9695'])
+                second_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                for line in second_route_out_p.stdout:
+                    LOG.debug(line)
+                #LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
+            time.sleep(3)
 
     oldCntList =[]
     while 1:
