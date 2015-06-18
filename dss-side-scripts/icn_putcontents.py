@@ -6,7 +6,7 @@ __copyright__ = "Copyright 2014, SoftTelecom"
 import json
 import logging
 import time
-from subprocess import call
+from subprocess import call, Popen, PIPE, STDOUT
 import sys
 import os
 import httplib2 as http
@@ -99,12 +99,23 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for item in resp["routers"]:
-        LOG.debug("Executing: " + '/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/dss tcp ',item["public_ip"],' 9695')
-        ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/dss','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
-        LOG.debug("Executing: " + '/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ',item["public_ip"],' 9695')
-        ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc','add','ccnx:/ccnx.org','tcp',item["public_ip"],'9695'])
-        LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
+        route_added = False
+        while route_added is not True:
+            desired_route = item["public_ip"] + ':9695'
+            out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndstatus', stdout=PIPE, stderr=STDOUT, bufsize=1)
+            for line in out_p.stdout:
+                if desired_route in line:
+                    route_added = True
+            if route_added == False:
+                LOG.debug("Route " + desired_route + ' not found, try to add the route:')
+
+                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/dss tcp ' + item["public_ip"] + ' 9695')
+                ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/dss', 'tcp', item["public_ip"], '9695'])
+                LOG.debug("ICN prefix route return code for " + item["public_ip"] + " is " + str(ret_code))
+
+                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
+                ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', item["public_ip"], '9695'])
+                LOG.debug("ICN ccnx.org route return code for " + item["public_ip"] + " is " + str(ret_code))
 
     oldCntList =[]
     while 1:
