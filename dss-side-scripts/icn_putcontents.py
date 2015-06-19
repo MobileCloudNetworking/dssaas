@@ -98,6 +98,27 @@ if __name__ == "__main__":
         LOG.debug("No icn server found. Now we exit ...")
         sys.exit(1)
 
+
+    icn_route_config = None
+    try:
+        icn_route_config = open('/root/.ccnx/ccnd.conf', 'w')
+        for item in resp["routers"]:
+            icn_route_config.write('add ccnx:/dss tcp ' + item["public_ip"] + ' 9695')
+            icn_route_config.write("\n")
+            icn_route_config.write('add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
+            icn_route_config.write("\n")
+        icn_route_config.close()
+        out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc -f /root/.ccnx/ccnd.conf', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+        for line in out_p.stdout:
+            LOG.debug(line)
+    except IOError as e:
+        LOG.debug("I/O error({0}): {1}".format(e.errno, e.strerror))
+    except:
+        LOG.debug("Unknown error while creating CCNX route config file")
+
+    if icn_route_config is None:
+        sys.exit(1)
+
     for item in resp["routers"]:
         route_added = False
         while route_added is not True:
