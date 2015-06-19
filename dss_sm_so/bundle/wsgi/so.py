@@ -106,7 +106,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.resolver.deploy()
         LOG.debug('Executing deployment logic')
         if self.stack_id is None:
-            self.stack_id = self.deployer.deploy(self.template, self.token)
+            self.stack_id = self.deployer.deploy(self.template, self.token, name='DSSaaS-Stack')
 
         result = -1
         while(result == -1):
