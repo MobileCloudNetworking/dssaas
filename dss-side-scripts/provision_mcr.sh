@@ -16,6 +16,8 @@ corsalloworiginregex="$6"
 servicecdnenabled="$7"
 serviceicnenabled="$8"
 icnport="$9"
+machinehostname=`hostname`
+machinepublicip="$1"
 corsurlpattern="/api/contents/\*"
 echo $4 > /home/ubuntu/dbhost
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
@@ -31,6 +33,8 @@ sed -i.bak "s,DSSMCRAPIDBUSERNAME,$databaseusername,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,DSSMCRAPIDBPASSWORD,$databasepassword,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,MCRAPICONTENTMANAGEMENTPATTERN,$corsurlpattern,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,DSSCMSSERVER,$corsalloworiginregex,g" DSSMCRAPIConfig.groovy
+sed -i.bak "s,MCRHOSTNAME,$machinehostname,g" icn_putcontents.py
+sed -i.bak "s,MCRPUBLICIP,$machinepublicip,g" icn_putcontents.py
 cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
 if [[ $serviceicnenabled == "true" ]]

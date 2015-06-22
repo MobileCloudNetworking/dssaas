@@ -106,7 +106,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.resolver.deploy()
         LOG.debug('Executing deployment logic')
         if self.stack_id is None:
-            self.stack_id = self.deployer.deploy(self.template, self.token, name='DSSaaS-Stack')
+            self.stack_id = self.deployer.deploy(self.template, self.token, name='dssaas')
 
         result = -1
         while(result == -1):
@@ -786,33 +786,7 @@ class SOConfigure(threading.Thread):
         pass
 
     def performICNConfig(self):
-        #SO push DSS prefix in ICN network
-        #resp = self.sendRequestToSICAgent('http://' + self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
-        resp = self.sendRequestToSICAgent(self.icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:/dss","balancing":"0"}')
-        writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
-
-        result = -1
-        while (result < 0):
-            time.sleep(1)
-            result, serverList = self.so_e.getServerNamesList()
-
-        for item in serverList:
-            if "mcr_server" in item:
-                mcr_hostname = item
-                writeLogFile(self.swComponent,"MCR hostname is:" + mcr_hostname  ,'','')
-
-        result = -1
-        while (result < 0):
-            time.sleep(1)
-            result, self.instances = self.so_e.getServerIPs()
-            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
-
-        mcr_ip_address = self.instances["mcn.dss.mcr.endpoint"]
-        writeLogFile(self.swComponent,"MCR ip address is:" + mcr_ip_address  ,'','')
-
-        #SO adds MCR route to ICN network
-        resp = self.sendRequestToSICAgent(self.icn_endpoint + '/icnaas/api/v1.0/routers','POST','{"public_ip":"' + mcr_ip_address + '","hostname":"' + mcr_hostname + '","layer":"100","cell_id":"0"}')
-        writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
+        pass
 
     def performLocalConfig(self):
         result = -1
@@ -828,9 +802,9 @@ class SOConfigure(threading.Thread):
                 self.provisionInstance(self.instances[item],self.instances)
 
         # At this point we are sure that ccnd functionality has been run on MCR
-        writeLogFile(self.swComponent,"Pushing dss prefix to and adding MCR as router for ICN network",'','')
-        self.performICNConfig()
-        writeLogFile(self.swComponent,"ICN config done.",'','')
+        #writeLogFile(self.swComponent,"Pushing dss prefix to and adding MCR as router for ICN network",'','')
+        #self.performICNConfig()
+        #writeLogFile(self.swComponent,"ICN config done.",'','')
         # Adding the prefix and adding MCR as a router in ICN network is done
 
         writeLogFile(self.swComponent,"Entering the loop to create JSON config file for each instance ...",'','')
