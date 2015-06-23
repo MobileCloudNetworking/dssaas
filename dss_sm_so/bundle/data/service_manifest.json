@@ -11,7 +11,7 @@
         "mcn.cdn.password": "immutable",
         "mcn.cdn.id": "immutable"
     },
-    "service_endpoint": "http://54.171.14.235:8888/dss/",
+    "service_endpoint": "http://54.171.14.235:8888/dssaas/",
     "depends_on":  [
       { "http://schemas.mobile-cloud-networking.eu/occi/sm#icnaas": {
           "inputs": [
