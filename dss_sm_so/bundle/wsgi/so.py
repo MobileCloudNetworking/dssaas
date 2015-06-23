@@ -131,6 +131,12 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     # The endpoint includes http:// part
                     self.icn_endpoint = item['attributes']['mcn.endpoint.icnaas']
                     writeLogFile(self.swComponent,'ICN EP is: ' + item['attributes']['mcn.endpoint.icnaas'], '', '')
+                if 'mcn.endpoint.maas' in item['attributes']:
+                    self.monitoring_endpoint = item['attributes']['mcn.endpoint.maas']
+                    writeLogFile(self.swComponent,'MON EP is: ' + item['attributes']['mcn.endpoint.maas'], '', '')
+                if 'mcn.endpoint.api' in item['attributes']:
+                    self.dns_endpoint = item['attributes']['mcn.endpoint.api']
+                    writeLogFile(self.swComponent,'DNS EP is: ' + item['attributes']['mcn.endpoint.api'], '', '')
 
         if entity.attributes:
             writeLogFile(self.swComponent,'Got DSS SO attributes on provision call', '', '')
@@ -164,8 +170,8 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         """
         Dispose SICs.
         """
-        #LOG.info('Disposing of 3rd party service instances...')
-        #self.resolver.dispose()
+        LOG.info('Disposing of 3rd party service instances...')
+        self.resolver.dispose()
         LOG.debug('Executing disposal logic')
         if self.stack_id is not None:
             self.deployer.dispose(self.stack_id, self.token)
@@ -198,6 +204,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
         # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
+
     def update_stack(self):
         """
         update SICs.
@@ -641,7 +648,7 @@ class SOConfigure(threading.Thread):
             if self.so_e.icn_endpoint != None:
                 self.icn_endpoint = self.so_e.icn_endpoint
                 #Configuring primary parameters of ICN service - empty for now
-                #self.performICNConfig() --> This is moved to performLocal config as it depends on some local tasks
+                self.performICNConfig()
                 writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
                 self.dependencyStat["ICN"] = "ready"
             time.sleep(5)
@@ -800,12 +807,6 @@ class SOConfigure(threading.Thread):
         for item in self.instances:
             if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint":
                 self.provisionInstance(self.instances[item],self.instances)
-
-        # At this point we are sure that ccnd functionality has been run on MCR
-        #writeLogFile(self.swComponent,"Pushing dss prefix to and adding MCR as router for ICN network",'','')
-        #self.performICNConfig()
-        #writeLogFile(self.swComponent,"ICN config done.",'','')
-        # Adding the prefix and adding MCR as a router in ICN network is done
 
         writeLogFile(self.swComponent,"Entering the loop to create JSON config file for each instance ...",'','')
         for item in self.instances:
