@@ -353,18 +353,30 @@ class Application:
             body = self.environ['wsgi.input'].read(length)
             jsonm = JSONManager()
             jsonm.jprint(body)
-            mon_json = jsonm.read(body)
-            if (mon_json == -1):
+            dns_json = jsonm.read(body)
+            if (dns_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
-            if not (mon_json["user"]==self.alloweduser and mon_json["token"]==self.allowedtoken):
+            if not (dns_json["user"]==self.alloweduser and dns_json["token"]==self.allowedtoken):
                 return self.unauthorised()
             #create query
             try:
-                self.filemg.set_value('dnsendpoint', mon_json["dnsendpoint"])
-                self.filemg.set_value('dssdomainname', mon_json["dssdomainname"])
+                self.filemg.set_value('dnsendpoint', dns_json["dnsendpoint"])
+                self.filemg.set_value('dssdomainname', dns_json["dssdomainname"])
             except (ValueError, KeyError, TypeError):
                 return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
-            
+
+            try:
+                resolve_conf = open('/etc/resolvconf/resolv.conf.d/base', 'w')
+                resolve_conf.write('nameserver ' + dns_json["dnsendpoint"])
+                resolve_conf.write("\n")
+                resolve_conf.close()
+            except IOError as e:
+                LOG.debug("I/O error({0}): {1}".format(e.errno, e.strerror))
+            except:
+                LOG.debug("Unknown error while reading resolv.conf file")
+
+            ret_code = os.system('resolvconf -u')
+            LOG.debug("resolvconf command returned : " + str(ret_code))
             #everything went fine
             response_body = json.dumps({"Message":"DNS config Finished"})
             self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
