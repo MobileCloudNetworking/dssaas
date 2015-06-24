@@ -6,7 +6,7 @@ import random
 import string
 import sys
 import os
-from subprocess import call
+from subprocess import call, Popen, PIPE, STDOUT
 import httplib
 import socket
 
@@ -179,20 +179,21 @@ class Application:
             #check auth
             if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
                 return self.unauthorised()
-            
-            if 'mcr' in socket.gethostname():
-                ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port])
-                LOG.debug("Provision script returned : " + str(ret_code))
-            else:
-                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com",self.icn_enabled])
-                LOG.debug("Provision script returned : " + str(ret_code))
-            if ret_code != 1:
+            try:
+                if 'mcr' in socket.gethostname():
+                    out_p = Popen(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    for line in out_p.stdout:
+                        LOG.debug(line)
+                else:
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com",self.icn_enabled], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    for line in out_p.stdout:
+                        LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})
                 self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
                 LOG.debug(str([response_body]))
                 self.configurationstatus["provision"] = "True"
                 return [response_body]
-            else:
+            except:
                 return self.servererror(self.SERVER_ERROR_CALL_PROVISION_SCRIPT)
         else:
             return self.not_found()
