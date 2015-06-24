@@ -74,8 +74,12 @@ if __name__ == "__main__":
         print ("Usage: python icn_putcontents.py <ICN_END_POINT> [<FILE_REPOSITORY_PATH> default: ./files] [<ICN_PREFIX> default: /dss]")
         sys.exit(1)
 
-    icn_endpoint = sys.argv[1]
-    LOG.debug("ICN endpoint set to: " + icn_endpoint)
+    try:
+        icn_endpoint = sys.argv[1]
+        LOG.debug("ICN endpoint set to: " + icn_endpoint)
+    except:
+        LOG.debug("ICN endpoint is a mandatory parameter!")
+        sys.exit(1)
 
     try:
         repo_path = sys.argv[2]

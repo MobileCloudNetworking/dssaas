@@ -185,7 +185,7 @@ class Application:
                     for line in out_p.stdout:
                         LOG.debug(line)
                 else:
-                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://dummyAAA.com",self.icn_enabled], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile.mcn.local:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
                     for line in out_p.stdout:
                         LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})

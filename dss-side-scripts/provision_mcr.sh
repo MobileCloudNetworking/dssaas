@@ -39,10 +39,7 @@ cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
 if [[ $serviceicnenabled == "true" ]]
 then
-    nohup /home/ubuntu/ccnxdir/bin/ccnd &
-    #nohup /home/ubuntu/ccnxdir/bin/ccnr &
-    #nohup python /home/ubuntu/addicnroutes.py $databasehost $databaseusername $databasepassword $databasename $icnport &
-    #nohup python icn_putcontents.py &
+    service myccnd start
 fi
 
 #Create db if required

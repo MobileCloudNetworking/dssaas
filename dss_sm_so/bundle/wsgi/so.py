@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 """
-Sample SO.
+DSS SO.
 """
 
 import logging
@@ -68,23 +68,24 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.templateUpdate = ""
         self.stack_id = None
         #Variables of other services
-        #self.dns_endpoint = "8.8.8.8"
         self.dns_endpoint = None
-        self.dssCmsDomainName = "mgt.dssaas.mcndemo.org"
-        self.dssMcrDomainName = "mcr.dssaas.mcndemo.org"
-        self.dssCmsRecordName = "dsslb"
-        self.dssMcrRecordName = "dssmcr"
-        #self.monitoring_endpoint = "54.77.253.117"
+        self.dssCmsDomainName = "dssaas.mcndemo.org"
+        self.dssMcrDomainName = "dssaas.mcndemo.org"
+        self.dssCmsRecordName = "cms"
+        self.dssMcrRecordName = "mcr"
         self.monitoring_endpoint = None
-        #self.cdn_password = 'password'
-        self.cdn_password = None
-        #self.cdn_endpoint = '160.85.4.104:8182'
-        self.cdn_endpoint = None
         self.icn_endpoint = None
+        # CDN Related Variables
+        #self.cdn_password = 'password'
+        #self.cdn_password = None
+        #self.cdn_endpoint = '160.85.4.104:8182'
+        #self.cdn_endpoint = None
         #self.cdn_global_id = 'd3e30c11-8a4d-41b4-b0c0-17de168de2a9'
-        self.cdn_global_id = None
+        #self.cdn_global_id = None
         #self.cdn_origin = '160.85.4.103:8181'
-        self.cdn_origin = None
+        #self.cdn_origin = None
+        #------------------------
+
         # make sure we can talk to deployer...
         writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
         print "About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name)
@@ -138,6 +139,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     self.dns_endpoint = item['attributes']['mcn.endpoint.api']
                     writeLogFile(self.swComponent,'DNS EP is: ' + item['attributes']['mcn.endpoint.api'], '', '')
 
+        # These attributes are more likely to be set in update call rather than provision
         if entity.attributes:
             writeLogFile(self.swComponent,'Got DSS SO attributes on provision call', '', '')
             if 'mcn.endpoint.maas' in entity.attributes:
@@ -337,8 +339,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.configure = SOConfigure(self.so_e,self)
 
         # Scaling guard time
-        self.cmsScaleThreshold = 1800 #in seconds
-        self.mcrScaleThreshold = 1800 #in seconds
+        self.cmsScaleThreshold = 1200 #in seconds
+        self.mcrScaleThreshold = 1200 #in seconds
 
         # Number of players needed for each scale out/in
         self.playerCountLimit = 5.0
@@ -477,15 +479,13 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 self.so_e.update_stack()
-                #writeLogFile(self.swComponent,"Update successful",'','')
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
-                #writeLogFile(self.swComponent,"Check config stat of instances",'','')
-                # Checking configuration status of the instances after scaling
 
                 #Removing the deleted host from zabbix server
                 if zHostToDelete is not None:
                     self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
 
+                # Checking configuration status of the instances after scaling
                 self.checkConfigurationStats()
                 self.configure.monitor.mode = "checktriggers"
 
@@ -590,17 +590,17 @@ class SOConfigure(threading.Thread):
         self.monitoring_endpoint = None
         self.monitor = None
 
-        self.cdn_password = None
-        self.cdn_endpoint = None
-        self.cdn_global_id = None
-        self.cdn_origin = None
+        #self.cdn_password = None
+        #self.cdn_endpoint = None
+        #self.cdn_global_id = None
+        #self.cdn_origin = None
 
         self.icn_endpoint = None
 
 
         self.timeout = 10
 
-        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"not ready","ICN":"not ready"}
+        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready"}
 
     def run(self):
         #Pushing DNS configurations to DNS SICs
@@ -626,33 +626,34 @@ class SOConfigure(threading.Thread):
         # And don't forget to set its stat to "Ready"                                  #
         # self.dependencyStat["CDN"] = "ready"                                         #
         #------------------------------------------------------------------------------#
-        writeLogFile(self.swComponent,"Waiting for CDN config info ...",'','')
-        while self.dependencyStat["CDN"] != "ready":
-            if self.so_e.cdn_endpoint != None:
-                self.cdn_password = self.so_e.cdn_password
-                self.cdn_endpoint = self.so_e.cdn_endpoint
-                self.cdn_global_id = self.so_e.cdn_global_id
-                self.cdn_origin = self.so_e.cdn_origin
-                #Configuring primary parameters of CDN service - empty for now
-                self.performCDNConfig()
-                writeLogFile(self.swComponent,"CDN Origin: " + self.cdn_origin,'','')
-                writeLogFile(self.swComponent,"CDN Endpoint: " + self.cdn_endpoint,'','')
-                writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
-                writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
-                self.dependencyStat["CDN"] = "ready"
-            time.sleep(5)
-        writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
+        #writeLogFile(self.swComponent,"Waiting for CDN config info ...",'','')
+        #while self.dependencyStat["CDN"] != "ready":
+        #    if self.so_e.cdn_endpoint != None:
+        #        self.cdn_password = self.so_e.cdn_password
+        #        self.cdn_endpoint = self.so_e.cdn_endpoint
+        #        self.cdn_global_id = self.so_e.cdn_global_id
+        #        self.cdn_origin = self.so_e.cdn_origin
+        #        #Configuring primary parameters of CDN service - empty for now
+        #        self.performCDNConfig()
+        #        writeLogFile(self.swComponent,"CDN Origin: " + self.cdn_origin,'','')
+        #        writeLogFile(self.swComponent,"CDN Endpoint: " + self.cdn_endpoint,'','')
+        #        writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
+        #        writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
+        #        self.dependencyStat["CDN"] = "ready"
+        #    time.sleep(5)
+        #writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
 
-        writeLogFile(self.swComponent,"Waiting for ICN config info ...",'','')
-        while self.dependencyStat["ICN"] != "ready":
-            if self.so_e.icn_endpoint != None:
-                self.icn_endpoint = self.so_e.icn_endpoint
-                #Configuring primary parameters of ICN service - empty for now
-                self.performICNConfig()
-                writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
-                self.dependencyStat["ICN"] = "ready"
-            time.sleep(5)
-        writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
+        if self.so_e.templateManager.icn_enable == 'true':
+            writeLogFile(self.swComponent,"Waiting for ICN config info ...",'','')
+            while self.dependencyStat["ICN"] != "ready":
+                if self.so_e.icn_endpoint != None:
+                    self.icn_endpoint = self.so_e.icn_endpoint
+                    #Configuring primary parameters of ICN service - empty for now
+                    self.performICNConfig()
+                    writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
+                    self.dependencyStat["ICN"] = "ready"
+                time.sleep(5)
+            writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
 
         #---------------------------------------------------------------------------#
         # Comment the next 9 lines in case you are using SDK GET MaaS functionality #
@@ -815,6 +816,7 @@ class SOConfigure(threading.Thread):
 
         writeLogFile(self.swComponent,"Exiting the loop for JSON config file creation for all instances",'','')
 
+    # Executes the two shell scripts in the SIC which takes care of war deployment
     def provisionInstance(self, target_ip, all_ips):
         #AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
@@ -825,6 +827,7 @@ class SOConfigure(threading.Thread):
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision','POST','{"user":"SO","token":"'+ token +'","mcr_srv_ip":"'+ all_ips["mcn.dss.mcr.endpoint"] +'","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"'+ all_ips["mcn.dss.db.endpoint"] +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
 
+    # Calls to the SIC agent to complete the provisioning
     def configInstance(self, target_ip):
         #AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
@@ -834,6 +837,11 @@ class SOConfigure(threading.Thread):
         #DNS endpoint will be used later by CMS application to generate the player configuration script
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_endpoint + '","dssdomainname":"' + self.dssCmsRecordName + '.'  + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp)  ,'','')
+        #AGENT PUSH ICN EP & ACC INFO
+        #ICN data to be used by CMS for finding closest icn router
+        if self.so_e.templateManager.icn_enable == 'true':
+            resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN','POST','{"user":"SO","token":"'+ token +'","icnendpoint":"'+ self.icn_endpoint +'"}')
+            writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
         #DB info is being sent to be used by the getcdr script in zabbix custom item definitions
@@ -845,12 +853,8 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"RCB response is:" + str(resp)  ,'','')
         #AGENT PUSH CDN EP & ACC INFO
         #CDN data to be used by MCR for uploading data
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')
-        writeLogFile(self.swComponent,"CDN response is:" + str(resp)  ,'','')
-        #AGENT PUSH ICN EP & ACC INFO
-        #ICN data to be used by CMS for finding closest icn router
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN','POST','{"user":"SO","token":"'+ token +'","icnendpoint":"'+ self.icn_endpoint +'"}')
-        writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
+        #resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')
+        #writeLogFile(self.swComponent,"CDN response is:" + str(resp)  ,'','')
 
     def sendRequestToSICAgent(self, api_url, req_type, json_data):
         response_status = 0
