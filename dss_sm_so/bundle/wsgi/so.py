@@ -149,21 +149,21 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 self.dns_endpoint = entity.attributes['mcn.endpoint.api']
                 DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
-            if 'mcn.endpoints.cdn.mgt' in entity.attributes:
-                self.cdn_endpoint = entity.attributes['mcn.endpoints.cdn.mgt']
-                writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
-            if 'mcn.endpoints.cdn.origin' in entity.attributes:
-                self.cdn_origin = entity.attributes['mcn.endpoints.cdn.origin']
-                writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
-            if 'mcn.cdn.password' in entity.attributes:
-                self.cdn_password = entity.attributes['mcn.cdn.password']
-                writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
-            if 'mcn.cdn.id' in entity.attributes:
-                self.cdn_global_id = entity.attributes['mcn.cdn.id']
-                writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
             if 'mcn.endpoint.icnaas' in entity.attributes:
                 self.icn_endpoint = entity.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
+            #if 'mcn.endpoints.cdn.mgt' in entity.attributes:
+                #self.cdn_endpoint = entity.attributes['mcn.endpoints.cdn.mgt']
+                #writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
+            #if 'mcn.endpoints.cdn.origin' in entity.attributes:
+                #self.cdn_origin = entity.attributes['mcn.endpoints.cdn.origin']
+                #writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
+            #if 'mcn.cdn.password' in entity.attributes:
+                #self.cdn_password = entity.attributes['mcn.cdn.password']
+                #writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
+            #if 'mcn.cdn.id' in entity.attributes:
+                #self.cdn_global_id = entity.attributes['mcn.cdn.id']
+                #writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
 
         # once logic executes, deploy phase is done
         #self.event.set()
@@ -232,21 +232,21 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 self.dns_endpoint = updated.attributes['mcn.endpoint.api']
                 DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
-            if 'mcn.endpoints.cdn.mgt' in updated.attributes:
-                self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
-                writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
-            if 'mcn.endpoints.cdn.origin' in updated.attributes:
-                self.cdn_origin = updated.attributes['mcn.endpoints.cdn.origin']
-                writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
-            if 'mcn.cdn.password' in updated.attributes:
-                self.cdn_password = updated.attributes['mcn.cdn.password']
-                writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
-            if 'mcn.cdn.id' in updated.attributes:
-                self.cdn_global_id = updated.attributes['mcn.cdn.id']
-                writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
             if 'mcn.endpoint.icnaas' in updated.attributes:
                 self.icn_endpoint = updated.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
+            #if 'mcn.endpoints.cdn.mgt' in updated.attributes:
+                #self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
+                #writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
+            #if 'mcn.endpoints.cdn.origin' in updated.attributes:
+                #self.cdn_origin = updated.attributes['mcn.endpoints.cdn.origin']
+                #writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
+            #if 'mcn.cdn.password' in updated.attributes:
+                #self.cdn_password = updated.attributes['mcn.cdn.password']
+                #writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
+            #if 'mcn.cdn.id' in updated.attributes:
+                #self.cdn_global_id = updated.attributes['mcn.cdn.id']
+                #writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
 
     def state(self):
         """
