@@ -18,6 +18,7 @@ DSS SO.
 """
 
 import logging
+import sys
 import os
 import threading
 import csv
@@ -27,7 +28,6 @@ from sm.so import service_orchestrator
 from sm.so.service_orchestrator import LOG
 from TemplateGenerator import *
 from SOMonitor import *
-import DNSaaSClient
 
 from sdk.mcn import util
 
@@ -68,7 +68,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.templateUpdate = ""
         self.stack_id = None
         #Variables of other services
-        self.dns_endpoint = None
+        self.dnsObject = None
         self.dssCmsDomainName = "dssaas.mcndemo.org"
         self.dssMcrDomainName = "dssaas.mcndemo.org"
         self.dssCmsRecordName = "cms"
@@ -138,6 +138,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 if 'mcn.endpoint.api' in item['attributes']:
                     self.dns_endpoint = item['attributes']['mcn.endpoint.api']
                     writeLogFile(self.swComponent,'DNS EP is: ' + item['attributes']['mcn.endpoint.api'], '', '')
+                if 'mcn.endpoint.forwarder' in item['attributes']:
+                    self.dns_forwarder = item['attributes']['mcn.endpoint.forwarder']
+                    writeLogFile(self.swComponent,'DNS Forwarder EP is: ' + item['attributes']['mcn.endpoint.forwarder'], '', '')
 
         # These attributes are more likely to be set in update call rather than provision
         if entity.attributes:
@@ -147,7 +150,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
             if 'mcn.endpoint.api' in entity.attributes:
                 self.dns_endpoint = entity.attributes['mcn.endpoint.api']
-                DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
+                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoint.icnaas' in entity.attributes:
                 self.icn_endpoint = entity.attributes['mcn.endpoint.icnaas']
@@ -183,26 +186,54 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             result = -1
             while (result != 1):
                 time.sleep(1)
-                result = DNSaaSClient.deleteRecord(self.dssCmsDomainName, self.dssCmsRecordName, 'A', self.token)
+                result = self.dnsObject.delete_record(self.dssCmsDomainName, self.dssCmsRecordName, 'A', self.token)
+                writeLogFile(self.swComponent,result.__repr__(), '', '')
+                try:
+                    if result.get('status', None) is not None:
+                        if(result['status'] == 404):
+                            break
+                except:
+                    break
             writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
-            writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
-            result = -1
-            while (result != 1):
-                time.sleep(1)
-                result = DNSaaSClient.deleteDomain(self.dssCmsDomainName, self.token)
-            writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
-
             writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
             result = -1
             while (result != 1):
                 time.sleep(1)
-                result = DNSaaSClient.deleteRecord(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
+                result = self.dnsObject.delete_record(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
+                writeLogFile(self.swComponent,result.__repr__(), '', '')
+                try:
+                    if result.get('status', None) is not None:
+                        if(result['status'] == 404):
+                            break
+                except:
+                    break
             writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
+
+            writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
+            result = -1
+            while (result != 1):
+                time.sleep(1)
+                result = self.dnsObject.delete_domain(self.dssCmsDomainName, self.token)
+                writeLogFile(self.swComponent,result.__repr__(), '', '')
+                try:
+                    if result.get('status', None) is not None:
+                        if(result['status'] == 404):
+                            break
+                except:
+                    break
+            writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
             writeLogFile(self.swComponent,'Trying to remove MCR domain: ' + self.dssMcrDomainName, '', '')
             result = -1
             while (result != 1):
                 time.sleep(1)
-                result = DNSaaSClient.deleteDomain(self.dssMcrDomainName, self.token)
+                result = self.dnsObject.delete_domain(self.dssMcrDomainName, self.token)
+                writeLogFile(self.swComponent,result.__repr__(), '', '')
+                try:
+                    if result.get('status', None) is not None:
+                        if(result['status'] == 404):
+                            break
+                except:
+                    break
             writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
         # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
@@ -230,7 +261,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
             if 'mcn.endpoint.api' in updated.attributes:
                 self.dns_endpoint = updated.attributes['mcn.endpoint.api']
-                DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
+                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoint.icnaas' in updated.attributes:
                 self.icn_endpoint = updated.attributes['mcn.endpoint.icnaas']
@@ -581,7 +612,8 @@ class SOConfigure(threading.Thread):
         self.so_e = so_e
         self.so_d = so_d
 
-        self.dns_endpoint = None
+        #self.dns_endpoint = None
+        self.dns_forwarder = None
         self.dssCmsDomainName = self.so_e.dssCmsDomainName
         self.dssMcrDomainName = self.so_e.dssMcrDomainName
         self.dssCmsRecordName = self.so_e.dssCmsRecordName
@@ -597,7 +629,6 @@ class SOConfigure(threading.Thread):
 
         self.icn_endpoint = None
 
-
         self.timeout = 10
 
         self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready"}
@@ -611,13 +642,23 @@ class SOConfigure(threading.Thread):
         #------------------------------------------------------------------------------#
         writeLogFile(self.swComponent,"Waiting for DNS config info ...",'','')
         while self.dependencyStat["DNS"] != "ready":
-            if self.so_e.dns_endpoint != None:
-                self.dns_endpoint = self.so_e.dns_endpoint
-                writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
-                #TODO: New DNS object is required
-                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
-                #self.performDNSConfig()
+            LOG.debug("Try to get the dns object ...")
+            try:
+                self.so_e.dnsObject = util.get_dnsaas(self.so_e.token, tenant_name=self.so_e.tenant_name)
+            except:
+                LOG.debug("Unexpected error:" , str(sys.exc_info()[0]))
+            LOG.debug("Checking DNS object ...")
+            if self.so_e.dnsObject is not None:
+                LOG.debug("Got DNSaaS object")
+                self.dns_forwarder = self.so_e.dnsObject.get_forwarders()
+                LOG.debug("DNS Forwarder EP: " + self.dns_forwarder)
+                self.performDNSConfig()
                 self.dependencyStat["DNS"] = "ready"
+            else:
+                LOG.debug("Couldn't get DNSaaS object")
+            #if self.so_e.dns_endpoint != None and self.so_e.dns_forwarder  != None:
+            #self.dns_endpoint = self.so_e.dns_endpoint
+            #writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
             time.sleep(5)
         writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
 
@@ -731,62 +772,53 @@ class SOConfigure(threading.Thread):
 
         for item in self.instances:
             if item == "mcn.dss.lb.endpoint":
-                check = -1
-                while(check == -1):
-                    check = DNSaaSClient.getDomain(self.dssCmsDomainName,self.so_e.token)
-                    if check == -1:
-                        writeLogFile(self.swComponent,'DNS API not ready yet', '', '')
-                    time.sleep(5)
-                writeLogFile(self.swComponent,'DNS API READY for getting requests', '', '')
-                lbDomainExists = DNSaaSClient.getDomain(self.dssCmsDomainName,self.so_e.token)
-                if str(lbDomainExists) == '0':
+                lbDomainExists = self.so_e.dnsObject.get_domain(self.dssCmsDomainName, self.so_e.token)
+                if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(2)
-                        result = DNSaaSClient.createDomain(self.dssCmsDomainName,"info@dss-test.es",self.so_e.token)
+                        result = self.so_e.dnsObject.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
+                        writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
                 else:
-                    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
-                lbRecordExists = DNSaaSClient.getRecord(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName,record_type='A',tokenId=self.so_e.token)
-                if str(lbRecordExists) == '0':
+                    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbDomainExists.__repr__(), '', '')
+                lbRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssCmsRecordName, record_type='A', token=self.so_e.token)
+                if lbRecordExists.get('code', None) is not None and lbRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(2)
-                        result = DNSaaSClient.createRecord(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName,record_type='A',record_data=self.instances[item],tokenId=self.so_e.token)
+                        result = self.so_e.dnsObject.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
+                        writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS record creation attempt for: ' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
-                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
+                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
 
             elif item == "mcn.dss.mcr.endpoint":
-                check = -1
-                while(check == -1):
-                    check = DNSaaSClient.getDomain(self.dssMcrDomainName,self.so_e.token)
-                    if check == -1:
-                        writeLogFile(self.swComponent,'DNS API not ready yet', '', '')
-                    time.sleep(5)
-                writeLogFile(self.swComponent,'DNS API READY for getting requests', '', '')
-                mcrDomainExists = DNSaaSClient.getDomain(self.dssMcrDomainName,self.so_e.token)
-                if str(mcrDomainExists) == '0':
+                #mcrDomainExists = self.so_e.dnsObject.get_domain(self.dssMcrDomainName, self.so_e.token)
+                #writeLogFile(self.swComponent,mcrDomainExists.__repr__(), '', '')
+                #if mcrDomainExists['code'] == 404:
+                #    result = -1
+                #    while (result != 1):
+                #        time.sleep(2)
+                #        result = self.so_e.dnsObject.create_domain(self.dssMcrDomainName, "info@dss-test.es", 3600, self.so_e.token)
+                #        writeLogFile(self.swComponent,result.__repr__(), '', '')
+                #        writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
+                #    writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
+                #else:
+                #    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
+                mcrRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', token=self.so_e.token)
+                if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(2)
-                        result = DNSaaSClient.createDomain(self.dssMcrDomainName,"info@dss-test.es",self.so_e.token)
-                        writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-                else:
-                    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
-                mcrRecordExists = DNSaaSClient.getRecord(domain_name=self.dssMcrDomainName,record_name=self.dssMcrRecordName,record_type='A',tokenId=self.so_e.token)
-                if str(mcrRecordExists) == '0':
-                    result = -1
-                    while (result != 1):
-                        time.sleep(2)
-                        result = DNSaaSClient.createRecord(domain_name=self.dssMcrDomainName,record_name=self.dssMcrRecordName,record_type='A',record_data=self.instances[item],tokenId=self.so_e.token)
+                        result = self.so_e.dnsObject.create_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
+                        writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
-                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) , '', '')
+                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
 
         writeLogFile(self.swComponent,"Exiting the loop to push dns domain names for all instances",'','')
 
@@ -835,7 +867,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_endpoint + '","dssdomainname":"' + self.dssCmsRecordName + '.'  + self.dssCmsDomainName + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.'  + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp)  ,'','')
         #AGENT PUSH ICN EP & ACC INFO
         #ICN data to be used by CMS for finding closest icn router
