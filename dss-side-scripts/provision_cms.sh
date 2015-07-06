@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 8 ]; then
+if [ "$#" -ne 9 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -12,6 +12,7 @@ dssmcrapiurl="$5"
 servicecdnenabled="$6"
 dssopenamendpoint="$7"
 serviceicnenabled="$8"
+serviceaaaenabled="$9"
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'
@@ -22,6 +23,7 @@ sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
 #Autoconf
 sed -i.bak "s,SERVICEICNENABLED,$serviceicnenabled,g" WebAppDSSConfig.groovy
 sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" WebAppDSSConfig.groovy
+sed -i.bak "s,SERVICEAAAENABLED,$serviceaaaenabled,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBNAME,$databasename,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBSERVERURL,$databasehost,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSCSDBUSERNAME,$databaseusername,g" WebAppDSSConfig.groovy
@@ -34,6 +36,11 @@ sed -i.bak "s,DSSMCRAPILOGINURL,$dssmcrapiloginurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPICONTENTMANAGEMENTURL,$dssmcrapicontentmanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPIUSERMANAGEMENTURL,$dssmcrapiusermanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSOPENAMENDPOINT,$dssopenamendpoint,g" WebAppDSSConfig.groovy
+if [[ $serviceaaaenabled == "false" ]]
+then
+    # Disabling web policy agent
+    sed -i.bak "s,include,#include,g" /usr/local/apache2/conf/httpd.conf
+fi
 cp WebAppDSSConfig.groovy /usr/share/tomcat7/
 cp WebAppDSS.war /var/lib/tomcat7/webapps/
 # Check database aaS is already there

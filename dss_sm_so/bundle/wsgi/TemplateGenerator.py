@@ -11,16 +11,20 @@ class TemplateGenerator:
 
     def __init__(self):
         #Later to be filled by asking CC
-        self.public_network_id = "1b31bc6b-8aff-4e13-912a-d9c9a427475a"
-        self.public_sub_network_id = "017c2d8a-66d5-458f-ba57-646082fbd285"
-        self.private_network_id = "a8cbfc3c-42d0-4431-86ec-4597d38bbb52"
-        self.private_sub_network_id = "70506734-0b95-4a8e-b8b7-4a8a54330db0"
-        
-        self.key_name = "bern-key"
+        self.public_network_id = "fde9f17b-eb51-4d4b-a474-deb583d03d86"
+        self.public_sub_network_id = "8dc93a2d-c411-49ae-ba13-37b96270d2c7"
+        #self.private_network_id = "00cc1826-a549-4379-a0c3-1f6635234f46"
+        #self.private_sub_network_id = "95501304-68c0-4649-84ad-f804aeae1c65"
+        self.private_network_id = "2757c3c5-cf20-497b-ac11-b1fbc11b34ef"
+        self.private_sub_network_id = "ce514049-17b9-477b-a367-cc1318d30e0e"
+        self.key_name = "mcn-key"
+        #self.key_name = "ubern-key"
+        #self.key_name = "bern-key"
         self.cdn_enable = 'false'
-        self.icn_enable = 'true'
-        self.dss_cms_image_name = 'DSS-ICN-IMG-S'
-        self.dss_mcr_image_name = 'DSS-ICN-IMG-S'
+        self.icn_enable = 'false'
+        self.aaa_enable = 'false'
+        self.dss_cms_image_name = 'DSS-AAA-IMG'
+        self.dss_mcr_image_name = 'DSS-AAA-IMG'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
@@ -68,7 +72,7 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " &" + "\n"
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " " + self.aaa_enable + " &" + "\n"
         template += "\n"             
         template += "  " + self.baseCmsResourceName + "_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             
@@ -108,7 +112,7 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " &" + "\n"
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " " + self.aaa_enable + " &" + "\n"
         template += "\n"             
         template += "  mcr_server_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             

@@ -29,7 +29,7 @@ LOG = config_logger()
 class fileManager:
         
     def __init__(self):
-        if (len(sys.argv)==4):
+        if (len(sys.argv)==5):
             self.path = sys.argv[1] #final slash is required!!
         else:
             self.path =''
@@ -85,12 +85,17 @@ class Application:
 
         self.icn_port = '9695'
 
-        if (len(sys.argv)==4):
+        if (len(sys.argv)==5):
             self.cdn_enabled = str(sys.argv[2]) #values are : true , false
             self.icn_enabled = str(sys.argv[3]) #values are : true , false
         else:
             self.cdn_enabled = 'true'
             self.icn_enabled = 'false'
+
+        if (len(sys.argv)==5):
+            self.aaa_enabled = str(sys.argv[4]) #values are : true , false
+        else:
+            self.aaa_enabled = 'false'
 
         if self.cdn_enabled == 'true' and self.icn_enabled == 'false':
             self.configurationstatus = {"cdn":"False", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
@@ -181,11 +186,13 @@ class Application:
                 return self.unauthorised()
             try:
                 if 'mcr' in socket.gethostname():
+                    LOG.debug('Running command: ./provision_mcr.sh ' + init_json["mcr_srv_ip"] + ' ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["cms_srv_ip"] + ' ' + self.cdn_enabled + ' ' + self.icn_enabled + ' ' + self.icn_port)
                     out_p = Popen(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
                     for line in out_p.stdout:
                         LOG.debug(line)
                 else:
-                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile.mcn.local:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    LOG.debug('Running command: ./provision_mcr.sh ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["mcr_srv_ip"] + ' ' + self.cdn_enabled + ' ' + "http://aaa-profile.mcn.local:8080/IdentityProviderService/WsService?wsdl" + ' ' + self.icn_enabled + ' ' + self.aaa_enabled)
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile.mcn.local:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
                     for line in out_p.stdout:
                         LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})
