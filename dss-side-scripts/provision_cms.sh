@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 9 ]; then
+if [ "$#" -ne 10 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -13,6 +13,7 @@ servicecdnenabled="$6"
 dssopenamendpoint="$7"
 serviceicnenabled="$8"
 serviceaaaenabled="$9"
+dssmcrhostname="$10"
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'
@@ -36,6 +37,7 @@ sed -i.bak "s,DSSMCRAPILOGINURL,$dssmcrapiloginurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPICONTENTMANAGEMENTURL,$dssmcrapicontentmanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRAPIUSERMANAGEMENTURL,$dssmcrapiusermanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSOPENAMENDPOINT,$dssopenamendpoint,g" WebAppDSSConfig.groovy
+sed -i.bak "s,DSSMCRHOSTNAME,$dssmcrhostname,g" SLAmgr.py
 if [[ $serviceaaaenabled == "false" ]]
 then
     # Disabling web policy agent
@@ -54,6 +56,7 @@ then
         echo "create database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
 fi
 #Start services
+service mysla restart
 service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart

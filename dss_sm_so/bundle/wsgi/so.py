@@ -606,6 +606,8 @@ class SOConfigure(threading.Thread):
 
         self.monitoring_endpoint = None
         self.monitor = None
+        self.instances = None
+        self.mcr_host_name = None
 
         #self.cdn_password = None
         #self.cdn_endpoint = None
@@ -626,7 +628,7 @@ class SOConfigure(threading.Thread):
         # self.dependencyStat["DNS"] = "ready"                                         #
         #------------------------------------------------------------------------------#
         writeLogFile(self.swComponent,"Waiting for DNS config info ...",'','')
-        while self.dependencyStat["DNS"] != "not ready":
+        while self.dependencyStat["DNS"] != "ready":
             if self.so_e.templateManager.dns_enable == 'true':
                 LOG.debug("Try to get the dns object ...")
                 try:
@@ -822,6 +824,16 @@ class SOConfigure(threading.Thread):
             result, self.instances = self.so_e.getServerIPs()
             writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
 
+        result = -1
+        while (result < 0):
+            time.sleep(1)
+            result, serverList = self.so_e.getServerNamesList()
+
+        for item in serverList:
+            zabbixName = item.replace("_","-")
+            if "mcr" in zabbixName:
+                self.mcr_host_name = zabbixName
+
         #configure instances
         writeLogFile(self.swComponent,"Entering the loop to provision each instance ...",'','')
         for item in self.instances:
@@ -843,7 +855,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT STARTS PROVISIONING OF VM
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision','POST','{"user":"SO","token":"'+ token +'","mcr_srv_ip":"'+ all_ips["mcn.dss.mcr.endpoint"] +'","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"'+ all_ips["mcn.dss.db.endpoint"] +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision','POST','{"user":"SO","token":"'+ token +'","mcr_srv_name":"'+ self.mcr_host_name +'","mcr_srv_ip":"'+ all_ips["mcn.dss.mcr.endpoint"] +'","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"'+ all_ips["mcn.dss.db.endpoint"] +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
 
     # Calls to the SIC agent to complete the provisioning

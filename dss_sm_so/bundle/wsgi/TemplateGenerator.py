@@ -15,8 +15,8 @@ class TemplateGenerator:
         self.public_sub_network_id = "8dc93a2d-c411-49ae-ba13-37b96270d2c7"
         #self.private_network_id = "00cc1826-a549-4379-a0c3-1f6635234f46"
         #self.private_sub_network_id = "95501304-68c0-4649-84ad-f804aeae1c65"
-        self.private_network_id = "2757c3c5-cf20-497b-ac11-b1fbc11b34ef"
-        self.private_sub_network_id = "ce514049-17b9-477b-a367-cc1318d30e0e"
+        self.private_network_id = "df6fc93e-6af7-4fb3-9d0f-71e4a377dccb"
+        self.private_sub_network_id = "c8e7b799-50fc-4da1-89a3-9d7ea9671e88"
         self.key_name = "mcn-key"
         #self.key_name = "ubern-key"
         #self.key_name = "bern-key"
@@ -24,12 +24,12 @@ class TemplateGenerator:
         self.icn_enable = 'false'
         self.aaa_enable = 'false'
         self.dns_enable = 'false'
-        self.dss_cms_image_name = 'DSS-AAA-IMG'
-        self.dss_mcr_image_name = 'DSS-AAA-IMG'
+        self.dss_cms_image_name = 'DSS-IMG'
+        self.dss_mcr_image_name = 'DSS-IMG'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
-        self.dbpass = 'pass'
+        self.dbpass = 'registro00'
         self.dbuser = 'root'
         
         self.mcr_flavor_idx = 1
