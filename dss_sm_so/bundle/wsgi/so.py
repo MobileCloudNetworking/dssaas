@@ -135,12 +135,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 if 'mcn.endpoint.maas' in item['attributes']:
                     self.monitoring_endpoint = item['attributes']['mcn.endpoint.maas']
                     writeLogFile(self.swComponent,'MON EP is: ' + item['attributes']['mcn.endpoint.maas'], '', '')
-                if 'mcn.endpoint.api' in item['attributes']:
-                    self.dns_endpoint = item['attributes']['mcn.endpoint.api']
-                    writeLogFile(self.swComponent,'DNS EP is: ' + item['attributes']['mcn.endpoint.api'], '', '')
-                if 'mcn.endpoint.forwarder' in item['attributes']:
-                    self.dns_forwarder = item['attributes']['mcn.endpoint.forwarder']
-                    writeLogFile(self.swComponent,'DNS Forwarder EP is: ' + item['attributes']['mcn.endpoint.forwarder'], '', '')
 
         # These attributes are more likely to be set in update call rather than provision
         if entity.attributes:
@@ -148,10 +142,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             if 'mcn.endpoint.maas' in entity.attributes:
                 self.monitoring_endpoint = entity.attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.api' in entity.attributes:
-                self.dns_endpoint = entity.attributes['mcn.endpoint.api']
-                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
-                writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoint.icnaas' in entity.attributes:
                 self.icn_endpoint = entity.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
@@ -259,10 +249,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             if 'mcn.endpoint.maas' in updated.attributes:
                 self.monitoring_endpoint = updated.attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.api' in updated.attributes:
-                self.dns_endpoint = updated.attributes['mcn.endpoint.api']
-                #DNSaaSClient.DNSaaSClientCore.apiurlDNSaaS= 'http://' + self.dns_endpoint + ':8080'
-                writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_endpoint, '', '')
             if 'mcn.endpoint.icnaas' in updated.attributes:
                 self.icn_endpoint = updated.attributes['mcn.endpoint.icnaas']
                 writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
@@ -612,7 +598,6 @@ class SOConfigure(threading.Thread):
         self.so_e = so_e
         self.so_d = so_d
 
-        #self.dns_endpoint = None
         self.dns_forwarder = None
         self.dssCmsDomainName = self.so_e.dssCmsDomainName
         self.dssMcrDomainName = self.so_e.dssMcrDomainName
@@ -641,25 +626,27 @@ class SOConfigure(threading.Thread):
         # self.dependencyStat["DNS"] = "ready"                                         #
         #------------------------------------------------------------------------------#
         writeLogFile(self.swComponent,"Waiting for DNS config info ...",'','')
-        while self.dependencyStat["DNS"] != "ready":
-            LOG.debug("Try to get the dns object ...")
-            try:
-                self.so_e.dnsObject = util.get_dnsaas(self.so_e.token, tenant_name=self.so_e.tenant_name)
-            except:
-                LOG.debug("Unexpected error:" , str(sys.exc_info()[0]))
-            LOG.debug("Checking DNS object ...")
-            if self.so_e.dnsObject is not None:
-                LOG.debug("Got DNSaaS object")
-                self.dns_forwarder = self.so_e.dnsObject.get_forwarders()
-                LOG.debug("DNS Forwarder EP: " + self.dns_forwarder)
-                self.performDNSConfig()
-                self.dependencyStat["DNS"] = "ready"
+        while self.dependencyStat["DNS"] != "not ready":
+            if self.so_e.templateManager.dns_enable == 'true':
+                LOG.debug("Try to get the dns object ...")
+                try:
+                    self.so_e.dnsObject = util.get_dnsaas(self.so_e.token, tenant_name=self.so_e.tenant_name)
+                except:
+                    LOG.debug("Unexpected error:" , str(sys.exc_info()[0]))
+                LOG.debug("Checking DNS object ...")
+                if self.so_e.dnsObject is not None:
+                    LOG.debug("Got DNSaaS object")
+                    self.dns_forwarder = self.so_e.dnsObject.get_forwarders()
+                    LOG.debug("DNS Forwarder EP: " + self.dns_forwarder)
+                    self.performDNSConfig()
+                    self.dependencyStat["DNS"] = "ready"
+                else:
+                    LOG.debug("Couldn't get DNSaaS object")
             else:
-                LOG.debug("Couldn't get DNSaaS object")
-            #if self.so_e.dns_endpoint != None and self.so_e.dns_forwarder  != None:
-            #self.dns_endpoint = self.so_e.dns_endpoint
-            #writeLogFile(self.swComponent,"DNS EP: " + self.dns_endpoint,'','')
-            time.sleep(5)
+                self.dns_forwarder = '4.2.2.4'
+                self.dependencyStat["DNS"] = "ready"
+                LOG.debug("DNSaaS disabled, using " + self.dns_forwarder + " as DNS server")
+            time.sleep(3)
         writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
 
         #------------------------------------------------------------------------------#
@@ -681,7 +668,7 @@ class SOConfigure(threading.Thread):
         #        writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
         #        writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
         #        self.dependencyStat["CDN"] = "ready"
-        #    time.sleep(5)
+        #    time.sleep(3)
         #writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
 
         if self.so_e.templateManager.icn_enable == 'true':
@@ -693,7 +680,7 @@ class SOConfigure(threading.Thread):
                     self.performICNConfig()
                     writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
                     self.dependencyStat["ICN"] = "ready"
-                time.sleep(5)
+                time.sleep(3)
             writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
 
         #---------------------------------------------------------------------------#
@@ -708,7 +695,7 @@ class SOConfigure(threading.Thread):
                 self.monitoring_endpoint = self.so_e.monitoring_endpoint
                 writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
                 self.dependencyStat["MON"] = "ready"
-            time.sleep(5)
+            time.sleep(3)
         writeLogFile(self.swComponent,"MONaaS dependency stat changed to READY",'','')
 
         #Pushing local configurations to DSS SICs

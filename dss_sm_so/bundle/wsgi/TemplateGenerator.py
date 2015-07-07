@@ -23,6 +23,7 @@ class TemplateGenerator:
         self.cdn_enable = 'false'
         self.icn_enable = 'false'
         self.aaa_enable = 'false'
+        self.dns_enable = 'false'
         self.dss_cms_image_name = 'DSS-AAA-IMG'
         self.dss_mcr_image_name = 'DSS-AAA-IMG'
         self.dss_db_image_name = 'DSS-DB-SIC'
@@ -145,7 +146,7 @@ class TemplateGenerator:
         template += "    Value: { 'Fn::GetAtt': [ mcr_server_floating_ip, floating_ip_address ] }" + "\n"
         template += "\n"
         template += '  mcn.dss.db.endpoint:' + "\n"
-        template += '    Description: IP address of DSS MCR in private network' + "\n"
+        template += '    Description: IP address of DSS DB in private network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ dbaas_server, first_address ] }" + "\n"
         template += "\n"
         template += '  mcn.dss.lb.endpoint:' + "\n"
