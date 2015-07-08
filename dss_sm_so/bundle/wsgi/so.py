@@ -57,7 +57,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
     """
     def __init__(self, tenant, token, ready_event):
         super(ServiceOrchestratorExecution, self).__init__(token, tenant)
-        #self.event = ready_event
+        self.event = ready_event
         self.swComponent = 'SO-Execution'
         # Generate DSS basic template...
         self.token = token
@@ -159,7 +159,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 #writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
 
         # once logic executes, deploy phase is done
-        #self.event.set()
+        self.event.set()
 
     def dispose(self):
         """
@@ -333,7 +333,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
     def __init__(self, so_e, tenant, token, ready_event):
         super(ServiceOrchestratorDecision, self).__init__(so_e, token, tenant)
-        #self.event = ready_event
+        self.event = ready_event
         self.swComponent = 'SO-Decision'
         threading.Thread.__init__(self)
 
@@ -377,7 +377,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         # it is unlikely that logic executed will be of any use until the provisioning phase has completed
 
         LOG.debug('Waiting for deploy and provisioning to finish')
-        #self.event.wait()
+        self.event.wait()
         LOG.debug('Starting runtime logic...')
         # TODO implement you runtime logic here - you should probably release the locks afterwards, maybe in stop ;-)
         # Start pushing configurations to SICs
