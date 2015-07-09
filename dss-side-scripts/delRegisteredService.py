@@ -50,7 +50,7 @@ def main(argv):
         auth_url = 'http://dummy:5000/v2.0'
 
     if s_id is None:
-        print 'Service ID is mandatory!'
+        print 'Service ID param is mandatory! '
         exit(0)
 
     keystone = client.Client(username=user_name, password=passwd, tenant_name=tenant_name, auth_url=auth_url)
