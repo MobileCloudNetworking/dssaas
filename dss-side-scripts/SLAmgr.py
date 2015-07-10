@@ -166,50 +166,53 @@ class Application:
             response_body = '<!doctype html>' \
                                 '<html>' \
                                 '<head>' \
-                                '<meta charset="utf-8">' \
-                                '<title>DSS SLA agreement</title>' \
+                                    '<meta charset="utf-8">' \
+                                    '<title>DSS SLA agreement</title>' \
+                                    '<link rel="stylesheet" type="text/css" href="http://54.171.14.235/sla_template_files/css/bootstrap.min.css">' \
+                                    '<link rel="stylesheet" type="text/css" href="http://54.171.14.235/sla_template_files/css/bootstrap-theme.min.css">' \
                                 '</head>' \
                                 '<body>' \
-                                '<div>' \
-                                  '<h1>DSS SLAaaS Agreement</h1>' \
-                                  '<p>Please find the information regarding to the accepted agreement below:</p>' \
-                                  '<table width="30%" border="1px" style="border: thin">' \
+                                  '<div style="width: 30%; margin: 5px;">' \
+                                      '<h1 style="font-family: Times New Roman, Times, serif;">DSS SLAaaS Agreement</h1>' \
+                                      '<p>Please find the information regarding to the accepted agreement below:</p>' \
+                                  '</div>' \
+                                  '<br />' \
+                                  '<table width="30%">' \
                                     '<tr>' \
                                       '<td>' \
-                                        '<div>' \
-                                          '<blockquote>' \
-                                            '<div><strong>Category: ' + results["category"] + '</strong></div>' \
-                                            '<br />' \
-                                            '<div><strong>Status: ' + results["status"] + '</strong></div>' \
-                                            '<br />' \
-                                            '<div><strong>ID: ' + results["id"] + '</strong></div>' \
-                                            '<br />' \
-                                            '<div>Link to SLA violations: <a href="' + results["link"] + '">' + results["link"] + '<a></div>' \
-                                            '<br />' \
-                                            '<label>Agreement terms</label>' \
-                                            '<ul>' \
-                                              '<li>' \
-                                                '<label>TERM1</label>' \
-                                              '</li>' \
-                                              '<ul>' \
-                                                '<li><strong>Type</strong>: ' + results["terms"][0]["type"] + '</li>' \
-                                                '<li><strong>Description</strong>: <span>' + results["terms"][0]["desc"] + '</span></li>' \
-                                                '<li><strong>Name</strong>: ' + results["terms"][0]["name"] + '</li>' \
-                                                '<li><strong>Value</strong>: ' + results["terms"][0]["value"] + '</li>' \
-                                                '<li><strong>Limiter_type</strong>: ' + results["terms"][0]["limiter_type"] + '</li>' \
-                                              '</ul>' \
-                                            '</ul>' \
-                                            '<label>Agreement dates</label>' \
-                                            '<ul>' \
-                                              '<li><strong>Effective From</strong>: ' + results["effective_from"] + '</li>' \
-                                              '<li><strong>Effective Until</strong>: ' + results["effective_until"] + '</li>' \
-                                            '</ul>' \
-                                          '</blockquote>' \
+                                        '<div class="panel panel-info" style="margin: 5px;">' \
+                                            '<div class="panel-heading"><strong>Category: ' + results["category"] + '</strong></div>' \
+                                            '<div class="panel-body" >' \
+                                                '<br />' \
+                                                '<div><strong>Status: ' + results["status"] + '</strong></div>' \
+                                                '<br />' \
+                                                '<div><strong>ID: ' + results["id"] + '</strong></div>' \
+                                                '<br />' \
+                                                '<div>Link to SLA violations: <a href="' + results["link"] + '">' + results["link"] + '</a></div>' \
+                                                '<br />' \
+                                                '<label>Agreement terms</label>' \
+                                                '<ul>' \
+                                                  '<li>' \
+                                                    '<label>TERM1</label>' \
+                                                  '</li>' \
+                                                  '<ul>' \
+                                                    '<li><strong>Type</strong>: ' + results["terms"][0]["type"] + '</li>' \
+                                                    '<li><strong>Description</strong>: <span>' + results["terms"][0]["desc"] + '</span></li>' \
+                                                    '<li><strong>Name</strong>: ' + results["terms"][0]["name"] + '</li>' \
+                                                    '<li><strong>Value</strong>: ' + results["terms"][0]["value"] + '</li>' \
+                                                    '<li><strong>Limiter_type</strong>: ' + results["terms"][0]["limiter_type"] + '</li>' \
+                                                  '</ul>' \
+                                                '</ul>' \
+                                                '<label>Agreement dates</label>' \
+                                                '<ul>' \
+                                                  '<li><strong>Effective From</strong>: ' + results["effective_from"] + '</li>' \
+                                                  '<li><strong>Effective Until</strong>: ' + results["effective_until"] + '</li>' \
+                                                '</ul>' \
+                                            '</div>' \
                                         '</div>' \
                                        '</td>' \
                                     '<tr>' \
                                   '</table>' \
-                                '</div>' \
                                 '</body>' \
                                 '</html>'
             self.start_response('200 OK', [('Content-Type', self.htmltype), ('Content-Length', str(len(response_body)))])
@@ -222,44 +225,48 @@ class Application:
                                     '<head>' \
                                         '<meta charset="utf-8">' \
                                         '<title>DSS SLA agreement</title>' \
+                                        '<link rel="stylesheet" type="text/css" href="http://54.171.14.235/sla_template_files/css/bootstrap.min.css">' \
+                                        '<link rel="stylesheet" type="text/css" href="http://54.171.14.235/sla_template_files/css/bootstrap-theme.min.css">' \
                                     '</head>' \
                                     '<body>' \
-                                    '<div>' \
-                                        '<h1>SLAaaS Agreement Acceptance for DSSaaS</h1>' \
-                                        '<p>Please carefully read the following agreements and click on &quot;Accept&quot; button to sign and validate the desired one.</p>' \
-                                        '<table width="70%" border="1px" style="border: thin">' \
+                                        '<div style="width: 70%; margin: 5px;">' \
+                                            '<h1 style="font-family: Times New Roman, Times, serif;">SLAaaS Agreement Acceptance for DSSaaS</h1>' \
+                                            '<p>Please carefully read the following agreements and click on &quot;Accept&quot; button to sign and validate the desired one.</p>' \
+                                        '</div>' \
+                                        '<br />' \
+                                        '<table width="70%">' \
                                             '<tr>' \
                                                 '<td>' \
-                                                    '<div>' \
-                                                        '<blockquote>' \
-                                                          '<div style="text-align: center"><strong>Category: dss_gold</strong></div>' \
-                                                          '<br />' \
-                                                          '<label>Agreement terms</label>' \
-                                                          '<ul>' \
-                                                            '<li><label>TERM1</label></li>' \
-                                                            '<ul>' \
-                                                              '<li><strong>Type</strong>: SLO-TERM</li>' \
-                                                              '<li><strong>Description</strong>: <span>This is the SLO term for an instance of DSS regarding the connections of the players</span></li>' \
-                                                              '<li><strong>Name</strong>: DSS number of active player data</li>' \
-                                                              '<li><strong>Value</strong>: 100</li>' \
-                                                              '<li><strong>Limiter_type</strong>: max</li>' \
-                                                            '</ul>' \
-                                                          '</ul>' \
-                                                          '<label>Agreement dates</label>' \
-                                                          '<ul>' \
-                                                            '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
-                                                            '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
-                                                          '</ul>' \
-                                                        '</blockquote>' \
+                                                    '<div class="panel panel-info" style="margin: 5px">' \
+                                                          '<div style="text-align: center" class="panel-heading" ><strong>Category: dss_gold</strong></div>' \
+                                                          '<div class="panel-body" >' \
+                                                              '<br />' \
+                                                              '<label>Agreement terms</label>' \
+                                                              '<ul>' \
+                                                                '<li><label>TERM1</label></li>' \
+                                                                '<ul>' \
+                                                                  '<li><strong>Type</strong>: SLO-TERM</li>' \
+                                                                  '<li><strong>Description</strong>: <span>This is the SLO term for an instance of DSS regarding the connections of the players</span></li>' \
+                                                                  '<li><strong>Name</strong>: DSS number of active player data</li>' \
+                                                                  '<li><strong>Value</strong>: 100</li>' \
+                                                                  '<li><strong>Limiter_type</strong>: max</li>' \
+                                                                '</ul>' \
+                                                              '</ul>' \
+                                                              '<label>Agreement dates</label>' \
+                                                              '<ul>' \
+                                                                '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
+                                                                '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
+                                                              '</ul>' \
+                                                          '</div>' \
                                                         '<div style="text-align: center">' \
-                                                          '<input name="validate" type="button" onClick="location.href=\'validated_gold\'" value="Accept" style="margin: 10px" />' \
+                                                          '<button type="button" class="btn btn-primary" onClick="location.href=\'validated_gold\'" style="margin: 10px">Accept</button>' \
                                                         '</div>' \
                                                     '</div>' \
                                                 '</td>' \
                                                 '<td>' \
-                                                    '<div>' \
-                                                        '<blockquote>' \
-                                                          '<div style="text-align: center"><strong>Category: dss_silver</strong></div>' \
+                                                    '<div class="panel panel-info" style="margin: 5px">' \
+                                                          '<div style="text-align: center" class="panel-heading"><strong>Category: dss_silver</strong></div>' \
+                                                          '<div class="panel-body" >' \
                                                           '<br />' \
                                                           '<label>Agreement terms</label>' \
                                                           '<ul>' \
@@ -277,16 +284,16 @@ class Application:
                                                             '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
                                                             '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
                                                           '</ul>' \
-                                                        '</blockquote>' \
+                                                          '</div>' \
                                                         '<div style="text-align: center">' \
-                                                          '<input name="validate" type="button" onClick="location.href=\'validated_silver\'" value="Accept" disabled="disabled" style="margin: 10px" />' \
+                                                          '<button type="button" class="btn btn-primary" onClick="location.href=\'validated_silver\'" disabled="disabled" style="margin: 10px">Accept</button>' \
                                                         '</div>' \
                                                     '</div>' \
                                                 '</td>' \
                                                 '<td>' \
-                                                    '<div>' \
-                                                        '<blockquote>' \
-                                                          '<div style="text-align: center"><strong>Category: dss_bronze</strong></div>' \
+                                                    '<div class="panel panel-info" style="margin: 5px">' \
+                                                          '<div style="text-align: center" class="panel-heading"><strong>Category: dss_bronze</strong></div>' \
+                                                          '<div class="panel-body" >' \
                                                           '<br />' \
                                                           '<label>Agreement terms</label>' \
                                                           '<ul>' \
@@ -299,19 +306,19 @@ class Application:
                                                               '<li><strong>Limiter_type</strong>: max</li>' \
                                                             '</ul>' \
                                                           '</ul>' \
+                                                          '<label>Agreement dates</label>' \
                                                           '<ul>' \
                                                             '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
                                                             '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
                                                           '</ul>' \
-                                                        '</blockquote>' \
+                                                          '</div>' \
                                                         '<div style="text-align: center">' \
-                                                          '<input name="validate" type="button" onClick="location.href=\'validated_bronze\'" value="Accept" disabled="disabled" style="margin: 10px" />' \
+                                                          '<button type="button" class="btn btn-primary" onClick="location.href=\'validated_bronze\'" disabled="disabled" style="margin: 10px">Accept</button>' \
                                                         '</div>' \
                                                     '</div>' \
                                                 '</td>' \
                                             '<tr>' \
                                         '</table>' \
-                                    '</div>' \
                                     '</body>' \
                                     '</html>'
             self.start_response('200 OK', [('Content-Type', self.htmltype), ('Content-Length', str(len(response_body)))])
