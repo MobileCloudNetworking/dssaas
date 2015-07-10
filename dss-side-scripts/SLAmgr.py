@@ -1,108 +1,80 @@
 __author__ = 'Santiago Ruiz'
 __copyright__ = "Copyright 2014, SoftTelecom"
 
-import json
-import sys
-from subprocess import call
-import httplib
 import urllib
 import pycurl
 from StringIO import StringIO
 
-class dbManager:
+class Storage:
     def __init__(self):
-        self.user = 'user'
-        self.passwd = 'pass'
-        self.host = 'localhost'
+        self.contents = ''
+        self.line = 0
 
-    def perform_query(self, query):
-        call(['mysql', '-h', self.host, '-u', self.user, '-p' + self.passwd, '-e', query])
+    def store(self, buf):
+        self.line = self.line + 1
+        self.contents = "%s%i: %s" % (self.contents, self.line, buf)
 
+    def __str__(self):
+        return self.contents
 
-class fileManager:
-    def __init__(self):
-        if (len(sys.argv) == 3):
-            self.path = sys.argv[1]  # final slash is required!!
-        else:
-            self.path = ''
-        self.contents = '['
-
-    def __del__(self):
-        pass
-
-    def set_value(self, item, value):
-        self.jsonfile = open(self.path + 'config.json', 'w')
-        self.contents += '{"' + item + '":"' + value + '"}'
-        self.jsonfile.write(self.contents + ']')
-        self.contents += ','
-        self.jsonfile.close()
-
-
-class JSONManager:
-    def __init__(self):
-        pass
-
-    def read(self, myjson):
-        try:
-            decoded = json.loads(myjson)
-        except (ValueError, KeyError, TypeError):
-            return -1
-        return decoded
-
-    def jprint(self, myjson):
-        try:
-            decoded = json.loads(myjson)
-            # pretty printing of json-formatted string
-            print json.dumps(decoded, sort_keys=True, indent=4)
-            # print "JSON parsing example: ", decoded['one']
-            # print "Complex JSON parsing example: ", decoded['two']['list'][1]['item']
-
-        except (ValueError, KeyError, TypeError):
-            print "JSON format error"
-
+    def get_contents(self):
+        return self.contents
 
 class SLAManager:
     def __init__(self):
         self.SLAHost = "134.191.243.7"
         self.SLAPort = "8005"
         #self.SLATarget = "/"
+        self.results = {
+            "category":"",
+            "status":"",
+            "id":"",
+            "link":"http://134.191.243.7:8006/occi-viz/",
+            "terms":[],
+            "effective_from":"",
+            "effective_until":""
+        }
 
-    def perform_sla_acceptance(self):
+    def perform_sla_acceptance(self, name):
 
-       headers = StringIO()
+        self.results["category"] = 'dss_' + name
 
-       pf = {}
-       c = pycurl.Curl()
-       c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement/")
-       c.setopt(c.VERBOSE, 1)
-       c.setopt(c.POST, 1)
-       c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
-       c.setopt(c.HEADERFUNCTION, headers.write)
-       c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
+        headers_agreement = StringIO()
+
+        pf = {}
+        c = pycurl.Curl()
+        c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement/")
+        c.setopt(c.VERBOSE, 1)
+        c.setopt(c.POST, 1)
+        c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
+        c.setopt(c.HEADERFUNCTION, headers_agreement.write)
+        c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
                                           'Category: agreement; scheme="http://schemas.ogf.org/occi/sla#"; class=\"kind\"',
-                                          'Category: dss_gold; scheme="http://sla.dss.org/agreements#"; class=\"kind\"',
+                                          'Category: dss_' + name + '; scheme="http://sla.dss.org/agreements#"; class=\"kind\"',
                                           'Content-Type:text/occi',
                                           'Provider:DSS',
                                           'Provider_pass:dss_pass',
                                           'customer:lola',
                                           'x-occi-attribute: occi.agreement.effectiveFrom=\"2014-11-02T02:20:26Z\"',
                                           'x-occi-attribute: occi.agreement.effectiveUntil=\"2015-11-02T02:20:26Z\"'])
-       c.perform()
-       c.close()
-       print "----"
-       print headers.getvalue()
-       print "----"
-       location_p = headers.getvalue().split('\n')[4].split('/')
-       sla_location_id = location_p[len(location_p)-1].strip()
-       print "PARSED_LOCATION: " + sla_location_id
+        c.perform()
+        c.close()
+        print "----"
+        print headers_agreement.getvalue()
+        print "----"
+        location_p = headers_agreement.getvalue().split('\n')[4].split('/')
+        sla_location_id = location_p[len(location_p)-1].strip()
+        print "PARSED_LOCATION: " + sla_location_id
 
-       c = pycurl.Curl()
-       c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement_link/")
-       c.setopt(c.VERBOSE, 1)
-       c.setopt(c.POST, 1)
-       c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
+        self.results["id"] = sla_location_id
 
-       c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
+        c = pycurl.Curl()
+        c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement_link/")
+        c.setopt(c.VERBOSE, 1)
+        c.setopt(c.POST, 1)
+        c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
+
+        c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
                                           'Category: agreement_link; scheme=\"http://schemas.ogf.org/occi/sla#\"; class=\"kind\"',
                                           'Content-Type:text/occi',
                                           'Provider:DSS',
@@ -110,25 +82,63 @@ class SLAManager:
                                           'customer:lola',
                                           'x-occi-attribute: occi.core.source=\"'+ "/agreement/" + sla_location_id+'\"',
                                           'x-occi-attribute: occi.core.target=\"DSSMCRHOSTNAME\"'])
-       c.perform()
-       c.close()
+        c.perform()
+        c.close()
 
-       c = pycurl.Curl()
-       c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement/"+sla_location_id+"?action=accept")
-       c.setopt(c.VERBOSE, 1)
-       c.setopt(c.POST, 1)
-       c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
-       c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
+        headers_accept = Storage()
+
+        c = pycurl.Curl()
+        c.setopt(c.URL, "http://"+self.SLAHost+":"+self.SLAPort+"/agreement/"+sla_location_id+"?action=accept")
+        c.setopt(c.VERBOSE, 1)
+        c.setopt(c.POST, 1)
+        c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
+        c.setopt(c.WRITEFUNCTION, headers_accept.store)
+        c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
                                           'Category: accept; scheme=\"http://schemas.ogf.org/occi/sla#\"; class=\"kind\"',
                                           'Content-Type:text/occi',
                                           'Provider:DSS',
                                           'Provider_pass:dss_pass',
                                           'customer:lola'])
-       c.perform()
-       c.close()
+        c.perform()
+        c.close()
 
-       return 0
+        x_occi_attributes = {}
+        headers_accept.contents = headers_accept.contents[headers_accept.contents.find("X-OCCI-Attribute:"):]
+        for i in range(1, 11):
+            before = headers_accept.contents
+            headers_accept.contents = headers_accept.contents[headers_accept.contents.find("X-OCCI-Attribute:") + 17:]
+            x_occi_attributes[str(i)] = before[before.find("X-OCCI-Attribute:"):before.find("X-OCCI-Attribute:") + headers_accept.contents.find("X-OCCI-Attribute:") + 17]
 
+        return self.parseOcciAttribs(x_occi_attributes)
+
+    def parseOcciAttribs(self, x_occi_attributes):
+
+        sla_term = {
+            "type":"SLO-TERM",
+            "desc":"",
+            "name":"",
+            "value":"",
+            "limiter_type":""
+        }
+
+        for item in x_occi_attributes:
+            if "occi.agreement.state=" in x_occi_attributes[item]:
+                self.results["status"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip()
+            elif "occi.agreement.effectiveFrom=" in x_occi_attributes[item]:
+                self.results["effective_from"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip().replace("T"," ").split("+")[0] + " UTC"
+            elif "occi.agreement.effectiveUntil=" in x_occi_attributes[item]:
+                self.results["effective_until"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip().replace("T"," ").split("+")[0] + " UTC"
+            elif "connections_load.term.desc=" in x_occi_attributes[item]:
+                sla_term["desc"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip()
+            elif "dss_gold.connections_load.DSS number of active player data=" in x_occi_attributes[item]:
+                sla_term["value"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip()
+            elif "dss_gold.connections_load.DSS number of active player data.limiter_type=" in x_occi_attributes[item]:
+                sla_term["limiter_type"] = x_occi_attributes[item].split("=")[1].replace("\"","").strip()
+                sla_term["name"] = x_occi_attributes[item].split(".")[2].replace("\"","").strip()
+
+        self.results["terms"].append(sla_term)
+
+        return self.results
 
 class Application:
     def __init__(self):
@@ -142,22 +152,168 @@ class Application:
 
         if environ['PATH_INFO'] == '/sla':
             return self.serve_sla_agreement()
-        elif environ['PATH_INFO'] == '/validated':
-            return self.validate()
-        else:
-            return self.not_found()
+        elif environ['PATH_INFO'] == '/validated_gold':
+            return self.validate("gold")
+        elif environ['PATH_INFO'] == '/validated_silver':
+            return self.validate("silver")
+        elif environ['PATH_INFO'] == '/validated_bronze':
+            return self.validate("bronze")
 
-    def validate(self):
+    def validate(self, name):
         if self.environ['REQUEST_METHOD'] == 'GET':
-            response_body = 'OK'
             slam = SLAManager()
-            slam.perform_sla_acceptance()
-            self.start_response('200 OK', [('Content-Type', self.ctype), ('Content-Length', str(len(response_body)))])
+            results = slam.perform_sla_acceptance(name)
+            response_body = '<!doctype html>' \
+                                '<html>' \
+                                '<head>' \
+                                '<meta charset="utf-8">' \
+                                '<title>DSS SLA agreement</title>' \
+                                '</head>' \
+                                '<body>' \
+                                '<div>' \
+                                  '<h1>DSS SLAaaS Agreement</h1>' \
+                                  '<p>Please find the information regarding to the accepted agreement below:</p>' \
+                                  '<table width="30%" border="1px" style="border: thin">' \
+                                    '<tr>' \
+                                      '<td>' \
+                                        '<div>' \
+                                          '<blockquote>' \
+                                            '<div><strong>Category: ' + results["category"] + '</strong></div>' \
+                                            '<br />' \
+                                            '<div><strong>Status: ' + results["status"] + '</strong></div>' \
+                                            '<br />' \
+                                            '<div><strong>ID: ' + results["id"] + '</strong></div>' \
+                                            '<br />' \
+                                            '<div>Link to SLA violations: <a href="' + results["link"] + '">' + results["link"] + '<a></div>' \
+                                            '<br />' \
+                                            '<label>Agreement terms</label>' \
+                                            '<ul>' \
+                                              '<li>' \
+                                                '<label>TERM1</label>' \
+                                              '</li>' \
+                                              '<ul>' \
+                                                '<li><strong>Type</strong>: ' + results["terms"][0]["type"] + '</li>' \
+                                                '<li><strong>Description</strong>: <span>' + results["terms"][0]["desc"] + '</span></li>' \
+                                                '<li><strong>Name</strong>: ' + results["terms"][0]["name"] + '</li>' \
+                                                '<li><strong>Value</strong>: ' + results["terms"][0]["value"] + '</li>' \
+                                                '<li><strong>Limiter_type</strong>: ' + results["terms"][0]["limiter_type"] + '</li>' \
+                                              '</ul>' \
+                                            '</ul>' \
+                                            '<label>Agreement dates</label>' \
+                                            '<ul>' \
+                                              '<li><strong>Effective From</strong>: ' + results["effective_from"] + '</li>' \
+                                              '<li><strong>Effective Until</strong>: ' + results["effective_until"] + '</li>' \
+                                            '</ul>' \
+                                          '</blockquote>' \
+                                        '</div>' \
+                                       '</td>' \
+                                    '<tr>' \
+                                  '</table>' \
+                                '</div>' \
+                                '</body>' \
+                                '</html>'
+            self.start_response('200 OK', [('Content-Type', self.htmltype), ('Content-Length', str(len(response_body)))])
             return [response_body]
 
     def serve_sla_agreement(self):
         if self.environ['REQUEST_METHOD'] == 'GET':
-            response_body = '<!doctype html><html><head>        <title>HTML Editor - Full Version</title></head><body><h1>SLAaaS Agreement Acceptance for DSSaaS</h1><p>Please read carefully following agreement and click on &quot;Accept&quot; button to sign and validate.</p><blockquote><p>{template}</p></blockquote><p><input name="Validate" type="button" onClick="location.href=\'validated\'" value="Accept" /><input name="Reject" type="button" value="Reject" /></p></body></html>'
+            response_body = '<!doctype html>' \
+                                '<html>' \
+                                    '<head>' \
+                                        '<meta charset="utf-8">' \
+                                        '<title>DSS SLA agreement</title>' \
+                                    '</head>' \
+                                    '<body>' \
+                                    '<div>' \
+                                        '<h1>SLAaaS Agreement Acceptance for DSSaaS</h1>' \
+                                        '<p>Please carefully read the following agreements and click on &quot;Accept&quot; button to sign and validate the desired one.</p>' \
+                                        '<table width="70%" border="1px" style="border: thin">' \
+                                            '<tr>' \
+                                                '<td>' \
+                                                    '<div>' \
+                                                        '<blockquote>' \
+                                                          '<div style="text-align: center"><strong>Category: dss_gold</strong></div>' \
+                                                          '<br />' \
+                                                          '<label>Agreement terms</label>' \
+                                                          '<ul>' \
+                                                            '<li><label>TERM1</label></li>' \
+                                                            '<ul>' \
+                                                              '<li><strong>Type</strong>: SLO-TERM</li>' \
+                                                              '<li><strong>Description</strong>: <span>This is the SLO term for an instance of DSS regarding the connections of the players</span></li>' \
+                                                              '<li><strong>Name</strong>: DSS number of active player data</li>' \
+                                                              '<li><strong>Value</strong>: 100</li>' \
+                                                              '<li><strong>Limiter_type</strong>: max</li>' \
+                                                            '</ul>' \
+                                                          '</ul>' \
+                                                          '<label>Agreement dates</label>' \
+                                                          '<ul>' \
+                                                            '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
+                                                            '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
+                                                          '</ul>' \
+                                                        '</blockquote>' \
+                                                        '<div style="text-align: center">' \
+                                                          '<input name="validate" type="button" onClick="location.href=\'validated_gold\'" value="Accept" style="margin: 10px" />' \
+                                                        '</div>' \
+                                                    '</div>' \
+                                                '</td>' \
+                                                '<td>' \
+                                                    '<div>' \
+                                                        '<blockquote>' \
+                                                          '<div style="text-align: center"><strong>Category: dss_silver</strong></div>' \
+                                                          '<br />' \
+                                                          '<label>Agreement terms</label>' \
+                                                          '<ul>' \
+                                                            '<li><label>TERM1</label></li>' \
+                                                            '<ul>' \
+                                                              '<li><strong>Type</strong>: SLO-TERM</li>' \
+                                                              '<li><strong>Description</strong>: <span>This is the SLO term for an instance of DSS regarding the connections of the players</span></li>' \
+                                                              '<li><strong>Name</strong>: DSS number of active player data</li>' \
+                                                              '<li><strong>Value</strong>: 50</li>' \
+                                                              '<li><strong>Limiter_type</strong>: max</li>' \
+                                                            '</ul>' \
+                                                          '</ul>' \
+                                                          '<label>Agreement dates</label>' \
+                                                          '<ul>' \
+                                                            '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
+                                                            '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
+                                                          '</ul>' \
+                                                        '</blockquote>' \
+                                                        '<div style="text-align: center">' \
+                                                          '<input name="validate" type="button" onClick="location.href=\'validated_silver\'" value="Accept" disabled="disabled" style="margin: 10px" />' \
+                                                        '</div>' \
+                                                    '</div>' \
+                                                '</td>' \
+                                                '<td>' \
+                                                    '<div>' \
+                                                        '<blockquote>' \
+                                                          '<div style="text-align: center"><strong>Category: dss_bronze</strong></div>' \
+                                                          '<br />' \
+                                                          '<label>Agreement terms</label>' \
+                                                          '<ul>' \
+                                                            '<li><label>TERM1</label></li>' \
+                                                            '<ul>' \
+                                                              '<li><strong>Type</strong>: SLO-TERM</li>' \
+                                                              '<li><strong>Description</strong>: <span>This is the SLO term for an instance of DSS regarding the connections of the players</span></li>' \
+                                                              '<li><strong>Name</strong>: DSS number of active player data</li>' \
+                                                              '<li><strong>Value</strong>: 25</li>' \
+                                                              '<li><strong>Limiter_type</strong>: max</li>' \
+                                                            '</ul>' \
+                                                          '</ul>' \
+                                                          '<ul>' \
+                                                            '<li><strong>Effective From</strong>: 2014-11-02 02:20:26 UTC</li>' \
+                                                            '<li><strong>Effective Until</strong>: 2015-11-02 02:20:26 UTC</li>' \
+                                                          '</ul>' \
+                                                        '</blockquote>' \
+                                                        '<div style="text-align: center">' \
+                                                          '<input name="validate" type="button" onClick="location.href=\'validated_bronze\'" value="Accept" disabled="disabled" style="margin: 10px" />' \
+                                                        '</div>' \
+                                                    '</div>' \
+                                                '</td>' \
+                                            '<tr>' \
+                                        '</table>' \
+                                    '</div>' \
+                                    '</body>' \
+                                    '</html>'
             self.start_response('200 OK', [('Content-Type', self.htmltype), ('Content-Length', str(len(response_body)))])
             return [response_body]
         else:
