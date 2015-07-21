@@ -356,8 +356,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.configure = SOConfigure(self.so_e,self,self.event)
 
         # Scaling guard time
-        self.cmsScaleThreshold = 1200 #in seconds
-        self.mcrScaleThreshold = 1200 #in seconds
+        self.cmsScaleInThreshold = 450 #in seconds
+        self.mcrScaleDownThreshold = 450 #in seconds
 
         # Number of players needed for each scale out/in
         self.playerCountLimit = 5.0
@@ -417,14 +417,14 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             scaleTriggered = False
             cmsScaleOutTriggered = False
             cmsScaleInTriggered = False
+            writeLogFile(self.swComponent,"Checking CMS status",'','')
             for item in self.decisionMapCMS:
-                writeLogFile(self.swComponent,"Checking CMS status",'','')
-                if self.lastCmsScale == 0:
-                    diff = 0
-                else:
-                    diff = int(time.time() - self.lastCmsScale)
-                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " == " + str(cmsCount) + " and ( " + str(diff) + " > " + str(self.cmsScaleThreshold) + " or " + str(self.lastCmsScale) + " == 0 )",'','')
-                if item[item.keys()[0]] == cmsCount and (diff > self.cmsScaleThreshold or self.lastCmsScale == 0):
+                if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
+                    writeLogFile(self.swComponent,"More than 60% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
+                elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":
+                    writeLogFile(self.swComponent,"Less than 10% cpu utilization for more than 10 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
+                writeLogFile(self.swComponent,"Total CMS machine(s) count is: " + str(cmsCount),'','')
+                if item[item.keys()[0]] == cmsCount:
                     # CMS scale out
                     if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
                         cmsScaleOutTriggered = True
@@ -432,48 +432,28 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}" and self.numberOfScaleOutsPerformed > 0:
                         cmsScaleInTriggered = True
 
-            for item in self.decisionMapMCR:
-                writeLogFile(self.swComponent,"Checking MCR status",'','')
-                if self.lastMcrScale == 0:
-                    diff = 0
-                else:
-                    diff = int(time.time() - self.lastMcrScale)
-                writeLogFile(self.swComponent,str(item[item.keys()[0]]) + " > 0 and ( " + str(diff) + " > " + str(self.mcrScaleThreshold) + " or " + str(self.lastMcrScale) + " == 0 )",'','')
-                if item[item.keys()[0]] > 0 and (diff > self.mcrScaleThreshold or self.lastMcrScale == 0):
-                    # MCR scale up
-                    # It is commented because it's not working for current heat version )
-                    if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":
-                        self.lastMcrScale = time.time()
-                        #self.so_e.templateManager.templateToScaleUp()
-                        self.numberOfScaleUpsPerformed += 1
-                        #scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN MCR scaleUp",'','')
-                    # MCR scale down
-                    elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0:
-                        self.lastMcrScale = time.time()
-                        #self.so_e.templateManager.templateToScaleDown()
-                        self.numberOfScaleUpsPerformed -= 1
-                        #scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN MCR scaleDown",'','')
-            #Back to CMS check
+            #Calculate the player scaling situation
+            numOfCmsNeeded = int((float(self.playerCount)/self.playerCountLimit) + 1)
+            writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
+            #CMS scale out because more than specific number of players
+            if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
+                self.lastCmsScale = time.time()
+                self.so_e.templateManager.templateToScaleOut()
+                self.numberOfScaleOutsPerformed += 1
+                scaleTriggered = True
+                writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
+
             if self.lastCmsScale == 0:
                 diff = 0
             else:
                 diff = int(time.time() - self.lastCmsScale)
-
-            #Calculate the player scaling situation
-            numOfCmsNeeded = int((float(self.playerCount)/self.playerCountLimit) + 1)
-            writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
-            if diff > self.cmsScaleThreshold or self.lastCmsScale == 0:
-                #CMS scale out because more than specific number of players
-                if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
-                    self.lastCmsScale = time.time()
-                    self.so_e.templateManager.templateToScaleOut()
-                    self.numberOfScaleOutsPerformed += 1
-                    scaleTriggered = True
-                    writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
+            writeLogFile(self.swComponent,"Number of scale outs performed: " + str(self.numberOfScaleOutsPerformed),'','')
+            writeLogFile(self.swComponent,"Last CMS scale action happened " + str(diff) + " minute(s) ago",'','')
+            writeLogFile(self.swComponent,"Threshold for CMS scale in is: " + str(self.cmsScaleInThreshold) + " second(s)",'','')
+            writeLogFile(self.swComponent,"CMS cpu metric scale in triggered: " + str(cmsScaleInTriggered),'','')
+            if diff > self.cmsScaleInThreshold or self.lastCmsScale == 0:
                 #CMS scale out because less than specific number of players
-                elif  numOfCmsNeeded < cmsCount and self.numberOfScaleOutsPerformed > 0 and cmsScaleInTriggered:
+                if  numOfCmsNeeded < cmsCount and self.numberOfScaleOutsPerformed > 0 and cmsScaleInTriggered:
                     self.lastCmsScale = time.time()
                     self.so_e.templateManager.templateToScaleIn()
                     self.numberOfScaleOutsPerformed -= 1
@@ -484,6 +464,34 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     while (result < 0):
                         time.sleep(1)
                         result, instanceListInCaseOfScaleIn = self.so_e.getServerNamesList()
+
+            for item in self.decisionMapMCR:
+                writeLogFile(self.swComponent,"Checking MCR status",'','')
+                if self.lastMcrScale == 0:
+                    diff = 0
+                else:
+                    diff = int(time.time() - self.lastMcrScale)
+                if item[item.keys()[0]] > 0:
+                    # MCR scale up
+                    # It is commented because it's not working for current heat version )
+                    if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":
+                        writeLogFile(self.swComponent,"More than 90% hard disk usage on MCR machine",'','')
+                        self.lastMcrScale = time.time()
+                        #self.so_e.templateManager.templateToScaleUp()
+                        self.numberOfScaleUpsPerformed += 1
+                        #scaleTriggered = True
+                        writeLogFile(self.swComponent,"IN MCR scaleUp",'','')
+                    # MCR scale down
+                    elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
+                        writeLogFile(self.swComponent,"Less than 30% hard disk usage on MCR machine",'','')
+                        writeLogFile(self.swComponent,"Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed),'','')
+                        writeLogFile(self.swComponent,"Last MCR scale action happened " + str(diff) + " minute(s) ago",'','')
+                        writeLogFile(self.swComponent,"Threshold for MCR scale down is: " + str(self.mcrScaleDownThreshold) + " second(s)",'','')
+                        self.lastMcrScale = time.time()
+                        #self.so_e.templateManager.templateToScaleDown()
+                        self.numberOfScaleUpsPerformed -= 1
+                        #scaleTriggered = True
+                        writeLogFile(self.swComponent,"IN MCR scaleDown",'','')
 
             # Call SO execution if scaling required
             writeLogFile(self.swComponent,str(scaleTriggered),'','')
