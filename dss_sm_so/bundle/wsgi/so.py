@@ -353,7 +353,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":0}]
 
         # Creating a configuring object ( REST client for SO::SIC interface )
-        self.configure = SOConfigure(self.so_e,self)
+        self.configure = SOConfigure(self.so_e,self,self.event)
 
         # Scaling guard time
         self.cmsScaleThreshold = 1200 #in seconds
@@ -378,11 +378,15 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
         LOG.debug('Waiting for deploy and provisioning to finish')
         self.event.wait()
+        self.configure.start()
+        LOG.debug('Waiting for local config to finish')
+        self.event.clear()
+        self.event.wait()
         LOG.debug('Starting runtime logic...')
         # TODO implement you runtime logic here - you should probably release the locks afterwards, maybe in stop ;-)
         # Start pushing configurations to SICs
 
-        self.configure.start()
+
 
         # Decision loop
         while(1):
@@ -590,7 +594,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 # Implements client part of DSS agent REST api to push configs into DSS SICs
 class SOConfigure(threading.Thread):
 
-    def __init__(self,so_e,so_d):
+    def __init__(self, so_e, so_d, ready_event):
+        self.event = ready_event
         self.swComponent = 'SO-SIC-Config'
         threading.Thread.__init__(self)
         writeLogFile(self.swComponent,"SOConfigure executed ................",'','')
@@ -718,6 +723,8 @@ class SOConfigure(threading.Thread):
 
         #writeLogFile(self.swComponent,"Start monitoring service ...",'','')
         self.monitor.start()
+        # once logic executes, deploy phase is done
+        self.event.set()
 
     def deploymentPause(self):
         result = -1
