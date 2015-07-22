@@ -153,6 +153,10 @@ class TemplateGenerator:
         template += '    Description: Floating IP address of DSS load balancer in public network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
         template += "\n"
+        template += '  mcn.dss.dashboard.lb.endpoint:' + "\n"
+        template += '    Description: Floating IP address of DSS Dashboard load balancer in public network' + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ dashboard_lb_floatingip, floating_ip_address ] }" + "\n"
+        template += "\n"
         template += '  mcn.dss.mcr.hostname:' + "\n"
         template += '    Description: open stack instance name' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ mcr_server, show ] }" + "\n"
@@ -269,6 +273,56 @@ class TemplateGenerator:
         template += '    Properties:' + "\n"           
         template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed          
         template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"           
+        template += "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += '#                         LB_Dashboard / FRONTEND RESOURCES                                  #' + "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += "\n"
+        template += '  dashboard_healthmonitor:' + "\n"
+        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      delay : 10' + "\n"
+        template += '      max_retries : 3' + "\n"
+        template += '      timeout : 10' + "\n"
+        template += '      type : HTTP' + "\n"
+        template += '      url_path : /WebAppDSS/' + "\n"
+        template += '      expected_codes : 200-399'
+        template += "\n"
+        template += '  dashboard_lb_pool:' + "\n"
+        template += '    Type: OS::Neutron::Pool' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      lb_method: ROUND_ROBIN' + "\n"
+        template += '      name: mypool8080' + "\n"
+        template += '      protocol: HTTP' + "\n"
+        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      monitors : [{ Ref: dashboard_healthmonitor }]' + "\n"
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip8080, "protocol_port": 8080, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+        template += "\n"
+
+        self.lbNameRandom = self.randomNameGenerator(6)
+
+        template += '  ' + self.lbNameRandom  + '_loadbalancer:' + "\n"
+        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      members: [ '
+
+        self.cmsCounter = 1
+        template += '{ Ref: ' + self.getCmsBaseName() +' }'
+        for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
+            template += ', { Ref: ' + self.getCmsBaseName() +' }'
+
+        self.cmsCounter = self.numberOfCmsInstances + 1
+        self.cmsHostToRemove = self.getCmsBaseName()
+
+        template += ' ]' + "\n"
+        template += '      pool_id: { Ref: dashboard_lb_pool }' + "\n"
+        template += '      protocol_port: 8080' + "\n"
+        template += "\n"
+        template += '  dashboard_lb_floatingip:' + "\n"
+        template += '    Type: OS::Neutron::FloatingIP' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
+        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ dashboard_lb_pool, vip ] } ] }" + "\n"
         template += "\n"
         template += self.getOutput()           
         
