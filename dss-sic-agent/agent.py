@@ -99,8 +99,10 @@ class Application:
 
         if self.cdn_enabled == 'true' and self.icn_enabled == 'false':
             self.configurationstatus = {"cdn":"False", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
-        else:
+        elif self.cdn_enabled == 'false' and self.icn_enabled == 'true':
             self.configurationstatus = {"cdn":"True", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"False"}
+        else:
+            self.configurationstatus = {"cdn":"True", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
             
     def __call__(self, environ, start_response):
         self.environ=environ
