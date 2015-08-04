@@ -100,17 +100,18 @@ class Application:
         self.message_queue = Queue()
 
         self.component_status = {
-                                    "slaaas":"False",
-                                    "aaaaas":"False",
-                                    "dnsaas":"False",
-                                    "monaas":"False",
-                                    "icnaas":"False",
-                                    "cms1":"False",
-                                    "cms2":"False",
-                                    "cms3":"False",
-                                    "mcr":"False",
-                                    "lbaas":"False",
-                                    "so":"False"
+                                    "slaaas":"None",
+                                    "aaaaas":"None",
+                                    "dnsaas":"None",
+                                    "monaas":"None",
+                                    "icnaas":"None",
+                                    "cms1":"None",
+                                    "cms2":"None",
+                                    "cms3":"None",
+                                    "mcr":"None",
+                                    "db":"None",
+                                    "lbaas":"None",
+                                    "so":"None"
         }
 
     def __call__(self, environ, start_response):
@@ -151,7 +152,32 @@ class Application:
             #check user/pass
 
             for item in init_json["components"]:
-                self.component_status[item["name"]] = "True"
+                self.component_status[item["name"]] = "deployed"
+
+            LOG.debug("Status of specified components changed to ready.")
+            response_body = json.dumps({"Message":"Status of specified components changed to ready."})
+            self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            LOG.debug(str([response_body]))
+            return [response_body]
+
+        elif self.environ['REQUEST_METHOD'] == 'POST':
+            #get JSON from PAYLOAD
+            from cStringIO import StringIO
+            length = self.environ.get('CONTENT_LENGTH', '0')
+            length = 0 if length == '' else int(length)
+            body = self.environ['wsgi.input'].read(length)
+            jsonm = JSONManager()
+            jsonm.jprint(body)
+            init_json = jsonm.read(body)
+            if (init_json == -1):
+                return self.servererror(self.SERVER_ERROR_PARSE_JSON)
+            #check auth
+            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+                return self.unauthorised()
+            #check user/pass
+
+            for item in init_json["components"]:
+                self.component_status[item["name"]] = "configured"
 
             LOG.debug("Status of specified components changed to ready.")
             response_body = json.dumps({"Message":"Status of specified components changed to ready."})
@@ -176,7 +202,7 @@ class Application:
             #check user/pass
 
             for item in init_json["components"]:
-                self.component_status[item["name"]] = "False"
+                self.component_status[item["name"]] = "None"
 
             LOG.debug("Status of specified components changed to NOT ready.")
             response_body = json.dumps({"Message":"Status of specified components changed to NOT ready."})
@@ -289,5 +315,5 @@ class Application:
 application = Application()
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
-    httpd = make_server('', 8053, application)
+    httpd = make_server('', 8055, application)
     httpd.serve_forever()
