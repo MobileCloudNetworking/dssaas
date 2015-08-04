@@ -1,5 +1,5 @@
 __author__ = "Santiago Ruiz"
-__copyright__ = "Copyright 2015, SoftTelecom"
+__copyright__ = "Copyright 2014, SoftTelecom"
 import json
 import logging
 import random

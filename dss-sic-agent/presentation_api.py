@@ -1,5 +1,5 @@
 __author__ = "Mohammadjavad valipoor"
-__copyright__ = "Copyright 2014, SoftTelecom"
+__copyright__ = "Copyright 2015, SoftTelecom"
 import json
 import logging
 from Queue import Queue
