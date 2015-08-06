@@ -87,8 +87,7 @@ class Application:
     def __init__(self):
         self.ctype = 'text/plain'
         self.jsontype = 'application/json'
-        self.allowedtoken = 'NONE'
-        self.alloweduser = 'NONE'
+        self.allowed_users = []
         self.SERVER_ERROR_PARSE_JSON = 'Error in parsing input json'
         self.SERVER_ERROR_SET_CONFIG_JSON = 'Error while setting instance json config file'
         self.SERVER_ERROR_DEPLOY_NOT_FINISHED = 'Deployment not finished'
@@ -147,7 +146,7 @@ class Application:
             if (init_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check auth
-            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+            if not (self.token_exists(init_json["user"]) == init_json["token"]):
                 return self.unauthorised()
             #check user/pass
 
@@ -172,7 +171,7 @@ class Application:
             if (init_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check auth
-            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+            if not (self.token_exists(init_json["user"]) == init_json["token"]):
                 return self.unauthorised()
             #check user/pass
 
@@ -197,7 +196,7 @@ class Application:
             if (init_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check auth
-            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+            if not (self.token_exists(init_json["user"]) == init_json["token"]):
                 return self.unauthorised()
             #check user/pass
 
@@ -225,7 +224,7 @@ class Application:
             if (init_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check auth
-            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+            if not (self.token_exists(init_json["user"]) == init_json["token"]):
                 return self.unauthorised()
             #check user/pass
 
@@ -252,7 +251,7 @@ class Application:
             if (init_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check auth
-            if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
+            if not (self.token_exists(init_json["user"]) == init_json["token"]):
                 return self.unauthorised()
             #check user/pass
 
@@ -280,18 +279,34 @@ class Application:
             if (auth_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             #check user/pass
-            if (auth_json["user"]=="UI" and auth_json["password"]=="UI"):
-                token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
-                self.alloweduser = auth_json["user"]
-                self.allowedtoken = token
-                response_body = '{"user":"UI","token":"' + token + '"}'
-                self.start_response('200 OK', [('Content-Type', 'text/json'), ('Content-Length', str(len(response_body)))])
-                return [response_body]
+            username = str(auth_json["user"])
+            result = self.token_exists(username)
+            if result is None:
+                if (username == "SO" and auth_json["password"] == "SO"):
+                    token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+                    user_object = {'user': auth_json["user"], 'token': token}
+                    self.allowed_users.append(user_object)
+                    response_body = '{"user":"SO","token":"' + token + '"}'
+                elif (username == "HTML5" and auth_json["password"] == "HTML5"):
+                    token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+                    user_object = {'user': auth_json["user"], 'token': token}
+                    self.allowed_users.append(user_object)
+                    response_body = '{"user":"HTML5","token":"' + token + '"}'
+                else:
+                    return self.unauthorised()
             else:
-                return self.unauthorised()
+                response_body = '{"user":"' + username + '","token":"' + result + '"}'
+            self.start_response('200 OK', [('Content-Type', 'text/json'), ('Content-Length', str(len(response_body)))])
+            return [response_body]
             #everything went fine
         else:
             return self.not_found()
+
+    def token_exists(self, username):
+        for item in self.allowed_users:
+            if item["user"] == username:
+                return item["token"]
+        return None
 
 # ////////////////ERROR MGMT////////////////////
 

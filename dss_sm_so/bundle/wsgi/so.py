@@ -650,7 +650,7 @@ class SOConfigure(threading.Thread):
 
         self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready"}
 
-        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/auth', 'POST', '{"user":"UI","password":"UI"}')
+        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         self.ui_token = resp["token"]
         writeLogFile(self.swComponent,"Auth response is:" + str(resp),'','')
 
