@@ -376,15 +376,15 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         Decision part implementation goes here.
         """
         # it is unlikely that logic executed will be of any use until the provisioning phase has completed
-        resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"so"}]}')
+        resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"so"}]}')
         writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
         LOG.debug('Waiting for deploy and provisioning to finish')
         self.event.wait()
         resp = ''
         if self.so_e.templateManager.aaa_enable == "true":
-            resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
+            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
         else:
-            resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
+            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
         writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
         self.configure.start()
         LOG.debug('Waiting for local config to finish')
@@ -521,10 +521,10 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 #Removing the deleted host from zabbix server
                 if zHostToDelete is not None:
                     self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
-                    resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'DELETE', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances+1) + '"}]}')
+                    resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'DELETE', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances+1) + '"}]}')
                     writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
                 else:
-                    resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
+                    resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
                     writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
                 # Checking configuration status of the instances after scaling
@@ -599,7 +599,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                     continue
                                 response_status = int(response.get("status"))
                                 self.configure.SICMonConfig(content)
-                            resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
+                            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
                             writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
     # Updates the decision map according to the triggered triggers :-)
@@ -642,13 +642,15 @@ class SOConfigure(threading.Thread):
         #self.cdn_global_id = None
         #self.cdn_origin = None
 
+        self.ui_url = "http://54.171.14.235:8055"
+
         self.icn_endpoint = None
 
         self.timeout = 10
 
         self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready"}
 
-        resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/auth', 'POST', '{"user":"UI","password":"UI"}')
+        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/auth', 'POST', '{"user":"UI","password":"UI"}')
         self.ui_token = resp["token"]
         writeLogFile(self.swComponent,"Auth response is:" + str(resp),'','')
 
@@ -666,7 +668,7 @@ class SOConfigure(threading.Thread):
                 LOG.debug("Try to get the dns object ...")
                 try:
                     self.so_e.dnsObject = util.get_dnsaas(self.so_e.token, tenant_name=self.so_e.tenant_name)
-                    resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
+                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
                     writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
                 except:
                     LOG.debug("Unexpected error:" , str(sys.exc_info()[0]))
@@ -677,7 +679,7 @@ class SOConfigure(threading.Thread):
                     LOG.debug("DNS Forwarder EP: " + self.dns_forwarder)
                     self.performDNSConfig()
                     self.dependencyStat["DNS"] = "ready"
-                    resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
+                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
                 else:
                     LOG.debug("Couldn't get DNSaaS object")
             else:
@@ -714,7 +716,7 @@ class SOConfigure(threading.Thread):
             while self.dependencyStat["ICN"] != "ready":
                 if self.so_e.icn_endpoint != None:
                     self.icn_endpoint = self.so_e.icn_endpoint
-                    resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"icnaas"}]}')
+                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"icnaas"}]}')
                     writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
                     #Configuring primary parameters of ICN service - empty for now
                     self.performICNConfig()
@@ -733,7 +735,7 @@ class SOConfigure(threading.Thread):
             if self.so_e.monitoring_endpoint != None:
                 #Now that all DSS SICs finished application deployment we can start monitoring
                 self.monitoring_endpoint = self.so_e.monitoring_endpoint
-                resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
+                resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
                 writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
                 writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
                 self.dependencyStat["MON"] = "ready"
@@ -746,10 +748,10 @@ class SOConfigure(threading.Thread):
         #Wait for DSS SICs to finish application deployment
         self.deploymentPause()
         if self.so_e.templateManager.aaa_enable == 'true':
-            resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
+            resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
             writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
         else:
-            resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
+            resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
             writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
 
         # Creating a monitor for pulling MaaS information
@@ -761,7 +763,7 @@ class SOConfigure(threading.Thread):
 
         self.monitor = SOMonitor(self.so_e,self.so_d,self.monitoring_endpoint,0,'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php','admin','zabbix')
         self.performMonConfig()
-        resp = self.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
+        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
         writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
 
         #writeLogFile(self.swComponent,"Start monitoring service ...",'','')
@@ -976,6 +978,24 @@ class SOConfigure(threading.Thread):
             content_dict = json.loads(content)
             return content_dict
             #if response status is not OK, retry
+
+    def sendRequestToStatusUI(self, api_url, req_type, json_data):
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json; charset=UTF-8'
+        }
+        try:
+            h = http.Http()
+            h.timeout = 10
+            writeLogFile(self.swComponent,"Sending request to:" + api_url  ,'','')
+            response, content = h.request(api_url, req_type, json_data, headers)
+        except Exception as e:
+            writeLogFile(self.swComponent,"Handled " + api_url + " exception." + str(e) ,'','')
+        response_status = int(response.get("status"))
+        writeLogFile(self.swComponent,"response status is:" + str(response_status) + " Content: " + str(content) ,'','')
+        content_dict = json.loads(content)
+        return content_dict
+        #if response status is not OK, retry
 
     def performMonConfig(self):
         result = -1
