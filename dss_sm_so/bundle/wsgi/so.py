@@ -521,6 +521,11 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 #Removing the deleted host from zabbix server
                 if zHostToDelete is not None:
                     self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
+                    resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'DELETE', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances+1) + '"}]}')
+                    writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
+                else:
+                    resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'PUT', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
+                    writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
                 # Checking configuration status of the instances after scaling
                 self.checkConfigurationStats()
@@ -594,6 +599,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                     continue
                                 response_status = int(response.get("status"))
                                 self.configure.SICMonConfig(content)
+                            resp = self.configure.sendRequestToSICAgent('http://54.171.14.235:8055/v1.0/service_ready', 'POST', '{"user":"UI","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
+                            writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
     # Updates the decision map according to the triggered triggers :-)
     def updateDecisionMap(self, type, description):
