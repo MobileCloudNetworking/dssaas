@@ -158,6 +158,8 @@ class Application:
             return self.validate("silver")
         elif environ['PATH_INFO'] == '/validated_bronze':
             return self.validate("bronze")
+        else:
+            return self.not_found()
 
     def validate(self, name):
         if self.environ['REQUEST_METHOD'] == 'GET':
@@ -324,27 +326,27 @@ class Application:
             self.start_response('200 OK', [('Content-Type', self.htmltype), ('Content-Length', str(len(response_body)))])
             return [response_body]
         else:
-            return not_found()
+            return self.not_found()
 
 
-# ////////////////ERROR MGMT////////////////////
+    # ////////////////ERROR MGMT////////////////////
 
-def not_found(self):
-    """Called if no URL matches."""
-    self.start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
-    return ['Not Found']
-
-
-def unauthorised(self):
-    """Called if no URL matches."""
-    self.start_response('401 UNAUTHORIZED', [('Content-Type', 'text/plain')])
-    return ['Unauthorised']
+    def not_found(self):
+        """Called if no URL matches."""
+        self.start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
+        return ['Not Found']
 
 
-def servererror(self):
-    """Called if no URL matches."""
-    self.start_response('500 INTERNAL SERVER ERROR', [('Content-Type', 'text/plain')])
-    return ['Request error']
+    def unauthorised(self):
+        """Called if no URL matches."""
+        self.start_response('401 UNAUTHORIZED', [('Content-Type', 'text/plain')])
+        return ['Unauthorised']
+
+
+    def servererror(self):
+        """Called if no URL matches."""
+        self.start_response('500 INTERNAL SERVER ERROR', [('Content-Type', 'text/plain')])
+        return ['Request error']
 
 
 application = Application()
