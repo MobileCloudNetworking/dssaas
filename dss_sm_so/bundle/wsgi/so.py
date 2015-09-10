@@ -630,6 +630,7 @@ class SOConfigure(threading.Thread):
         self.dssCmsDomainName = self.so_e.dssCmsDomainName
         self.dssMcrDomainName = self.so_e.dssMcrDomainName
         self.dssCmsRecordName = self.so_e.dssCmsRecordName
+        self.dssDashboardRecordName = self.so_e.dssDashboardRecordName
         self.dssMcrRecordName = self.so_e.dssMcrRecordName
 
         self.monitoring_endpoint = None
@@ -837,7 +838,7 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
 
             elif item == "mcn.dss.dashboard.lb.endpoint":
-                dashboardRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDasboardRecordName, record_type='A', token=self.so_e.token)
+                dashboardRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', token=self.so_e.token)
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
