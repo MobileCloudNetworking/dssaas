@@ -813,18 +813,18 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Entering the loop to push dns domain names for each instance ...",'','')
 
         for item in self.instances:
+            lbDomainExists = self.so_e.dnsObject.get_domain(self.dssCmsDomainName, self.so_e.token)
+            if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
+                result = -1
+                while (result != 1):
+                    time.sleep(2)
+                    result = self.so_e.dnsObject.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
+                writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
+            else:
+                writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbDomainExists.__repr__(), '', '')
             if item == "mcn.dss.lb.endpoint":
-                lbDomainExists = self.so_e.dnsObject.get_domain(self.dssCmsDomainName, self.so_e.token)
-                if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
-                    result = -1
-                    while (result != 1):
-                        time.sleep(2)
-                        result = self.so_e.dnsObject.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
-                        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                        writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-                else:
-                    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbDomainExists.__repr__(), '', '')
                 lbRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssCmsRecordName, record_type='A', token=self.so_e.token)
                 if lbRecordExists.get('code', None) is not None and lbRecordExists['code'] == 404:
                     result = -1
@@ -836,10 +836,9 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
-
             elif item == "mcn.dss.dashboard.lb.endpoint":
                 dashboardRecordExists = self.so_e.dnsObject.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', token=self.so_e.token)
-                if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
+                if dashboardRecordExists.get('code', None) is not None and dashboardRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(2)
