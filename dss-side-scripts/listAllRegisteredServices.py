@@ -1,7 +1,7 @@
 # A piece of code to get the list of registered services on keystone
 # Execution example: python listAllRegisteredServices.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_NAME]
-# SERVICE_NAME parameter can be just a part of service name.
-#     For example -s dss can return results that have dss, dssaas, dssservice, etc.
+# SERVICE_NAME parameter can be just a part of the service name.
+# For example -s dss can return results that have dss, dssaas, dssservice, etc.
 
 
 __author__ = 'Mohammad'

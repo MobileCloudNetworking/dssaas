@@ -1,4 +1,5 @@
-# A piece of code to get the list of registered services on keystone
+# A piece of code to get the list of registered endpoints on keystone
+# can be filtered by service id if it is specified
 # Execution example: python listAllRegisteredEPs.py -u [USERNAME] -p [PASSWORD] -t [TENANT_NAME] -a [AUTH_URL] -s [SERVICE_ID]
 
 
