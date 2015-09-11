@@ -173,7 +173,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
 
-            if self.so_e.templateManager.dns_enable == 'true':
+            if self.templateManager.dns_enable == 'true':
                 writeLogFile(self.swComponent,'Trying to remove load balancer record: ' + self.dssCmsRecordName, '', '')
                 result = -1
                 while (result != 1):
