@@ -173,59 +173,60 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
 
-            writeLogFile(self.swComponent,'Trying to remove load balancer record: ' + self.dssCmsRecordName, '', '')
-            result = -1
-            while (result != 1):
-                time.sleep(1)
-                result = self.dnsObject.delete_record(self.dssCmsDomainName, self.dssCmsRecordName, 'A', self.token)
-                writeLogFile(self.swComponent,result.__repr__(), '', '')
-                try:
-                    if result.get('status', None) is not None:
-                        if(result['status'] == 404):
-                            break
-                except:
-                    break
-            writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
-            writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
-            result = -1
-            while (result != 1):
-                time.sleep(1)
-                result = self.dnsObject.delete_record(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
-                writeLogFile(self.swComponent,result.__repr__(), '', '')
-                try:
-                    if result.get('status', None) is not None:
-                        if(result['status'] == 404):
-                            break
-                except:
-                    break
-            writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
+            if self.so_e.templateManager.dns_enable == 'true':
+                writeLogFile(self.swComponent,'Trying to remove load balancer record: ' + self.dssCmsRecordName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = self.dnsObject.delete_record(self.dssCmsDomainName, self.dssCmsRecordName, 'A', self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == 404):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
+                writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = self.dnsObject.delete_record(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == 404):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
 
-            writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
-            result = -1
-            while (result != 1):
-                time.sleep(1)
-                result = self.dnsObject.delete_domain(self.dssCmsDomainName, self.token)
-                writeLogFile(self.swComponent,result.__repr__(), '', '')
-                try:
-                    if result.get('status', None) is not None:
-                        if(result['status'] == 404):
-                            break
-                except:
-                    break
-            writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
-            writeLogFile(self.swComponent,'Trying to remove MCR domain: ' + self.dssMcrDomainName, '', '')
-            result = -1
-            while (result != 1):
-                time.sleep(1)
-                result = self.dnsObject.delete_domain(self.dssMcrDomainName, self.token)
-                writeLogFile(self.swComponent,result.__repr__(), '', '')
-                try:
-                    if result.get('status', None) is not None:
-                        if(result['status'] == 404):
-                            break
-                except:
-                    break
-            writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
+                writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = self.dnsObject.delete_domain(self.dssCmsDomainName, self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == 404):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
+                writeLogFile(self.swComponent,'Trying to remove MCR domain: ' + self.dssMcrDomainName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = self.dnsObject.delete_domain(self.dssMcrDomainName, self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == 404):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
         # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
 
