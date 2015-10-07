@@ -182,7 +182,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     writeLogFile(self.swComponent,result.__repr__(), '', '')
                     try:
                         if result.get('status', None) is not None:
-                            if(result['status'] == 404):
+                            if(result['status'] == '404'):
                                 break
                     except:
                         break
@@ -195,7 +195,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     writeLogFile(self.swComponent,result.__repr__(), '', '')
                     try:
                         if result.get('status', None) is not None:
-                            if(result['status'] == 404):
+                            if(result['status'] == '404'):
                                 break
                     except:
                         break
@@ -209,7 +209,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     writeLogFile(self.swComponent,result.__repr__(), '', '')
                     try:
                         if result.get('status', None) is not None:
-                            if(result['status'] == 404):
+                            if(result['status'] == '404'):
                                 break
                     except:
                         break
@@ -222,7 +222,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     writeLogFile(self.swComponent,result.__repr__(), '', '')
                     try:
                         if result.get('status', None) is not None:
-                            if(result['status'] == 404):
+                            if(result['status'] == '404'):
                                 break
                     except:
                         break
