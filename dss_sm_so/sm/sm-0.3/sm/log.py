@@ -13,14 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+__author__ = 'andy'
 
 import logging
 import graypy
 
 from sm.config import CONFIG
-
-__author__ = 'andy'
-
 
 # XXX this will not work inside of OpenShift - needs to be modded
 def config_logger(log_level=logging.DEBUG):

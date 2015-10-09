@@ -24,5 +24,5 @@ setup(name='sm',
       url='http://blog.zhaw.ch/icclab',
       license='Apache 2.0',
       packages=['sm', 'sm.so'],
-      requires=['pyssf', 'requests', 'mako', 'retrying', 'tornado']
+      requires=['pyssf', 'requests', 'mako', 'retrying', 'tornado', 'graypy']
      )

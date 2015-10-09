@@ -25,8 +25,8 @@ from occi.core_model import Link, Resource
 from sdk import services
 from sdk.mcn import util
 
-HERE = os.path.dirname(os.path.abspath(__file__)) + '/../'
-BUNDLE_DIR = os.environ.get('OPENSHIFT_REPO_DIR', HERE)
+
+BUNDLE_DIR = os.environ.get('OPENSHIFT_REPO_DIR', '.')
 STG_FILE = 'service_manifest.json'
 ITG_FILE = 'itg.yaml'
 
@@ -39,7 +39,6 @@ def config_logger(log_level=logging.DEBUG):
     logger.setLevel(log_level)
     return logger
 
-# TODO: request from Giuseppe to remove this as its recommended the main process supplies this.
 LOG = config_logger()
 
 
@@ -89,14 +88,14 @@ class Decision(object):
         raise NotImplementedError()
 
 
-# TODO add some sanity checks in the case no service manifest is present
-class Resolver:
+#TODO add some sanity checks in the case no service manifest is present
+class Resolver():
 
     def __init__(self, token, tenant):
         self.token = token
         self.tenant = tenant
         self.region = 'RegionOne'
-        self.stg = []
+        self.stg = None
         self.results_q = Queue()
         self.jobs = []
         self.service_inst_endpoints = [] # contains endpoint, type, attribs of instance
@@ -111,10 +110,7 @@ class Resolver:
 
         # TODO require better validation of the STG
         # e.g. current placing multiple services of the same type in the file will not work
-        try:
-            self.stg['depends_on'] = self.__sm_stg_ops(self.stg['depends_on'])
-        except KeyError:
-            self.stg['depends_on'] = []
+        self.stg['depends_on'] = self.__sm_stg_ops(self.stg['depends_on'])
 
     def __get_endpoint(self, svc_type):
         # XXX note that currently all services in the service manifest must be in the same region!!!
@@ -163,7 +159,6 @@ class Resolver:
 
         LOG.info('============ DEPLOY ============')
         # create dependent services
-        # XXX Possible Exception here
         if len(self.stg['depends_on']) > 0:
             LOG.info('Deploying service dependencies...')
             self.__deploy_services(self.stg['depends_on'], self.jobs)
@@ -222,12 +217,32 @@ class Resolver:
 
         return svc_reps
 
-    # TODO need to provide a set of parameters that can be overriden at runtime
     def provision(self, live=True):
         # XXX implementation should look for mutable parameters in receiving service
         # XXX and match with what's in existing service attrs
 
         LOG.info('============ PROVISION ============')
+
+        # dirty hack - provision the DNS service in advance - will need monitoring ep
+        # t_mon_ep = ''
+        # for svc_iep in self.service_inst_endpoints:
+        #     if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#maas':
+        #         t_mon_ep = svc_iep[0]['location']
+        #         break
+        # for svc_iep in self.service_inst_endpoints:
+        #     if svc_iep[0]['type'] == 'http://schemas.mobile-cloud-networking.eu/occi/sm#dnsaas':
+        #         heads = {'Content-type': 'text/occi',
+        #                  'Accept': 'application/occi+json',
+        #                  'X-Auth-Token': self.token,
+        #                  'X-Tenant-Name': self.tenant}
+        #         r = requests.get(t_mon_ep, headers=heads)
+        #         r = json.loads(r.content)
+        #         mon_ep = r['attributes']['mcn.endpoint.maas']
+        #         heads['X-OCCI-Attribute'] = 'mcn.endpoint.maas="' + mon_ep + '"'
+        #         r = requests.post(svc_iep[0]['location'], headers=heads)
+        #         r.raise_for_status()
+        #         break
+
         update_jobs = []
         svc_reps = self.__get_services_rep(live)
 
@@ -473,7 +488,7 @@ class ProvisionTask(threading.Thread):
             'X-Tenant-Name': self.tenant,
         }
 
-        LOG.info('ProvisionTask: checking service state at: ' + loc)
+        LOG.info('checking service state at: ' + loc)
         LOG.info('sending headers: ' + heads.__repr__())
         try:
             r = requests.get(loc, headers=heads)
@@ -493,9 +508,7 @@ class ProvisionTask(threading.Thread):
                 pass
 
             LOG.info('Current service state: ' + attr_hash['mcn.service.state'])
-            LOG.info('Current stack state: ' + stack_state)
-            # if attr_hash['mcn.service.state'] == 'update' and stack_state == 'CREATE_COMPLETE':
-            if stack_state == 'CREATE_COMPLETE' or stack_state == 'UPDATE_COMPLETE':
+            if attr_hash['mcn.service.state'] == 'update' and (stack_state == 'CREATE_COMPLETE' or stack_state == 'UPDATE_COMPLETE'):
                 LOG.info('Service is ready')
                 return True, r
             else:
@@ -616,7 +629,7 @@ class DeployTask(threading.Thread):
             'X-Tenant-Name': self.tenant,
         }
 
-        LOG.info('DeployTask: checking service state at: ' + loc)
+        LOG.info('checking service state at: ' + loc)
         LOG.info('sending headers: ' + heads.__repr__())
         try:
             r = requests.get(loc, headers=heads)
@@ -637,10 +650,7 @@ class DeployTask(threading.Thread):
 
             # XXX This is where things must work!
             LOG.info('Current service state: ' + attr_hash['mcn.service.state'])
-            LOG.info('Current stack state: ' + stack_state)
-
-            # if attr_hash['mcn.service.state'] == 'provision' and stack_state == 'CREATE_COMPLETE':
-            if stack_state == 'CREATE_COMPLETE' or stack_state == 'UPDATE_COMPLETE':
+            if attr_hash['mcn.service.state'] == 'provision' and stack_state == 'CREATE_COMPLETE':
                 LOG.info('Service is ready')
                 return True, r
             else:

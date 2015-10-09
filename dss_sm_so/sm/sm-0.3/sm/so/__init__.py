@@ -14,13 +14,3 @@
 #    under the License.
 
 __author__ = 'andy'
-
-from sm.service import Service
-from sm.service import MApplication
-
-if __name__ == '__main__':
-
-    # Create a service...
-    srv = Service(MApplication())
-    # Run the service manager
-    srv.run()

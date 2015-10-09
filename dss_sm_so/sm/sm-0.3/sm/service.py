@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+__author__ = 'andy'
 
 import json
 import requests
@@ -29,21 +30,12 @@ from occi.wsgi import Application
 from tornado import httpserver
 from tornado import ioloop
 from tornado import wsgi
-from wsgiref.simple_server import make_server
 
 from sm.backends import ServiceBackend
 from sm.config import CONFIG, CONFIG_PATH
 from sm.log import LOG
 from sdk.mcn import util
 from sdk.mcn.security import KeyStoneAuthService
-
-import jsonpickle
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from sm.mongo_key_replacer import KeyTransform
-from ConfigParser import NoSectionError
-
-__author__ = 'andy'
 
 
 class SMRegistry(NonePersistentRegistry):
@@ -55,105 +47,18 @@ class SMRegistry(NonePersistentRegistry):
         self.resources[resource.identifier] = resource
 
     def get_resource(self, key, extras):
-        result = None
-        if key in self.resources:
-            if self.resources[key].extras is not None and self.resources[key].extras['tenant_name'] == self.get_extras(extras):
-                result = self.resources[key]
-        return result
+        # TODO: FIXME Omitting extras is potential dangerous and breaks tenant isolation
+        return self.resources[key]
 
     def get_resources(self, extras):
-        result = []
-        for item in self.resources.values():
-            if item.extras is not None and \
-                    item.extras['tenant_name'] == self.get_extras(extras):
-                result.append(item)
-        return result
-
-    def get_extras(self, extras):
-        return extras['tenant_name']
-
-
-class MongoRegistry(NonePersistentRegistry):
-    def __init__(self, mongo_addr):
-        if mongo_addr is not None:
-            super(MongoRegistry, self).__init__()
-            self.mongo_resources = MongoConnection(mongo_addr).resources_coll
-            resources = self.mongo_resources.find_one()
-            self.o_id = str(ObjectId())
-            if resources is not None:
-                self.o_id = resources.pop('_id')
-                self.resources = jsonpickle.decode(json.dumps(resources))
-        else:
-            raise AttributeError('No mongo address provided')
-
-    def save_resources_registry(self):
-        res = json.loads(jsonpickle.encode(self.resources))
-        if self.o_id is not None:
-            res['_id'] = self.o_id
-        self.mongo_resources.save(res)
-
-    def add_resource(self, key, resource, extras):
-        super(MongoRegistry, self).add_resource(key, resource, extras)
-        LOG.debug('saving '+key+' to resources on Mongo.')
-        self.save_resources_registry()
-
-    def delete_resource(self, key, extras):
-        super(MongoRegistry, self).delete_resource(key, extras)
-        self.save_resources_registry()
-
-
-class SMMongoRegistry(MongoRegistry):
-    def __init__(self, mongo_addr):
-        super(SMMongoRegistry, self).__init__(mongo_addr)
-
-    def add_resource(self, key, resource, extras):
-        self.resources[resource.identifier] = resource
-        LOG.debug('saving '+resource.identifier+' to resources on Mongo.')
-        self.save_resources_registry()
-
-    def get_resource(self, key, extras):
-        result = None
-        if key in self.resources:
-            if self.resources[key].extras is not None and self.resources[key].extras['tenant_name'] == \
-                    self.get_extras(extras):
-                result = self.resources[key]
-        return result
-
-    def get_resources(self, extras):
-        result = []
-        for item in self.resources.values():
-            if item.extras is not None and \
-                    item.extras['tenant_name'] == self.get_extras(extras):
-                result.append(item)
-        return result
-
-    def get_extras(self, extras):
-        return extras['tenant_name']
-
-
-class MongoConnection:
-    def __init__(self, db_host):
-        connection = MongoClient(db_host)
-        resources_db = connection.resources_db
-        resources_db.add_son_manipulator(KeyTransform(".", "_dot_"))
-        self.resources_coll = resources_db.resource_coll
+        # TODO: FIXME Omitting extras is potential dangerous and breaks tenant isolation
+        return self.resources.values()
 
 
 class MApplication(Application):
 
     def __init__(self):
-        try:
-            # added try as many sm.cfg still have no mongo section
-            mongo_addr = CONFIG.get('mongo', 'host', None)
-        except NoSectionError:
-            mongo_addr = None
-
-        if mongo_addr is None:
-            reg = SMRegistry()
-        else:
-            reg = SMMongoRegistry(mongo_addr)
-        super(MApplication, self).__init__(reg)
-
+        super(MApplication, self).__init__(registry=SMRegistry())
         self.register_backend(Link.kind, KindBackend())
 
     def register_backend(self, category, backend):
@@ -184,7 +89,7 @@ class MApplication(Application):
         return self._call_occi(environ, response, token=token, tenant_name=tenant, registry=self.registry)
 
 
-class Service:
+class Service():
 
     def __init__(self, app, srv_type=None):
         # openstack objects tracking the keystone service and endpoint
@@ -254,10 +159,9 @@ class Service:
             keystone = client.Client(token=self.token, tenant_name=self.tenant_name, auth_url=self.design_uri)
 
             # taken from the kind definition
-            self.srv_ep = keystone.services.create(
-                self.srv_type.scheme+self.srv_type.term,
-                self.srv_type.scheme+self.srv_type.term,
-                self.srv_type.title)
+            self.srv_ep = keystone.services.create(self.srv_type.scheme+self.srv_type.term,
+                                         self.srv_type.scheme+self.srv_type.term,
+                                         self.srv_type.title)
 
             internal_url = admin_url = public_url = self.service_endpoint
 
@@ -270,24 +174,18 @@ class Service:
         else:
             LOG.info('Service is already registered with keystone. Service endpoint is: ' + self.srv_ep)
 
-    def shutdown_handler(self, signum=None, frame=None):
+    def shutdown_handler(self, signum = None, frame = None):
         LOG.info('Service shutting down... ')
-        if not self.DEBUG:
-            ioloop.IOLoop.instance().add_callback(self.deregister_service())
-        else:
+        if self.reg_srv:
             self.deregister_service()
+        sys.exit(0)
 
     def deregister_service(self):
-        if not self.reg_srv:
-            return
+
         if self.srv_ep:
             LOG.debug('De-registering the service with the keystone service...')
             keystone = client.Client(token=self.token, tenant_name=self.tenant_name, auth_url=self.design_uri)
             keystone.services.delete(self.srv_ep.id)  # deletes endpoint too
-            if not self.DEBUG:
-                ioloop.IOLoop.instance().stop()
-            else:
-                sys.exit(0)
 
     def run(self):
         self.app.register_backend(self.srv_type, self.service_backend)
@@ -295,9 +193,9 @@ class Service:
         if self.reg_srv:
             self.register_service()
 
-            # setup shutdown handler for de-registration of service
-            for sig in [signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT]:
-                signal.signal(sig, self.shutdown_handler)
+        # setup shutdown handler for de-registration of service
+        for sig in [signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT]:
+            signal.signal(sig, self.shutdown_handler)
 
         up = urlparse(self.stg['service_endpoint'])
         dep_port = CONFIG.get('general', 'port')
@@ -306,19 +204,19 @@ class Service:
                      'Service port number (' + str(up.port) + ') is taken from the service manifest')
 
         if self.DEBUG:
-            LOG.debug('Using WSGI reference implementation')
+            from wsgiref.simple_server import make_server
             httpd = make_server('', int(up.port), self.app)
             httpd.serve_forever()
         else:
-            LOG.debug('Using tornado implementation')
             container = wsgi.WSGIContainer(self.app)
             http_server = httpserver.HTTPServer(container)
             http_server.listen(int(up.port))
             ioloop.IOLoop.instance().start()
 
-        LOG.info('Service Manager running on interfaces, running on port: ' + str(up.port))
+        LOG.info('Service Manager running on interfaces, running on port: ' + int(up.port))
 
     def get_category(self, svc_kind):
+
         keystone = client.Client(token=self.token, tenant_name=self.tenant_name, auth_url=self.design_uri)
 
         try:

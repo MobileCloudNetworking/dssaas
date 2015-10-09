@@ -1,0 +1,416 @@
+INFO 09/10/2015 05:18:45 PM: Using configuration file: ../etc/sm.cfg
+INFO 09/10/2015 05:18:45 PM: Using http://dss.cloudcomplab.ch:8888/dssaas/ as the service_endpoint value from service manifest
+DEBUG 09/10/2015 05:18:46 PM: Registering the service with the keystone service...
+INFO 09/10/2015 05:18:47 PM: Service is now registered with keystone: Region: UBern Public URL:http://dss.cloudcomplab.ch:8888 Service ID: ea797b514e3e40ef882a2284f631f676 Endpoint ID: 835d9fc0c55e40199c0bede4c7b964c5
+INFO 09/10/2015 05:22:14 PM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/10/2015 05:22:14 PM: No client supplied parameters.
+DEBUG 09/10/2015 05:22:14 PM: Ensuring SM SSH Key...
+DEBUG 09/10/2015 05:22:14 PM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/10/2015 05:22:14 PM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/10/2015 05:22:14 PM: Creating SO container...
+DEBUG 09/10/2015 05:22:14 PM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/10/2015 05:22:14 PM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst5D7B6BA5EB0BFBA9', 'Content-Type': 'text/occi'}
+DEBUG 09/10/2015 05:22:14 PM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst5D7B6BA5EB0BFBA9', 'Content-Type': 'text/occi'}
+DEBUG 09/10/2015 05:22:31 PM: SO container created: /app/55f1bb8dc8ed5818f60002ad
+DEBUG 09/10/2015 05:22:31 PM: Updating OCCI entity.identifier from: /dssaas/7e7d6dd1-0d18-4e65-af8d-c082d9c2a32a to: /dssaas/55f1bb8dc8ed5818f60002ad
+DEBUG 09/10/2015 05:22:31 PM: Setting occi.core.id to: 55f1bb8dc8ed5818f60002ad
+DEBUG 09/10/2015 05:22:31 PM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f1bb8dc8ed5818f60002ad
+INFO 09/10/2015 05:22:31 PM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/10/2015 05:22:31 PM: GET on http://cc.cloudcomplab.ch:8888/app/55f1bb8dc8ed5818f60002ad with headers {'Accept': 'text/occi'}
+DEBUG 09/10/2015 05:22:31 PM: SO container repository: ssh://55f1bb8dc8ed5818f60002ad@dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst5d7b6ba5eb0bfba9.git/
+DEBUG 09/10/2015 05:22:31 PM: Starting AsychExe thread
+DEBUG 09/10/2015 05:22:31 PM: Deploying SO Bundle to: ssh://55f1bb8dc8ed5818f60002ad@dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst5d7b6ba5eb0bfba9.git/
+DEBUG 09/10/2015 05:22:31 PM: Cloning git repository: ssh://55f1bb8dc8ed5818f60002ad@dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst5d7b6ba5eb0bfba9.git/ to: /tmp/tmp97xwGc
+DEBUG 09/10/2015 05:22:32 PM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/10/2015 05:22:32 PM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/10/2015 05:22:32 PM: Writing build to: /tmp/tmp97xwGc/.openshift/action_hooks/build
+DEBUG 09/10/2015 05:22:32 PM: Writing pre_start_python to: /tmp/tmp97xwGc/.openshift/action_hooks/pre_start_python
+DEBUG 09/10/2015 05:22:32 PM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/10/2015 05:22:32 PM: Pushing new code to remote repository...
+DEBUG 09/10/2015 05:24:44 PM: Cannot GET entity as it is not in the activated, deployed or provisioned, updated state
+DEBUG 09/10/2015 05:26:27 PM: Activating the SO...
+INFO 09/10/2015 05:26:27 PM: No client params
+INFO 09/10/2015 05:26:27 PM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/10/2015 05:26:27 PM: Initialising SO with: http://dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/10/2015 05:26:27 PM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'mcntub', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/10/2015 05:26:27 PM: PUT on http://dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'mcntub', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/10/2015 05:26:30 PM: Updating entity in registry
+DEBUG 09/10/2015 05:26:30 PM: Deploying the SO bundle...
+INFO 09/10/2015 05:26:30 PM: No client params
+INFO 09/10/2015 05:26:30 PM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/10/2015 05:26:30 PM: Deploying SO with: http://dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/10/2015 05:26:30 PM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'mcntub', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/10/2015 05:26:30 PM: POST on http://dssasrvinst5d7b6ba5eb0bfba9-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'mcntub', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/10/2015 05:26:31 PM: HTTP Error: should do something more here!500 Server Error: Internal Server Error
+ERROR 09/11/2015 05:01:01 AM: No X-Auth-Token header supplied.
+INFO 09/11/2015 10:11:37 AM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/11/2015 10:11:37 AM: No client supplied parameters.
+DEBUG 09/11/2015 10:11:37 AM: Ensuring SM SSH Key...
+DEBUG 09/11/2015 10:11:37 AM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:11:38 AM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/11/2015 10:11:38 AM: Creating SO container...
+DEBUG 09/11/2015 10:11:38 AM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/11/2015 10:11:38 AM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst74DCD1B85A561308', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 10:11:38 AM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst74DCD1B85A561308', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 10:11:56 AM: SO container created: /app/55f2a820c8ed5883aa000172
+DEBUG 09/11/2015 10:11:56 AM: Updating OCCI entity.identifier from: /dssaas/fb508a51-5c2d-470a-b06c-85aec4697d54 to: /dssaas/55f2a820c8ed5883aa000172
+DEBUG 09/11/2015 10:11:56 AM: Setting occi.core.id to: 55f2a820c8ed5883aa000172
+DEBUG 09/11/2015 10:11:56 AM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f2a820c8ed5883aa000172
+INFO 09/11/2015 10:11:56 AM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:11:56 AM: GET on http://cc.cloudcomplab.ch:8888/app/55f2a820c8ed5883aa000172 with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:11:56 AM: SO container repository: ssh://55f2a820c8ed5883aa000172@dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst74dcd1b85a561308.git/
+DEBUG 09/11/2015 10:11:56 AM: Starting AsychExe thread
+DEBUG 09/11/2015 10:11:56 AM: Deploying SO Bundle to: ssh://55f2a820c8ed5883aa000172@dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst74dcd1b85a561308.git/
+DEBUG 09/11/2015 10:11:56 AM: Cloning git repository: ssh://55f2a820c8ed5883aa000172@dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst74dcd1b85a561308.git/ to: /tmp/tmpSAeP6_
+DEBUG 09/11/2015 10:11:57 AM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/11/2015 10:11:57 AM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/11/2015 10:11:57 AM: Writing build to: /tmp/tmpSAeP6_/.openshift/action_hooks/build
+DEBUG 09/11/2015 10:11:57 AM: Writing pre_start_python to: /tmp/tmpSAeP6_/.openshift/action_hooks/pre_start_python
+DEBUG 09/11/2015 10:11:57 AM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/11/2015 10:11:57 AM: Pushing new code to remote repository...
+DEBUG 09/11/2015 10:14:12 AM: Cannot GET entity as it is not in the activated, deployed or provisioned, updated state
+DEBUG 09/11/2015 10:15:02 AM: Activating the SO...
+INFO 09/11/2015 10:15:02 AM: No client params
+INFO 09/11/2015 10:15:02 AM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/11/2015 10:15:02 AM: Initialising SO with: http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:15:02 AM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:02 AM: PUT on http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:05 AM: Updating entity in registry
+DEBUG 09/11/2015 10:15:05 AM: Deploying the SO bundle...
+INFO 09/11/2015 10:15:05 AM: No client params
+INFO 09/11/2015 10:15:05 AM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/11/2015 10:15:05 AM: Deploying SO with: http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:15:05 AM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:05 AM: POST on http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:56 AM: SO Deployed 
+DEBUG 09/11/2015 10:15:56 AM: Updating entity in registry
+INFO 09/11/2015 10:15:56 AM: No client params
+INFO 09/11/2015 10:15:56 AM: Adding service-specific parameters to call... X-OCCI-Attribute: provision.init_value="immutable_init_value", provision.value=12
+DEBUG 09/11/2015 10:15:56 AM: Provisioning SO with: http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:15:56 AM: Sending headers: {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:56 AM: POST on http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:15:57 AM: Updating entity in registry
+INFO 09/11/2015 10:20:45 AM: Getting state of service orchestrator with: dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:20:45 AM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:20:45 AM: GET on http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: occi.mcn.stack.state --> CREATE_COMPLETE
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: mcn.endpoint.dssaas --> http://dashboard.dssaas.mcndemo.org:8080/WebAppDSS/
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: activate.string --> immutable_init_value
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: activate.float --> 0.11
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: occi.mcn.stack.id --> cad1f7ed-43c4-4159-9523-83147c44a0af
+DEBUG 09/11/2015 10:20:47 AM: OCCI Attribute: activate.integer --> 1
+WARNING 09/11/2015 10:20:47 AM: There was no service instance endpoints - ignore if not a composition.
+INFO 09/11/2015 10:21:04 AM: No client params
+INFO 09/11/2015 10:21:04 AM: Adding service-specific parameters to call... X-OCCI-Attribute:update.init_value="immutable_init_value"
+INFO 09/11/2015 10:21:04 AM: Adding updated parameters... X-OCCI-Attribute: {'mcn.endpoint.maas': '54.171.14.235'}
+DEBUG 09/11/2015 10:21:04 AM: Provisioning SO with: http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:21:04 AM: Sending headers: {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:21:04 AM: POST on http://dssasrvinst74dcd1b85a561308-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+INFO 09/11/2015 10:50:48 AM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/11/2015 10:50:48 AM: No client supplied parameters.
+DEBUG 09/11/2015 10:50:48 AM: Ensuring SM SSH Key...
+DEBUG 09/11/2015 10:50:48 AM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:50:49 AM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/11/2015 10:50:49 AM: Creating SO container...
+DEBUG 09/11/2015 10:50:49 AM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/11/2015 10:50:49 AM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst7470C4D548A0C05E', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 10:50:49 AM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst7470C4D548A0C05E', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 10:51:07 AM: SO container created: /app/55f2b14ec8ed5883aa000192
+DEBUG 09/11/2015 10:51:07 AM: Updating OCCI entity.identifier from: /dssaas/b4833c89-e9cd-448d-940c-5df391500845 to: /dssaas/55f2b14ec8ed5883aa000192
+DEBUG 09/11/2015 10:51:07 AM: Setting occi.core.id to: 55f2b14ec8ed5883aa000192
+DEBUG 09/11/2015 10:51:07 AM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f2b14ec8ed5883aa000192
+INFO 09/11/2015 10:51:07 AM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:51:07 AM: GET on http://cc.cloudcomplab.ch:8888/app/55f2b14ec8ed5883aa000192 with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 10:51:07 AM: SO container repository: ssh://55f2b14ec8ed5883aa000192@dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7470c4d548a0c05e.git/
+DEBUG 09/11/2015 10:51:07 AM: Starting AsychExe thread
+DEBUG 09/11/2015 10:51:07 AM: Deploying SO Bundle to: ssh://55f2b14ec8ed5883aa000192@dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7470c4d548a0c05e.git/
+DEBUG 09/11/2015 10:51:07 AM: Cloning git repository: ssh://55f2b14ec8ed5883aa000192@dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7470c4d548a0c05e.git/ to: /tmp/tmp5Lfgpn
+DEBUG 09/11/2015 10:51:08 AM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/11/2015 10:51:08 AM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/11/2015 10:51:08 AM: Writing build to: /tmp/tmp5Lfgpn/.openshift/action_hooks/build
+DEBUG 09/11/2015 10:51:08 AM: Writing pre_start_python to: /tmp/tmp5Lfgpn/.openshift/action_hooks/pre_start_python
+DEBUG 09/11/2015 10:51:08 AM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/11/2015 10:51:08 AM: Pushing new code to remote repository...
+DEBUG 09/11/2015 10:51:46 AM: Cannot GET entity as it is not in the activated, deployed or provisioned, updated state
+DEBUG 09/11/2015 10:53:58 AM: Activating the SO...
+INFO 09/11/2015 10:53:58 AM: No client params
+INFO 09/11/2015 10:53:58 AM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/11/2015 10:53:58 AM: Initialising SO with: http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:53:58 AM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:53:58 AM: PUT on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:54:01 AM: Updating entity in registry
+DEBUG 09/11/2015 10:54:01 AM: Deploying the SO bundle...
+INFO 09/11/2015 10:54:01 AM: No client params
+INFO 09/11/2015 10:54:01 AM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/11/2015 10:54:01 AM: Deploying SO with: http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:54:01 AM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:54:01 AM: POST on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:54:55 AM: SO Deployed 
+DEBUG 09/11/2015 10:54:55 AM: Updating entity in registry
+INFO 09/11/2015 10:54:55 AM: No client params
+INFO 09/11/2015 10:54:55 AM: Adding service-specific parameters to call... X-OCCI-Attribute: provision.init_value="immutable_init_value", provision.value=12
+DEBUG 09/11/2015 10:54:55 AM: Provisioning SO with: http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 10:54:55 AM: Sending headers: {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:54:55 AM: POST on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 10:54:55 AM: Updating entity in registry
+INFO 09/11/2015 11:00:03 AM: Getting state of service orchestrator with: dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 11:00:03 AM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:00:03 AM: GET on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: occi.mcn.stack.state --> CREATE_COMPLETE
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: mcn.endpoint.dssaas --> http://dashboard.dssaas.mcndemo.org:8080/WebAppDSS/
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: activate.string --> immutable_init_value
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: activate.float --> 0.11
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: occi.mcn.stack.id --> 26ab70b0-1777-4aaf-85de-517a6afd490d
+DEBUG 09/11/2015 11:00:05 AM: OCCI Attribute: activate.integer --> 1
+WARNING 09/11/2015 11:00:05 AM: There was no service instance endpoints - ignore if not a composition.
+INFO 09/11/2015 11:00:38 AM: No client params
+INFO 09/11/2015 11:00:38 AM: Adding service-specific parameters to call... X-OCCI-Attribute:update.init_value="immutable_init_value"
+INFO 09/11/2015 11:00:38 AM: Adding updated parameters... X-OCCI-Attribute: {'mcn.endpoint.maas': '54.171.14.235'}
+DEBUG 09/11/2015 11:00:38 AM: Provisioning SO with: http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 11:00:38 AM: Sending headers: {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:00:38 AM: POST on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:02:40 AM: Starting AsychExe thread
+WARNING 09/11/2015 11:02:40 AM: The requested states parameters are not available: "destroy"
+INFO 09/11/2015 11:02:40 AM: No client params
+INFO 09/11/2015 11:02:40 AM: Disposing service orchestrator with: http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 11:02:40 AM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:02:40 AM: DELETE on http://dssasrvinst7470c4d548a0c05e-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/11/2015 11:02:41 AM: HTTP Error: should do something more here!400 Client Error: Bad Request
+INFO 09/11/2015 11:05:03 AM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/11/2015 11:05:03 AM: No client supplied parameters.
+DEBUG 09/11/2015 11:05:03 AM: Ensuring SM SSH Key...
+DEBUG 09/11/2015 11:05:03 AM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 11:05:04 AM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/11/2015 11:05:04 AM: Creating SO container...
+DEBUG 09/11/2015 11:05:04 AM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/11/2015 11:05:04 AM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst8B2F4ABDC9FFC8E6', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 11:05:04 AM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst8B2F4ABDC9FFC8E6', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 11:05:21 AM: SO container created: /app/55f2b4a5c8ed5818f6000367
+DEBUG 09/11/2015 11:05:21 AM: Updating OCCI entity.identifier from: /dssaas/60cc7b26-9945-44fc-9d19-928a182ed0a9 to: /dssaas/55f2b4a5c8ed5818f6000367
+DEBUG 09/11/2015 11:05:21 AM: Setting occi.core.id to: 55f2b4a5c8ed5818f6000367
+DEBUG 09/11/2015 11:05:21 AM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f2b4a5c8ed5818f6000367
+INFO 09/11/2015 11:05:21 AM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/11/2015 11:05:21 AM: GET on http://cc.cloudcomplab.ch:8888/app/55f2b4a5c8ed5818f6000367 with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 11:05:21 AM: SO container repository: ssh://55f2b4a5c8ed5818f6000367@dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst8b2f4abdc9ffc8e6.git/
+DEBUG 09/11/2015 11:05:21 AM: Starting AsychExe thread
+DEBUG 09/11/2015 11:05:21 AM: Deploying SO Bundle to: ssh://55f2b4a5c8ed5818f6000367@dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst8b2f4abdc9ffc8e6.git/
+DEBUG 09/11/2015 11:05:21 AM: Cloning git repository: ssh://55f2b4a5c8ed5818f6000367@dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst8b2f4abdc9ffc8e6.git/ to: /tmp/tmpJUN49h
+DEBUG 09/11/2015 11:05:22 AM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/11/2015 11:05:22 AM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/11/2015 11:05:22 AM: Writing build to: /tmp/tmpJUN49h/.openshift/action_hooks/build
+DEBUG 09/11/2015 11:05:22 AM: Writing pre_start_python to: /tmp/tmpJUN49h/.openshift/action_hooks/pre_start_python
+DEBUG 09/11/2015 11:05:22 AM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/11/2015 11:05:22 AM: Pushing new code to remote repository...
+DEBUG 09/11/2015 11:10:42 AM: Activating the SO...
+INFO 09/11/2015 11:10:42 AM: No client params
+INFO 09/11/2015 11:10:42 AM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/11/2015 11:10:42 AM: Initialising SO with: http://dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 11:10:42 AM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:10:42 AM: PUT on http://dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:10:47 AM: Updating entity in registry
+DEBUG 09/11/2015 11:10:47 AM: Deploying the SO bundle...
+INFO 09/11/2015 11:10:47 AM: No client params
+INFO 09/11/2015 11:10:47 AM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/11/2015 11:10:47 AM: Deploying SO with: http://dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 11:10:47 AM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 11:10:47 AM: POST on http://dssasrvinst8b2f4abdc9ffc8e6-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/11/2015 11:15:47 AM: HTTP Error: should do something more here!502 Server Error: Proxy Error
+INFO 09/11/2015 12:35:39 PM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/11/2015 12:35:39 PM: No client supplied parameters.
+DEBUG 09/11/2015 12:35:39 PM: Ensuring SM SSH Key...
+DEBUG 09/11/2015 12:35:39 PM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 12:35:40 PM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/11/2015 12:35:40 PM: Creating SO container...
+DEBUG 09/11/2015 12:35:40 PM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/11/2015 12:35:40 PM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst6821F64BD5F8CB52', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 12:35:40 PM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst6821F64BD5F8CB52', 'Content-Type': 'text/occi'}
+DEBUG 09/11/2015 12:35:57 PM: SO container created: /app/55f2c9e1c8ed5883aa0001a7
+DEBUG 09/11/2015 12:35:57 PM: Updating OCCI entity.identifier from: /dssaas/ff62ed4a-74d1-4dcd-8fb2-6d53045b980d to: /dssaas/55f2c9e1c8ed5883aa0001a7
+DEBUG 09/11/2015 12:35:57 PM: Setting occi.core.id to: 55f2c9e1c8ed5883aa0001a7
+DEBUG 09/11/2015 12:35:57 PM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f2c9e1c8ed5883aa0001a7
+INFO 09/11/2015 12:35:57 PM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/11/2015 12:35:57 PM: GET on http://cc.cloudcomplab.ch:8888/app/55f2c9e1c8ed5883aa0001a7 with headers {'Accept': 'text/occi'}
+DEBUG 09/11/2015 12:35:57 PM: SO container repository: ssh://55f2c9e1c8ed5883aa0001a7@dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst6821f64bd5f8cb52.git/
+DEBUG 09/11/2015 12:35:57 PM: Starting AsychExe thread
+DEBUG 09/11/2015 12:35:57 PM: Deploying SO Bundle to: ssh://55f2c9e1c8ed5883aa0001a7@dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst6821f64bd5f8cb52.git/
+DEBUG 09/11/2015 12:35:57 PM: Cloning git repository: ssh://55f2c9e1c8ed5883aa0001a7@dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst6821f64bd5f8cb52.git/ to: /tmp/tmp8YEdQL
+DEBUG 09/11/2015 12:35:58 PM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/11/2015 12:35:58 PM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/11/2015 12:35:58 PM: Writing build to: /tmp/tmp8YEdQL/.openshift/action_hooks/build
+DEBUG 09/11/2015 12:35:58 PM: Writing pre_start_python to: /tmp/tmp8YEdQL/.openshift/action_hooks/pre_start_python
+DEBUG 09/11/2015 12:35:58 PM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/11/2015 12:35:58 PM: Pushing new code to remote repository...
+DEBUG 09/11/2015 12:39:31 PM: Activating the SO...
+INFO 09/11/2015 12:39:31 PM: No client params
+INFO 09/11/2015 12:39:31 PM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/11/2015 12:39:31 PM: Initialising SO with: http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 12:39:31 PM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:39:31 PM: PUT on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:39:34 PM: Updating entity in registry
+DEBUG 09/11/2015 12:39:34 PM: Deploying the SO bundle...
+INFO 09/11/2015 12:39:34 PM: No client params
+INFO 09/11/2015 12:39:34 PM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/11/2015 12:39:34 PM: Deploying SO with: http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 12:39:34 PM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:39:34 PM: POST on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:40:18 PM: SO Deployed 
+DEBUG 09/11/2015 12:40:18 PM: Updating entity in registry
+INFO 09/11/2015 12:40:18 PM: No client params
+INFO 09/11/2015 12:40:18 PM: Adding service-specific parameters to call... X-OCCI-Attribute: provision.init_value="immutable_init_value", provision.value=12
+DEBUG 09/11/2015 12:40:18 PM: Provisioning SO with: http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 12:40:18 PM: Sending headers: {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:40:18 PM: POST on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'provision; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'provision.init_value="immutable_init_value", provision.value=12', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:40:18 PM: Updating entity in registry
+INFO 09/11/2015 12:45:00 PM: Getting state of service orchestrator with: dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 12:45:00 PM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:45:00 PM: GET on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: occi.mcn.stack.state --> CREATE_COMPLETE
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: mcn.endpoint.dssaas --> http://dashboard.dssaas.mcndemo.org:8080/WebAppDSS/
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: activate.string --> immutable_init_value
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: activate.float --> 0.11
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: occi.mcn.stack.id --> 23335806-e214-4d73-bd5c-4b50c04a161f
+DEBUG 09/11/2015 12:45:04 PM: OCCI Attribute: activate.integer --> 1
+WARNING 09/11/2015 12:45:04 PM: There was no service instance endpoints - ignore if not a composition.
+INFO 09/11/2015 12:45:21 PM: No client params
+INFO 09/11/2015 12:45:21 PM: Adding service-specific parameters to call... X-OCCI-Attribute:update.init_value="immutable_init_value"
+INFO 09/11/2015 12:45:21 PM: Adding updated parameters... X-OCCI-Attribute: {'mcn.endpoint.maas': '54.171.14.235'}
+DEBUG 09/11/2015 12:45:21 PM: Provisioning SO with: http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 12:45:21 PM: Sending headers: {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 12:45:21 PM: POST on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-OCCI-Attribute': u'update.init_value="immutable_init_value", mcn.endpoint.maas=54.171.14.235', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 01:06:45 PM: Starting AsychExe thread
+WARNING 09/11/2015 01:06:45 PM: The requested states parameters are not available: "destroy"
+INFO 09/11/2015 01:06:45 PM: No client params
+INFO 09/11/2015 01:06:45 PM: Disposing service orchestrator with: http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/11/2015 01:06:45 PM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 01:06:45 PM: DELETE on http://dssasrvinst6821f64bd5f8cb52-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+INFO 09/11/2015 01:06:46 PM: Disposing service orchestrator container via CC... http://cc.cloudcomplab.ch:8888/app/55f2c9e1c8ed5883aa0001a7
+INFO 09/11/2015 01:06:46 PM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/11/2015 01:06:46 PM: DELETE on http://cc.cloudcomplab.ch:8888/app/55f2c9e1c8ed5883aa0001a7 with headers {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/11/2015 10:44:37 PM: No X-Auth-Token header supplied.
+ERROR 09/12/2015 05:15:10 PM: No X-Auth-Token header supplied.
+ERROR 09/13/2015 12:23:26 AM: No X-Auth-Token header supplied.
+ERROR 09/13/2015 07:40:07 AM: No X-Auth-Token header supplied.
+ERROR 09/13/2015 03:04:28 PM: No X-Auth-Token header supplied.
+ERROR 09/14/2015 12:46:37 AM: No X-Auth-Token header supplied.
+INFO 09/14/2015 02:57:24 PM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/14/2015 02:57:24 PM: No client supplied parameters.
+DEBUG 09/14/2015 02:57:24 PM: Ensuring SM SSH Key...
+DEBUG 09/14/2015 02:57:24 PM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/14/2015 02:57:25 PM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/14/2015 02:57:25 PM: Creating SO container...
+DEBUG 09/14/2015 02:57:25 PM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/14/2015 02:57:25 PM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst04E9A096C18171F1', 'Content-Type': 'text/occi'}
+DEBUG 09/14/2015 02:57:25 PM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst04E9A096C18171F1', 'Content-Type': 'text/occi'}
+DEBUG 09/14/2015 02:57:41 PM: SO container created: /app/55f6df93c8ed58d832000050
+DEBUG 09/14/2015 02:57:41 PM: Updating OCCI entity.identifier from: /dssaas/42cf17d5-4fba-448e-99c0-6909102ad88b to: /dssaas/55f6df93c8ed58d832000050
+DEBUG 09/14/2015 02:57:41 PM: Setting occi.core.id to: 55f6df93c8ed58d832000050
+DEBUG 09/14/2015 02:57:41 PM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f6df93c8ed58d832000050
+INFO 09/14/2015 02:57:41 PM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/14/2015 02:57:41 PM: GET on http://cc.cloudcomplab.ch:8888/app/55f6df93c8ed58d832000050 with headers {'Accept': 'text/occi'}
+DEBUG 09/14/2015 02:57:42 PM: SO container repository: ssh://55f6df93c8ed58d832000050@dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst04e9a096c18171f1.git/
+DEBUG 09/14/2015 02:57:42 PM: Starting AsychExe thread
+DEBUG 09/14/2015 02:57:42 PM: Deploying SO Bundle to: ssh://55f6df93c8ed58d832000050@dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst04e9a096c18171f1.git/
+DEBUG 09/14/2015 02:57:42 PM: Cloning git repository: ssh://55f6df93c8ed58d832000050@dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst04e9a096c18171f1.git/ to: /tmp/tmpLGtKVN
+DEBUG 09/14/2015 02:57:43 PM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/14/2015 02:57:43 PM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/14/2015 02:57:43 PM: Writing build to: /tmp/tmpLGtKVN/.openshift/action_hooks/build
+DEBUG 09/14/2015 02:57:43 PM: Writing pre_start_python to: /tmp/tmpLGtKVN/.openshift/action_hooks/pre_start_python
+DEBUG 09/14/2015 02:57:43 PM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/14/2015 02:57:43 PM: Pushing new code to remote repository...
+DEBUG 09/14/2015 03:00:42 PM: Cannot GET entity as it is not in the activated, deployed or provisioned, updated state
+DEBUG 09/14/2015 03:03:01 PM: Activating the SO...
+INFO 09/14/2015 03:03:01 PM: No client params
+INFO 09/14/2015 03:03:01 PM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/14/2015 03:03:01 PM: Initialising SO with: http://dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/14/2015 03:03:01 PM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:03:01 PM: PUT on http://dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:03:05 PM: Updating entity in registry
+DEBUG 09/14/2015 03:03:05 PM: Deploying the SO bundle...
+INFO 09/14/2015 03:03:05 PM: No client params
+INFO 09/14/2015 03:03:05 PM: Adding service-specific parameters to call... X-OCCI-Attribute:deploy.init_value="immutable_init_value"
+DEBUG 09/14/2015 03:03:05 PM: Deploying SO with: http://dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/14/2015 03:03:05 PM: Sending headers: {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:03:05 PM: POST on http://dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'deploy; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'deploy.init_value="immutable_init_value"', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+INFO 09/14/2015 03:03:50 PM: Getting state of service orchestrator with: dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/14/2015 03:03:50 PM: Sending headers: {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:03:50 PM: GET on http://dssasrvinst04e9a096c18171f1-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'Accept': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:03:50 PM: OCCI Attribute: occi.mcn.stack.state --> uninitialized
+DEBUG 09/14/2015 03:03:50 PM: OCCI Attribute: activate.string --> immutable_init_value
+DEBUG 09/14/2015 03:03:50 PM: OCCI Attribute: activate.float --> 0.11
+DEBUG 09/14/2015 03:03:50 PM: OCCI Attribute: occi.mcn.stack.id --> N/A
+DEBUG 09/14/2015 03:03:50 PM: OCCI Attribute: activate.integer --> 1
+WARNING 09/14/2015 03:03:50 PM: There was no service instance endpoints - ignore if not a composition.
+ERROR 09/14/2015 03:09:38 PM: HTTP Error: should do something more here!502 Server Error: Proxy Error
+INFO 09/14/2015 03:29:59 PM: CloudController Northbound API: http://cc.cloudcomplab.ch:8888
+WARNING 09/14/2015 03:29:59 PM: No client supplied parameters.
+DEBUG 09/14/2015 03:29:59 PM: Ensuring SM SSH Key...
+DEBUG 09/14/2015 03:29:59 PM: GET on http://cc.cloudcomplab.ch:8888/public_key/ with headers {'Accept': 'text/occi'}
+DEBUG 09/14/2015 03:30:00 PM: Valid SM SSH is registered with OpenShift.
+DEBUG 09/14/2015 03:30:00 PM: Creating SO container...
+DEBUG 09/14/2015 03:30:00 PM: Requesting container to execute SO Bundle: http://cc.cloudcomplab.ch:8888/app/
+INFO 09/14/2015 03:30:00 PM: Sending headers: {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst7664AA23F80E5845', 'Content-Type': 'text/occi'}
+DEBUG 09/14/2015 03:30:00 PM: POST on http://cc.cloudcomplab.ch:8888/app/ with headers {'Category': 'app; scheme="http://schemas.ogf.org/occi/platform#", python-2.7; scheme="http://schemas.openshift.com/template/app#", small; scheme="http://schemas.openshift.com/template/app#"', 'X-OCCI-Attribute': u'occi.app.name=dssasrvinst7664AA23F80E5845', 'Content-Type': 'text/occi'}
+DEBUG 09/14/2015 03:30:17 PM: SO container created: /app/55f6e736c8ed58d8320000b4
+DEBUG 09/14/2015 03:30:17 PM: Updating OCCI entity.identifier from: /dssaas/1788379b-cca8-4ce5-80df-fd84f910d1f5 to: /dssaas/55f6e736c8ed58d8320000b4
+DEBUG 09/14/2015 03:30:17 PM: Setting occi.core.id to: 55f6e736c8ed58d8320000b4
+DEBUG 09/14/2015 03:30:17 PM: Requesting container's git URL http://cc.cloudcomplab.ch:8888/app/55f6e736c8ed58d8320000b4
+INFO 09/14/2015 03:30:17 PM: Sending headers: {'Accept': 'text/occi'}
+DEBUG 09/14/2015 03:30:17 PM: GET on http://cc.cloudcomplab.ch:8888/app/55f6e736c8ed58d8320000b4 with headers {'Accept': 'text/occi'}
+DEBUG 09/14/2015 03:30:18 PM: SO container repository: ssh://55f6e736c8ed58d8320000b4@dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7664aa23f80e5845.git/
+DEBUG 09/14/2015 03:30:18 PM: Starting AsychExe thread
+DEBUG 09/14/2015 03:30:18 PM: Deploying SO Bundle to: ssh://55f6e736c8ed58d8320000b4@dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7664aa23f80e5845.git/
+DEBUG 09/14/2015 03:30:18 PM: Cloning git repository: ssh://55f6e736c8ed58d8320000b4@dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/~/git/dssasrvinst7664aa23f80e5845.git/ to: /tmp/tmpG_jsBm
+DEBUG 09/14/2015 03:30:19 PM: Bundle to add to repo: /root/sm_so_coimbra/mcn_sm/bundle
+DEBUG 09/14/2015 03:30:19 PM: Adding OpenShift support files from: /root/sm_so_coimbra/mcn_sm/bundle/support
+DEBUG 09/14/2015 03:30:19 PM: Writing build to: /tmp/tmpG_jsBm/.openshift/action_hooks/build
+DEBUG 09/14/2015 03:30:19 PM: Writing pre_start_python to: /tmp/tmpG_jsBm/.openshift/action_hooks/pre_start_python
+DEBUG 09/14/2015 03:30:19 PM: Writing pre_start_python content as: #!/bin/bash
+
+echo "Setting DESIGN_URI environment variable"
+
+export DESIGN_URI='http://bart.cloudcomplab.ch:35357/v2.0'
+
+DEBUG 09/14/2015 03:30:19 PM: Pushing new code to remote repository...
+DEBUG 09/14/2015 03:34:39 PM: Activating the SO...
+INFO 09/14/2015 03:34:39 PM: No client params
+INFO 09/14/2015 03:34:39 PM: Adding service-specific parameters to call... X-OCCI-Attribute: activate.integer=1, activate.string="immutable_init_value", activate.float=0.11
+DEBUG 09/14/2015 03:34:39 PM: Initialising SO with: http://dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/orchestrator/default
+INFO 09/14/2015 03:34:39 PM: Sending headers: {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+DEBUG 09/14/2015 03:34:39 PM: PUT on http://dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/14/2015 03:34:39 PM: HTTP Error: should do something more here!503 Server Error: Service Temporarily Unavailable
+INFO 09/14/2015 03:34:39 PM: Requesting retry: response code: 503
+ERROR 09/14/2015 03:34:39 PM: Exception: HTTPError('503 Server Error: Service Temporarily Unavailable',)
+DEBUG 09/14/2015 03:34:44 PM: PUT on http://dssasrvinst7664aa23f80e5845-mcn.ops.cloudcomplab.ch/orchestrator/default with headers {'Category': 'orchestrator; scheme="http://schemas.mobile-cloud-networking.eu/occi/service#"', 'X-OCCI-Attribute': u'activate.integer=1, activate.string="immutable_init_value", activate.float=0.11', 'X-Tenant-Name': 'STT-DSS', 'Content-Type': 'text/occi', 'X-Auth-Token': '42fdda38b76049ec95f4e1a382339656'}
+ERROR 09/14/2015 05:31:40 PM: No X-Auth-Token header supplied.
+ERROR 09/15/2015 09:44:50 AM: No X-Auth-Token header supplied.
+ERROR 09/16/2015 03:15:45 AM: No X-Auth-Token header supplied.

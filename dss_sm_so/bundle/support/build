@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install paramiko zabbix_api httplib2 requests
+#pip install paramiko zabbix_api httplib2 requests
 
 echo "Installing Base Dependencies"
 curl -k -o $OPENSHIFT_DATA_DIR/dl-cache.tgz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=78068cf2a7e9d6039db590f90779f983&download'
@@ -9,11 +9,11 @@ pip install $OPENSHIFT_DATA_DIR/dl-cache/pip-6.1.1.tar.gz
 pip install --index-url=file://$OPENSHIFT_DATA_DIR/dl-cache/simple -r $OPENSHIFT_DATA_DIR/dl-cache/requirements.txt
 
 echo "Installing MCN SDK"
-curl -k -o $OPENSHIFT_DATA_DIR/sdk.tar.gz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=01ad0519e7e4ad9bc8fdbf5f959f183e&download'
 #curl -k -o $OPENSHIFT_DATA_DIR/sdk.tar.gz 'http://www.buyfun.es/sdk-1.3.tar.gz'
+curl -k -o $OPENSHIFT_DATA_DIR/sdk.tar.gz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=01ad0519e7e4ad9bc8fdbf5f959f183e&download'
 pip install $OPENSHIFT_DATA_DIR/sdk.tar.gz
 
 echo "Installing MCN SM SO lib"
-curl -k -o $OPENSHIFT_DATA_DIR/sm.tar.gz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=3ec7178ae3587866a0d94e27af95024b&download'
 #curl -k -o $OPENSHIFT_DATA_DIR/sm.tar.gz 'http://www.buyfun.es/sm-0.3.tar.gz'
+curl -k -o $OPENSHIFT_DATA_DIR/sm.tar.gz 'https://owncloud.mobile-cloud-networking.eu/owncloud/public.php?service=files&t=3ec7178ae3587866a0d94e27af95024b&download'
 pip install $OPENSHIFT_DATA_DIR/sm.tar.gz

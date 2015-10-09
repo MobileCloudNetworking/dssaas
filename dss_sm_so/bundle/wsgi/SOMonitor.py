@@ -4,9 +4,7 @@
 import threading
 import json
 import time
-import os
-import csv
-import datetime
+import logging
 
 import httplib2 as http
 
@@ -15,14 +13,25 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-HERE = os.environ.get('OPENSHIFT_REPO_DIR', '.')
+def config_logger(log_level=logging.DEBUG):
+    logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p',
+                        log_level=log_level)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(log_level)
+    return logger
+
+LOG = config_logger()
 
 # To be replaced with python logging
 def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
+    LOG.debug(swComponent + ' ' + msgTo)
+    '''
     with os.fdopen(os.open(os.path.join(HERE, 'LOG_ERROR_FILE.csv'), os.O_WRONLY | os.O_CREAT, 0600), 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter=';',quotechar='|', quoting=csv.QUOTE_MINIMAL)
         writer.writerow([str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),' ['+swComponent+'] ',msgTo, statusReceived, jsonReceived ])
         csvfile.close()
+    '''
         
 class SOMonitor(threading.Thread):
     '''

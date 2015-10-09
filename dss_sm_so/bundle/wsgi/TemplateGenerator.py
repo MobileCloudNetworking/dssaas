@@ -11,25 +11,25 @@ class TemplateGenerator:
 
     def __init__(self):
         #Later to be filled by asking CC
-        self.public_network_id = "fde9f17b-eb51-4d4b-a474-deb583d03d86"
-        self.public_sub_network_id = "8dc93a2d-c411-49ae-ba13-37b96270d2c7"
-        #self.private_network_id = "00cc1826-a549-4379-a0c3-1f6635234f46"
-        #self.private_sub_network_id = "95501304-68c0-4649-84ad-f804aeae1c65"
-        self.private_network_id = "df6fc93e-6af7-4fb3-9d0f-71e4a377dccb"
-        self.private_sub_network_id = "c8e7b799-50fc-4da1-89a3-9d7ea9671e88"
-        self.key_name = "mcn-key"
+        self.public_network_id = "77e659dd-f1b4-430c-ac6f-d92ec0137c85"
+        self.public_sub_network_id = "a7628952-bb27-4217-8154-fb41ac727a61"
+        self.private_network_id = "82c56778-da2c-4e12-834d-8d09958d0563"
+        self.private_sub_network_id = "0e768fd0-2bbc-482c-9cbd-7469529d141f"
+        #self.private_network_id = "df6fc93e-6af7-4fb3-9d0f-71e4a377dccb"
+        #self.private_sub_network_id = "c8e7b799-50fc-4da1-89a3-9d7ea9671e88"
+        #self.key_name = "mcn-key"
         #self.key_name = "ubern-key"
-        #self.key_name = "bern-key"
+        self.key_name = "mcn-key"
         self.cdn_enable = 'false'
         self.icn_enable = 'false'
         self.aaa_enable = 'false'
         self.dns_enable = 'false'
-        self.dss_cms_image_name = 'DSS-IMG'
-        self.dss_mcr_image_name = 'DSS-IMG'
+        self.dss_cms_image_name = 'DSS-IMG-Analytics'
+        self.dss_mcr_image_name = 'DSS-IMG-Analytics'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
-        self.dbpass = 'Xuj876Rt4'
+        self.dbpass = 'registro00'
         self.dbuser = 'root'
         
         self.mcr_flavor_idx = 1
@@ -159,14 +159,18 @@ class TemplateGenerator:
         template += "\n"
         template += '  mcn.dss.mcr.hostname:' + "\n"
         template += '    Description: open stack instance name' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_server, show ] }" + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ mcr_server, name ] }" + "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += "\n"
             template += '  mcn.dss.cms' + str(self.cmsCounter) + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.getCmsBaseName() + ", show ] }" + "\n"
-        
+            template += "    Value: { 'Fn::GetAtt': [ " + self.getCmsBaseName() + ", name ] }" + "\n"
+
+        template += '  mcn.endpoint.dssaas:' + "\n"
+        template += '    Description: DSS service endpoint' + "\n"
+        template += '    Value: "N/A"' + "\n"
+
         return template
         
     def getTemplate(self):
@@ -352,3 +356,7 @@ class TemplateGenerator:
         if self.numberOfCmsInstances > 1:
             self.numberOfCmsInstances -= 1
         return self.getTemplate()
+
+if __name__ == '__main__':
+    mytemp = TemplateGenerator()
+    print mytemp.getTemplate()
