@@ -163,6 +163,19 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     except:
                         break
                 writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
+                writeLogFile(self.swComponent,'Trying to remove dashboard record: ' + self.dssDashboardRecordName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = DNSaaSClientAction.delete_record(self.dssCmsDomainName, self.dssDashboardRecordName, 'A', self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == '404'):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssDashboardRecordName + 'has been successfully removed', '', '')
                 writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
                 result = -1
                 while (result != 1):
