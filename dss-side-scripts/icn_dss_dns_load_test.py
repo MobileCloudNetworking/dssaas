@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import getopt
+
 __author__ = "Mohammad Valipoor"
 __copyright__ = "Copyright 2014, SoftTelecom"
 
@@ -54,22 +56,42 @@ class IcnContentManager:
             ret_code = call(['rm', http_server_path + filename])
         return ret_code
 
-if __name__ == "__main__":
-    total = len(sys.argv)
-    if (total < 2):
-        print ("Usage: python icn_dss_dns_load_test.py <URL_TO_POLL_FROM> [<HTTP_SERVER_PATH> default: /var/www/] [<ICN_PREFIX> default: /dss]")
-        sys.exit(1)
-
-    url_to_poll = sys.argv[1]
-
+def main(argv):
     try:
-        http_server_path = sys.argv[2]
-    except:
-        http_server_path = '/var/www/'
+        opts, args = getopt.getopt(argv,"hu:t:f:p:",["url=","time=","file_path=","prefix="])
+    except getopt.GetoptError:
+        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+        sys.exit(0)
 
-    try:
-        icn_prefix = sys.argv[3]
-    except:
+    url_to_poll = None
+    request_delay = None
+    http_server_path = None
+    icn_prefix = None
+
+    for opt, arg in opts:
+        if opt == '-h':
+            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+            sys.exit(0)
+        elif opt in ("-u", "--url"):
+            url_to_poll = arg
+        elif opt in ("-t", "--time"):
+            request_delay = arg
+        elif opt in ("-f", "--file_path"):
+            http_server_path = arg
+        elif opt in ("-p", "--prefix"):
+            icn_prefix = arg
+
+    if url_to_poll is None:
+        print 'Polling URL is mandatory!'
+        exit(0)
+
+    if request_delay is None:
+        request_delay = '0.5'
+
+    if http_server_path is None:
+        http_server_path = './'
+
+    if icn_prefix is None:
         icn_prefix = '/dss'
 
     cntManager = IcnContentManager()
@@ -84,7 +106,7 @@ if __name__ == "__main__":
                 i += 1
             else:
                 print "Error while getting content " + str(i)
-            time.sleep(0.5)
+            time.sleep(request_delay)
         i = 0
         while i < len(cntList):
             ret_code = cntManager.remove_file(oldCntList[i], http_server_path)
@@ -92,4 +114,7 @@ if __name__ == "__main__":
                 i += 1
             else:
                 print "Error while removing content " + str(i)
-            time.sleep(0.5)
+            time.sleep(0.1)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
