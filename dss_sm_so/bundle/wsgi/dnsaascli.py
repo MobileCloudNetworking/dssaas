@@ -1,8 +1,8 @@
 # Copyright 2014 Copyright (c) 2013-2015, OneSource, Portugal.
 # All Rights Reserved.
 #
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
-#    not use this file except in compliance with the License. You may obtain
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
 #
 #         http://www.apache.org/licenses/LICENSE-2.0
@@ -25,12 +25,9 @@ __status__ = "Production"
 import traceback
 import requests
 import json
-import re
-import time
 
 
-
-class DNSaaSClientCore:
+class DnsaasClientCore:
     """
     Works as a client to the API DNSaaS. This class can be employed by other MCN services, or applications that require
     services from DNSaaS.
@@ -66,87 +63,21 @@ class DNSaaSClientCore:
         return r.status_code, json.loads(r.text)
 
 
-class DNSaaSClientAction:
+class DnsaasClientAction:
     """
     Class representing the object to interact with DNSaaS
     """
     __dnsaasclient = None
-    __location = None
-    __urldnsaas = None
-    __fwdaddresses = None
-    __token = None
-    __endpoint = None
-    __tenant = None
-    __maas_endpoint_address = None
-    __maas_endpoint = None
-    __dispose_maas = None
 
-    @classmethod
-    def set_location(cls, arg):
-        if arg != cls.__location:
-            cls.__location = arg
+    def __init__(self, ip_api, token):
+        self.__dnsaasclient = DnsaasClientCore(ip_api, token)
 
-    @classmethod
-    def get_location(cls):
-        return cls.__location
-
-    @classmethod
-    def set_tenant(cls, arg):
-        if arg != cls.__tenant:
-            cls.__tenant = arg
-
-    @classmethod
-    def get_tenant(cls):
-        return cls.__tenant
-
-    @classmethod
-    def get_maas_endpoint_address(cls):
-        return cls.__maas_endpoint_address
-
-    @classmethod
-    def set_maas_endpoint_address(cls, arg):
-        if arg != cls.__maas_endpoint_address:
-            cls.__maas_endpoint_address = arg
-
-    @classmethod
-    def get_maas_endpoint(cls):
-        return cls.__maas_endpoint
-
-    @classmethod
-    def set_maas_endpoint(cls, arg):
-        if arg != cls.__maas_endpoint:
-            cls.__maas_endpoint = arg
-
-    @classmethod
-    def get_dispose_maas(cls):
-        return cls.__dispose_maas
-
-    @classmethod
-    def set_dispose_maas(cls, arg):
-        if arg != cls.__dispose_maas:
-            cls.__dispose_maas = arg
-
-    def __init__(self, endpoint, tenant, token, maas_endpoint_address, maas_endpoint, dispose_maas):
-        self.__endpoint = endpoint
-
-
-        # self.__tenant = tenant
-        if DNSaaSClientAction.get_tenant() is None:
-            DNSaaSClientAction.set_tenant(tenant)
         self.__token = token
-
-        if DNSaaSClientAction.get_maas_endpoint_address() is None:
-            DNSaaSClientAction.set_maas_endpoint_address(maas_endpoint_address)
-
-        if DNSaaSClientAction.get_dispose_maas() is None:
-            DNSaaSClientAction.set_dispose_maas(dispose_maas)
-
-        if DNSaaSClientAction.get_maas_endpoint() is None:
-            DNSaaSClientAction.set_maas_endpoint(maas_endpoint)
 
     """
     Domain Methods
     """
+
     def create_domain(self, domain_name, email, ttl, token):
         """
         Method used to create a domain
@@ -202,6 +133,7 @@ class DNSaaSClientAction:
     """
     Record Methods
     """
+
     def create_record(self, domain_name, record_name, record_type, record_data, token, **kwargs):
         """
         Method used to create a record
@@ -270,7 +202,7 @@ class DNSaaSClientAction:
 
         return content
 
-    def update_record(self, domain_name, record_name, record_type, parameter_to_update, data, token):
+    def update_record(self, domain_name, record_name, record_type, parameter_to_update, record_data, token):
         """
         Method used to update a record information
 
@@ -278,12 +210,12 @@ class DNSaaSClientAction:
         :param record_name: Record Name
         :param record_type: Record type
         :param parameter_to_update: Parameter to update, 'ttl', 'description' or 'data'
-        :param data: The actual information to update
+        :param record_data: The actual information to update
         :param token: Token
         :return: Status 1 for success, or a description of error
         """
         msg_json = {'domain_name': domain_name, 'record_name': record_name, 'record_type': record_type,
-                    'parameter_to_update': parameter_to_update, 'data': data}
+                    'parameter_to_update': parameter_to_update, 'data': record_data}
         status, content = self.__dnsaasclient.do_request('PUT', '/records', json.dumps(msg_json, sort_keys=False),
                                                          token)
         return content
