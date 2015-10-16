@@ -376,7 +376,8 @@ class Application:
                 return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
 
             try:
-                resolve_conf = open('/etc/resolvconf/resolv.conf.d/base', 'w')
+                resolve_conf = open('/etc/resolvconf/resolv.conf.d/head', 'a+')
+                #resolve_conf = open('/etc/resolvconf/resolv.conf.d/base', 'w')
                 resolve_conf.write('nameserver ' + dns_json["dnsendpoint"])
                 resolve_conf.write("\n")
                 resolve_conf.close()
