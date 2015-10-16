@@ -946,38 +946,38 @@ class SOConfigure(threading.Thread):
     # Executes the two shell scripts in the SIC which takes care of war deployment
     def provisionInstance(self, target_ip, all_ips):
         #AGENT AUTH
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         token = resp["token"]
-        writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
+        writeLogFile(self.swComponent,"Auth response is:" + str(resp), '', '')
         #AGENT STARTS PROVISIONING OF VM
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision','POST','{"user":"SO","token":"'+ token +'","mcr_srv_name":"'+ self.mcr_host_name +'","mcr_srv_ip":"'+ all_ips["mcn.dss.mcr.endpoint"] +'","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"'+ all_ips["mcn.dss.db.endpoint"] +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_name":"' + self.mcr_host_name + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
 
     # Calls to the SIC agent to complete the provisioning
     def configInstance(self, target_ip):
         #AGENT AUTH
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth','POST','{"user":"SO","password":"SO"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         token = resp["token"]
         writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS','POST','{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.'  + self.dssCmsDomainName + '"}')
-        writeLogFile(self.swComponent,"DNS response is:" + str(resp)  ,'','')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dashboarddomainname":"' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
+        writeLogFile(self.swComponent,"DNS response is:" + str(resp), '', '')
         #AGENT PUSH ICN EP & ACC INFO
         #ICN data to be used by CMS for finding closest icn router
         if self.so_e.templateManager.icn_enable == 'true':
-            resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN','POST','{"user":"SO","token":"'+ token +'","icnendpoint":"'+ self.icn_endpoint +'"}')
-            writeLogFile(self.swComponent,"ICN response is:" + str(resp)  ,'','')
+            resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN', 'POST', '{"user":"SO","token":"' + token + '","icnendpoint":"' + self.icn_endpoint + '"}')
+            writeLogFile(self.swComponent,"ICN response is:" + str(resp), '', '')
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
         #DB info is being sent to be used by the getcdr script in zabbix custom item definitions
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/MON','POST','{"user":"SO","token":"'+ token +'","monendpoint":"'+ self.monitoring_endpoint +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
-        writeLogFile(self.swComponent,"MON response is:" + str(resp)  ,'','')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/MON', 'POST', '{"user":"SO","token":"' + token + '","monendpoint":"' + self.monitoring_endpoint + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
+        writeLogFile(self.swComponent,"MON response is:" + str(resp), '', '')
         #AGENT PUSH RCB CONFIG
         #DB info is used to create an event for generating cdr data in DB
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB','POST','{"user":"SO","token":"'+ token +'","dbuser":"'+ self.so_e.templateManager.dbuser +'","dbpassword":"'+ self.so_e.templateManager.dbpass +'","dbname":"'+ self.so_e.templateManager.dbname +'"}')
-        writeLogFile(self.swComponent,"RCB response is:" + str(resp)  ,'','')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
+        writeLogFile(self.swComponent,"RCB response is:" + str(resp), '', '')
         #AGENT PUSH CDN EP & ACC INFO
         #CDN data to be used by MCR for uploading data
         #resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')
