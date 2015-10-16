@@ -58,7 +58,7 @@ class DnsaasClientCore:
             r = requests.request(method, self.apiurl_dnsaas + path, data=body, headers=headers)
         except:
             traceback.print_exc()
-            return -1, "Problem with the request. Error:"
+            return -1, json.loads('{"error": "problem with the request", "code": 500}')
 
         return r.status_code, json.loads(r.text)
 
