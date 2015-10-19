@@ -69,7 +69,7 @@ class IcnContentManager:
             #Using C client
             f_handler = open(http_server_path + filename, "w")
             LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + http_server_path + filename)
-            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
+            ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
             #f_handler.close()
         return ret_code
 
