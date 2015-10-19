@@ -59,7 +59,7 @@ class IcnContentManager:
                 contentlist.append(item.get("filename"))
         return contentlist
 
-    def get_file_from_icn(self, filename, prefix, http_server_path):
+    def get_file_from_icn(self, filename, prefix, http_server_path, player_username):
         ret_code = -1
         if filename != "" and prefix != "":
             #Using java client
@@ -68,7 +68,7 @@ class IcnContentManager:
 
             #Using C client
             f_handler = open(http_server_path + filename, "w")
-            LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + http_server_path + filename)
+            LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + http_server_path + filename)
             ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
             #f_handler.close()
         return ret_code
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     cntManager = IcnContentManager()
 
     oldCntList = []
-    oldRouterList = []
+    oldRouterList = {"routers":[]}
     while 1:
         resp_routers = cntManager.doRequest(icn_api_url + '/icnaas/api/v1.0/endpoints/client','GET','')
         LOG.debug("ICN client router list response is:" + str(resp_routers))
@@ -130,12 +130,12 @@ if __name__ == "__main__":
         if oldRouterList != resp_routers:
             i = 0
             while i < len(resp_routers["routers"]):
-                if resp_routers["routers"][i] not in oldCntList["routers"]:
+                if resp_routers["routers"][i] not in oldRouterList["routers"]:
                     ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'add', 'ccnx:' + icn_prefix, 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
-                    LOG.debug("ICN prefix route return code for " + resp_routers["routers"][i]["public_ip"] + "is " + ret_code)
+                    LOG.debug("ICN prefix route return code for " + resp_routers["routers"][i]["public_ip"] + " is " + str(ret_code))
                     time.sleep(0.2)
                     ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
-                    LOG.debug("ICN ccnx.org route return code for " + resp_routers["routers"][i]["public_ip"] + "is " + ret_code)
+                    LOG.debug("ICN ccnx.org route return code for " + resp_routers["routers"][i]["public_ip"] + " is " + str(ret_code))
                     time.sleep(0.2)
                 else:
                     LOG.debug("Route to " + resp_routers["routers"][i]["public_ip"] + " has been already added.")
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             oldRouterList = resp_routers
 
             ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + icn_prefix, 'loadsharing'])
-            LOG.debug("ICN loadsharing command return code for is " + ret_code)
+            LOG.debug("ICN loadsharing command return code for is " + str(ret_code))
         else:
             LOG.debug("No change in router list detected. Next poll in 30 seconds ...")
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             while i < len(cntList):
                 if cntList[i] not in oldCntList:
                     LOG.debug("Downloading file " + cntList[i])
-                    ret_code = cntManager.get_file_from_icn(cntList[i], icn_prefix, http_server_path)
+                    ret_code = cntManager.get_file_from_icn(cntList[i], icn_prefix, http_server_path, player_username)
                     if ret_code == 0:
                         LOG.debug("File " + cntList[i] + " successfully downloaded.")
                         i += 1
