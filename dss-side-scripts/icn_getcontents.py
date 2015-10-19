@@ -83,27 +83,71 @@ class IcnContentManager:
 if __name__ == "__main__":
     total = len(sys.argv)
     if (total < 2):
-        print ("Usage: python icn_getcontents.py <URL_TO_POLL_FROM> [<HTTP_SERVER_PATH> default: /var/www/] [<ICN_PREFIX> default: /dss]")
+        print ("Usage: python icn_getcontents.py <URL_TO_POLL_FROM> <ICN_API_URL> <PLAYER_USERNAME> [<HTTP_SERVER_PATH> default: /var/www/] [<ICN_PREFIX> default: /dss]")
         sys.exit(1)
 
-    url_to_poll = sys.argv[1]
-    LOG.debug("URL to poll set to: " + url_to_poll)
+    try:
+        url_to_poll = sys.argv[1]
+        LOG.debug("URL to poll set to: " + url_to_poll)
+    except:
+        LOG.debug("DSS url to poll is mandatory.")
+        sys.exit(1)
 
     try:
-        http_server_path = sys.argv[2]
+        icn_api_url = sys.argv[2]
+        LOG.debug("ICN api URL set to: " + icn_api_url)
+    except:
+        LOG.debug("ICN api URL is mandatory.")
+        sys.exit(1)
+
+    try:
+        player_username = sys.argv[3]
+        LOG.debug("Player username set to: " + player_username)
+    except:
+        LOG.debug("Player username is mandatory.")
+        sys.exit(1)
+
+    try:
+        http_server_path = sys.argv[4]
     except:
         http_server_path = '/var/www/'
     LOG.debug("HTTP server path set to: " + http_server_path)
 
     try:
-        icn_prefix = sys.argv[3]
+        icn_prefix = sys.argv[5]
     except:
         icn_prefix = '/dss'
     LOG.debug("ICN prefix set to: " + icn_prefix)
 
     cntManager = IcnContentManager()
-    oldCntList =[]
+
+    oldCntList = []
+    oldRouterList = []
     while 1:
+        resp_routers = cntManager.doRequest(icn_api_url + '/icnaas/api/v1.0/endpoints/client','GET','')
+        LOG.debug("ICN client router list response is:" + str(resp_routers))
+
+        if oldRouterList != resp_routers:
+            i = 0
+            while i < len(resp_routers["routers"]):
+                if resp_routers["routers"][i] not in oldCntList["routers"]:
+                    ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'add', 'ccnx:' + icn_prefix, 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
+                    LOG.debug("ICN prefix route return code for " + resp_routers["routers"][i]["public_ip"] + "is " + ret_code)
+                    time.sleep(0.2)
+                    ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
+                    LOG.debug("ICN ccnx.org route return code for " + resp_routers["routers"][i]["public_ip"] + "is " + ret_code)
+                    time.sleep(0.2)
+                else:
+                    LOG.debug("Route to " + resp_routers["routers"][i]["public_ip"] + " has been already added.")
+                i += 1
+
+            oldRouterList = resp_routers
+
+            ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + icn_prefix, 'loadsharing'])
+            LOG.debug("ICN loadsharing command return code for is " + ret_code)
+        else:
+            LOG.debug("No change in router list detected. Next poll in 30 seconds ...")
+
         data = cntManager.doRequest(url_to_poll, "GET", None)
         cntList = cntManager.generate_contentlist(data)
         if cntList != oldCntList:
