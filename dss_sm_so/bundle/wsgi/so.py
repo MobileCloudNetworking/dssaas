@@ -68,8 +68,8 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.stack_id = None
         #Variables of other services
         #self.dnsObject = None
-        self.dssCmsDomainName = "dssaas.mcndemo.org"
-        self.dssMcrDomainName = "dssaas.mcndemo.org"
+        self.dssCmsDomainName = "dssaas.mcn.com"
+        self.dssMcrDomainName = "dssaas.mcn.com"
         self.dssCmsRecordName = "cms"
         self.dssDashboardRecordName = "dashboard"
         self.dssMcrRecordName = "mcr"
