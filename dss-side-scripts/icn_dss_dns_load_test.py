@@ -60,20 +60,23 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hu:t:f:p:",["url=","time=","file_path=","prefix="])
     except getopt.GetoptError:
-        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
         sys.exit(0)
 
     url_to_poll = None
     request_delay = None
     http_server_path = None
     icn_prefix = None
+    icn_api_url = None
 
     for opt, arg in opts:
         if opt == '-h':
-            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
             sys.exit(0)
         elif opt in ("-u", "--url"):
             url_to_poll = arg
+        elif opt in ("-i", "--icn"):
+            icn_api_url = arg
         elif opt in ("-t", "--time"):
             request_delay = arg
         elif opt in ("-f", "--file_path"):
@@ -96,7 +99,24 @@ def main(argv):
 
     cntManager = IcnContentManager()
     oldCntList =[]
+    oldRouterList = {"routers":[]}
     while 1:
+        resp_routers = cntManager.doRequest(icn_api_url + '/icnaas/api/v1.0/endpoints/client','GET','')
+
+        if oldRouterList != resp_routers:
+            i = 0
+            while i < len(resp_routers["routers"]):
+                if resp_routers["routers"][i] not in oldRouterList["routers"]:
+                    ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:' + icn_prefix, 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
+                    time.sleep(0.2)
+                    ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
+                    time.sleep(0.2)
+                i += 1
+
+            oldRouterList = resp_routers
+
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + icn_prefix, 'loadsharing'])
+
         data = cntManager.doRequest(url_to_poll, "GET", None)
         cntList = cntManager.generate_contentlist(data)
         i = 0
