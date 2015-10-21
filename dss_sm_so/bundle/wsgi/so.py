@@ -979,7 +979,7 @@ class SOConfigure(threading.Thread):
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"RCB response is:" + str(resp), '', '')
         #AGENT PUSH AAA CONFIG
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/AAA', 'POST', '{"user":"SO","token":"' + token + '","timeout":"5","retrycount":"60"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/AAA', 'POST', '{"user":"SO","token":"' + token + '","timeout":"5","retrycount":"180"}')
         writeLogFile(self.swComponent,"AAA response is:" + str(resp), '', '')
         #AGENT PUSH CDN EP & ACC INFO
         #CDN data to be used by MCR for uploading data
