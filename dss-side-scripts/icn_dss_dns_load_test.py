@@ -10,9 +10,28 @@ import time
 import httplib2 as http
 from subprocess import call
 import sys
-
+import pycurl
+import cStringIO
 
 class IcnContentManager:
+
+    def doCurlRequest(self, target_url):
+        response_status = 0
+        while (response_status < 200 or response_status >= 400):
+            curl = pycurl.Curl()
+            buff = cStringIO.StringIO()
+            curl.setopt(pycurl.URL, target_url)
+            curl.setopt(pycurl.WRITEFUNCTION, buff.write)
+            try:
+                    curl.perform()
+                    response_status = int(curl.getinfo(pycurl.HTTP_CODE))
+            except Exception as e:
+                    response_status = -1
+            curl.close()
+            if (response_status < 200 or response_status >= 400):
+                continue
+            content_dict = json.loads(buff.getvalue())
+        return content_dict
 
     def doRequest(self, target_url, req_type, json_data):
         response_status = 0
@@ -78,7 +97,7 @@ def main(argv):
         elif opt in ("-i", "--icn"):
             icn_api_url = arg
         elif opt in ("-t", "--time"):
-            request_delay = arg
+            request_delay = float(arg)
         elif opt in ("-f", "--file_path"):
             http_server_path = arg
         elif opt in ("-p", "--prefix"):
@@ -116,7 +135,7 @@ def main(argv):
 
             ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + icn_prefix, 'loadsharing'])
 
-        data = cntManager.doRequest(url_to_poll, "GET", None)
+        data = cntManager.doCurlRequest(url_to_poll)
         cntList = cntManager.generate_contentlist(data)
         i = 0
         while i < len(cntList):
