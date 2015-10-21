@@ -978,6 +978,9 @@ class SOConfigure(threading.Thread):
         #DB info is used to create an event for generating cdr data in DB
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"RCB response is:" + str(resp), '', '')
+        #AGENT PUSH AAA CONFIG
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/AAA', 'POST', '{"user":"SO","token":"' + token + '","timeout":"5","retrycount":"60"}')
+        writeLogFile(self.swComponent,"AAA response is:" + str(resp), '', '')
         #AGENT PUSH CDN EP & ACC INFO
         #CDN data to be used by MCR for uploading data
         #resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')

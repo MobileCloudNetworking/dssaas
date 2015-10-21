@@ -122,6 +122,8 @@ class Application:
             return self.mon()
         elif environ['PATH_INFO'] == '/v1.0/DNS':
             return self.dns()
+        elif environ['PATH_INFO'] == '/v1.0/AAA':
+            return self.aaa()
         elif environ['PATH_INFO'] == '/v1.0/auth':
             return self.auth()
         elif environ['PATH_INFO'] == '/v1.0/deploystat':
