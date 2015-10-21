@@ -71,7 +71,7 @@ def main(argv):
 
         for i in range(retries):
                 res = perform_check(ctime)
-                if(res > 200) and (res < 400):
+                if(res >= 200) and (res < 400):
                         call (["service", "apache2", "restart"])
                         sys.exit (0)
                 time.sleep(1)
