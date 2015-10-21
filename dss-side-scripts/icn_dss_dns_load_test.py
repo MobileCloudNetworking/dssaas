@@ -58,7 +58,7 @@ class IcnContentManager:
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hu:t:f:p:",["url=","time=","file_path=","prefix="])
+        opts, args = getopt.getopt(argv,"hu:i:t:f:p:",["url=","icn=","time=","file_path=","prefix="])
     except getopt.GetoptError:
         print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
         sys.exit(0)
@@ -89,7 +89,7 @@ def main(argv):
         exit(0)
 
     if request_delay is None:
-        request_delay = '0.5'
+        request_delay = 0.5
 
     if http_server_path is None:
         http_server_path = './'
@@ -98,7 +98,6 @@ def main(argv):
         icn_prefix = '/dss'
 
     cntManager = IcnContentManager()
-    oldCntList =[]
     oldRouterList = {"routers":[]}
     while 1:
         resp_routers = cntManager.doRequest(icn_api_url + '/icnaas/api/v1.0/endpoints/client','GET','')
@@ -129,7 +128,7 @@ def main(argv):
             time.sleep(request_delay)
         i = 0
         while i < len(cntList):
-            ret_code = cntManager.remove_file(oldCntList[i], http_server_path)
+            ret_code = cntManager.remove_file(cntList[i], http_server_path)
             if ret_code == 0:
                 i += 1
             else:

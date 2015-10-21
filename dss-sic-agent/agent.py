@@ -193,8 +193,8 @@ class Application:
                     for line in out_p.stdout:
                         LOG.debug(line)
                 else:
-                    LOG.debug('Running command: ./provision_cms.sh ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["mcr_srv_ip"] + ' ' + self.cdn_enabled + ' ' + "http://aaa-profile.mcn.local:8080/IdentityProviderService/WsService?wsdl" + ' ' + self.icn_enabled + ' ' + self.aaa_enabled + ' ' + init_json["mcr_srv_name"])
-                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://profile.aaa.mcn.com:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled,init_json["mcr_srv_name"]], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    LOG.debug('Running command: ./provision_cms.sh ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["mcr_srv_ip"] + ' ' + self.cdn_enabled + ' ' + "http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl" + ' ' + self.icn_enabled + ' ' + self.aaa_enabled + ' ' + init_json["mcr_srv_name"])
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled,init_json["mcr_srv_name"]], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
                     for line in out_p.stdout:
                         LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})
@@ -285,6 +285,35 @@ class Application:
             else:
                 LOG.debug("Not an MCR host or ICN service not enabled")
             self.configurationstatus["icn"] = "True"
+            return [response_body]
+        else:
+            return self.not_found()
+
+    def aaa(self):
+        if self.environ['REQUEST_METHOD'] == 'POST':
+            #get JSON from PAYLOAD
+            from cStringIO import StringIO
+            length = self.environ.get('CONTENT_LENGTH', '0')
+            length = 0 if length == '' else int(length)
+            body = self.environ['wsgi.input'].read(length)
+            jsonm = JSONManager()
+            jsonm.jprint(body)
+            aaa_json = jsonm.read(body)
+            if (aaa_json == -1):
+                return self.servererror(self.SERVER_ERROR_PARSE_JSON)
+            #check auth
+            if not (aaa_json["user"]==self.alloweduser and aaa_json["token"]==self.allowedtoken):
+                return self.unauthorised()
+
+            #everything went fine
+            response_body = json.dumps({"Message":"AAA config Finished"})
+            self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            if 'cms' in socket.gethostname() and self.aaa_enabled == 'true':
+                ret_code = os.system('python aaa_apache.py -t ' + aaa_json["timeout"]  + ' -r ' + aaa_json["retrycount"] + ' &')
+                LOG.debug("AAA python run script returned : " + str(ret_code))
+            else:
+                LOG.debug("Not an CMS host or AAA service not enabled")
+            self.configurationstatus["aaa"] = "True"
             return [response_body]
         else:
             return self.not_found()
