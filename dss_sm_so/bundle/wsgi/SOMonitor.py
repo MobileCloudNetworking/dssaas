@@ -82,8 +82,12 @@ class SOMonitor(threading.Thread):
                             writeLogFile(self.swComponent,"Number of active players: " + str(self.so_d.playerCount),'','')
 
                         res = self.getProblematicTriggers(item.replace("_","-"))
-                        for trigger in res:
-                            self.so_d.hostsWithIssues.append(trigger)
+                        try:
+                            for trigger in res:
+                                self.so_d.hostsWithIssues.append(trigger)
+                        except:
+                            writeLogFile(self.swComponent,'Be careful! Your trigger stats are messed up!' ,'','')
+                            continue;
                         writeLogFile(self.swComponent,str(res) ,'','')
                 writeLogFile(self.swComponent,str(self.so_d.hostsWithIssues) ,'','')
             # Idle mode will be enabled when scaling out is happening    
