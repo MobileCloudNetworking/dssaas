@@ -196,9 +196,15 @@ def main(argv):
 
     shared_event = threading.Event()
     icn_thread = icnThread(url_to_poll, icn_api_url, request_delay, http_server_path, icn_prefix, shared_event)
+    icn_thread.daemon = True
     player_thread = playerThread(url_to_poll, shared_event)
+    player_thread.daemon = True
+    #Running threads
     icn_thread.start()
     player_thread.start()
+    #Making app wait till someone actually kill the process
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
