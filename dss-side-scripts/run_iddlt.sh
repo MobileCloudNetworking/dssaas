@@ -10,7 +10,9 @@ player_id="$3"
 timeout="$4"
 dns_forwarder="$5"
 
+cp /etc/resolvconf/resolv.conf.d/head /etc/resolvconf/resolv.conf.d/head.bak
 echo "nameserver $dns_forwarder" >> /etc/resolvconf/resolv.conf.d/head
+cp /etc/resolv.conf /etc/resolv.conf.bak
 resolvconf -u
 export CCND_CAP=0
 /home/ubuntu/ccnxdir/bin/ccndstart &
