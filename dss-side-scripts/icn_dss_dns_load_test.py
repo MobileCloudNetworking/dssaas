@@ -19,6 +19,7 @@ class IcnContentManager:
     def doCurlRequest(self, target_url):
         response_status = 0
         while (response_status < 200 or response_status >= 400):
+            time.sleep(1)
             curl = pycurl.Curl()
             buff = cStringIO.StringIO()
             curl.setopt(pycurl.URL, target_url)
