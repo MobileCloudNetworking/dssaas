@@ -13,8 +13,13 @@ from subprocess import call
 import sys
 import pycurl
 import cStringIO
+import datetime
+import os
 
 class IcnContentManager:
+
+    def __init__(self):
+        self.dl_time = 0.0
 
     def doCurlRequest(self, target_url):
         response_status = 0
@@ -68,7 +73,12 @@ class IcnContentManager:
         if filename != "" and prefix != "":
             #Using C client
             f_handler = open(http_server_path + filename, "w")
-            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
+            start_t = datetime.datetime.now()
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p16', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
+            end_t = datetime.datetime.now()
+            self.dl_time = float((end_t - start_t).seconds)
+            if self.dl_time < 1.0:
+                self.dl_time = 1.0
         return ret_code
 
     def remove_file(self, filename, http_server_path):
@@ -78,7 +88,7 @@ class IcnContentManager:
         return ret_code
 
 class icnThread(threading.Thread):
-    def __init__(self, url_to_poll, icn_api_url, request_delay, http_server_path, icn_prefix, ready_event):
+    def __init__(self, url_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, ready_event):
         self.event = ready_event
         self.testComponent = 'icnThread'
         threading.Thread.__init__(self)
@@ -86,9 +96,9 @@ class icnThread(threading.Thread):
 
         self.url_to_poll = url_to_poll
         self.icn_api_url = icn_api_url
-        self.request_delay = request_delay
         self.http_server_path = http_server_path
         self.icn_prefix = icn_prefix
+        self.interest_count = interest_count
 
     def run(self):
         print self.testComponent + " started."
@@ -120,7 +130,8 @@ class icnThread(threading.Thread):
                     i += 1
                 else:
                     print "Error while getting content " + str(i)
-                time.sleep(self.request_delay)
+                file_size = os.path.getsize(self.http_server_path + cntList[i])/1024
+                time.sleep(float(((file_size / 4)/ self.interest_count) - cntManager.dl_time))
             i = 0
             while i < len(cntList):
                 ret_code = cntManager.remove_file(cntList[i], self.http_server_path)
@@ -153,7 +164,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hu:i:t:f:p:",["url=","icn=","time=","file_path=","prefix="])
     except getopt.GetoptError:
-        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
         sys.exit(0)
 
     url_to_poll = None
@@ -164,14 +175,14 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -t [Request delay default: 0.5] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
             sys.exit(0)
         elif opt in ("-u", "--url"):
             url_to_poll = arg
         elif opt in ("-i", "--icn"):
             icn_api_url = arg
-        elif opt in ("-t", "--time"):
-            request_delay = float(arg)
+        elif opt in ("-c", "--icount"):
+            interest_count = int(arg)
         elif opt in ("-f", "--file_path"):
             http_server_path = arg
         elif opt in ("-p", "--prefix"):
@@ -185,8 +196,8 @@ def main(argv):
         print 'ICN Polling URL is mandatory!'
         exit(0)
 
-    if request_delay is None:
-        request_delay = 0.5
+    if interest_count is None:
+        interest_count = 300
 
     if http_server_path is None:
         http_server_path = './'
@@ -196,7 +207,7 @@ def main(argv):
 
 
     shared_event = threading.Event()
-    icn_thread = icnThread(url_to_poll, icn_api_url, request_delay, http_server_path, icn_prefix, shared_event)
+    icn_thread = icnThread(url_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, shared_event)
     icn_thread.daemon = True
     player_thread = playerThread(url_to_poll, shared_event)
     player_thread.daemon = True
