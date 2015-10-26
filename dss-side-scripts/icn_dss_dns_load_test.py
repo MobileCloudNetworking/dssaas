@@ -131,7 +131,10 @@ class icnThread(threading.Thread):
                 else:
                     print "Error while getting content " + str(i)
                 file_size = os.path.getsize(self.http_server_path + cntList[i])/1024
-                time.sleep(float(((file_size / 4)/ self.interest_count) - cntManager.dl_time))
+                sleep_time = float(((file_size / 4)/ self.interest_count) - cntManager.dl_time)
+                print "Sleep time: " + str(sleep_time)
+                if sleep_time > 1:
+                    time.sleep(sleep_time)
             i = 0
             while i < len(cntList):
                 ret_code = cntManager.remove_file(cntList[i], self.http_server_path)
