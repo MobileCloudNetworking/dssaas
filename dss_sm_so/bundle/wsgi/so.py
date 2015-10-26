@@ -490,7 +490,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             else:
                 diff = int(time.time() - self.lastCmsScale)
             writeLogFile(self.swComponent,"Number of scale outs performed: " + str(self.numberOfScaleOutsPerformed),'','')
-            writeLogFile(self.swComponent,"Last CMS scale action happened " + str(diff) + " minute(s) ago",'','')
+            writeLogFile(self.swComponent,"Last CMS scale action happened " + str(diff) + " second(s) ago",'','')
             writeLogFile(self.swComponent,"Threshold for CMS scale in is: " + str(self.cmsScaleInThreshold) + " second(s)",'','')
             writeLogFile(self.swComponent,"CMS cpu metric scale in triggered: " + str(cmsScaleInTriggered),'','')
             if diff > self.cmsScaleInThreshold or self.lastCmsScale == 0:
@@ -527,7 +527,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
                         writeLogFile(self.swComponent,"Less than 30% hard disk usage on MCR machine",'','')
                         writeLogFile(self.swComponent,"Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed),'','')
-                        writeLogFile(self.swComponent,"Last MCR scale action happened " + str(diff) + " minute(s) ago",'','')
+                        writeLogFile(self.swComponent,"Last MCR scale action happened " + str(diff) + " second(s) ago",'','')
                         writeLogFile(self.swComponent,"Threshold for MCR scale down is: " + str(self.mcrScaleDownThreshold) + " second(s)",'','')
                         self.lastMcrScale = time.time()
                         #self.so_e.templateManager.templateToScaleDown()

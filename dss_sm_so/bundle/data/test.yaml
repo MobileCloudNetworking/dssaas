@@ -4,21 +4,16 @@ heat_template_version: 2013-05-23
 outputs:
   mcn.endpoint.enodeb:
     description: IP of enodeb mgt endpoint
-    value:
-      "10.0.0.1"
+    value: "10.0.0.1"
   mcn.endpoint.mme:
     description: IP of MME mgt endpoint
-    value:
-      "10.0.0.1"
+    value: "10.0.0.1"
   mcn.endpoint.hss:
     description: IP of HSS mgt endpoint
-    value:
-      "10.0.0.1"
+    value: "10.0.0.1"
   mcn.endpoint.srv-gw:
     description: IP of SRV-GW mgt endpoint
-    value:
-      "10.0.0.1"
+    value: "10.0.0.1"
   mcn.endpoint.pdn-gw:
     description: IP of PDN-GW mgt endpoint
-    value:
-      "10.0.0.1"
+    value: "10.0.0.1"

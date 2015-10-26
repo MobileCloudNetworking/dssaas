@@ -21,6 +21,8 @@ i=1
 while [ $i -le $(eval echo $execution_count) ]
 do
     mkdir -p /home/ubuntu/mcn_test/file_$i
+    n=$RANDOM
+    sleep $(( (n %= 60) + 1))
     nohup python /home/ubuntu/icn_dss_dns_load_test.py -u http://dashboard.dssaas.mcn.com:8080/WebAppDSS/display/listContents?id=$player_id -i $icn_api -c $interest_count -f ./mcn_test/file_$i &
     (( i++ ))
 done

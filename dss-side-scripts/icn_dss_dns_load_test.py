@@ -162,7 +162,7 @@ class playerThread(threading.Thread):
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hu:i:t:f:p:",["url=","icn=","time=","file_path=","prefix="])
+        opts, args = getopt.getopt(argv,"hu:i:c:f:p:",["url=","icn=","icount=","file_path=","prefix="])
     except getopt.GetoptError:
         print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
         sys.exit(0)
