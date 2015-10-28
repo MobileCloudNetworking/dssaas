@@ -24,7 +24,7 @@ class IcnContentManager:
     def doCurlRequest(self, target_url):
         response_status = 0
         while (response_status < 200 or response_status >= 400):
-            time.sleep(1)
+            time.sleep(0.1)
             curl = pycurl.Curl()
             buff = cStringIO.StringIO()
             curl.setopt(pycurl.URL, target_url)
@@ -126,15 +126,15 @@ class icnThread(threading.Thread):
             i = 0
             while i < len(cntList):
                 ret_code = cntManager.get_file_from_icn(cntList[i], self.icn_prefix, self.http_server_path)
-                if ret_code == 0:
-                    i += 1
-                else:
-                    print "Error while getting content " + str(i)
                 file_size = os.path.getsize(self.http_server_path + cntList[i])/1024
                 sleep_time = float(((file_size / 4)/ self.interest_count) - cntManager.dl_time)
                 print "Sleep time: " + str(sleep_time)
                 if sleep_time > 1:
                     time.sleep(sleep_time)
+                if ret_code == 0:
+                    i += 1
+                else:
+                    print "Error while getting content " + str(i)
             i = 0
             while i < len(cntList):
                 ret_code = cntManager.remove_file(cntList[i], self.http_server_path)
@@ -160,8 +160,6 @@ class playerThread(threading.Thread):
         cntManager = IcnContentManager()
         while 1:
             data = cntManager.doCurlRequest(self.url_to_poll)
-            time.sleep(0.2)
-
 
 def main(argv):
     try:
