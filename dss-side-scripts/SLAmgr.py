@@ -22,7 +22,7 @@ class Storage:
 
 class SLAManager:
     def __init__(self):
-        self.SLAHost = "134.191.243.7"
+        self.SLAHost = "SLAENDPOINT"
         self.SLAPort = "8005"
         #self.SLATarget = "/"
         self.results = {

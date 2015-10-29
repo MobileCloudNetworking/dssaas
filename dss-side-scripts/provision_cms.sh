@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 10 ]; then
+if [ "$#" -ne 11 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -14,6 +14,7 @@ dssopenamendpoint="$7"
 serviceicnenabled="$8"
 serviceaaaenabled="$9"
 dssmcrhostname="${10}"
+slaendpoint="${11}"
 dssmcrapiport='80'
 dssmcrapisuperadmin='sysadmin'
 dssmcrapisuperadminpassword='sysadmin2014'
@@ -38,6 +39,7 @@ sed -i.bak "s,DSSMCRAPICONTENTMANAGEMENTURL,$dssmcrapicontentmanagementurl,g" We
 sed -i.bak "s,DSSMCRAPIUSERMANAGEMENTURL,$dssmcrapiusermanagementurl,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSOPENAMENDPOINT,$dssopenamendpoint,g" WebAppDSSConfig.groovy
 sed -i.bak "s,DSSMCRHOSTNAME,$dssmcrhostname,g" SLAmgr.py
+sed -i.bak "s,SLAENDPOINT,$slaendpoint,g" SLAmgr.py
 if [[ $serviceaaaenabled == "false" ]]
 then
     # Disabling web policy agent

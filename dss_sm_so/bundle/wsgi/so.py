@@ -77,6 +77,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.icn_endpoint = None
         self.dns_forwarder = None
         self.dns_api = None
+        self.sla_endpoint = None
         self.dnsManager = None
         # CDN Related Variables
         #self.cdn_password = 'password'
@@ -268,6 +269,12 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 self.dnsManager = DnsaasClientAction(self.dns_api, token=self.token)
                 LOG.debug(str(self.dnsManager))
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_api, '', '')
+            if 'mcn.endpoint.slaaas' in updated.attributes:
+                self.sla_endpoint = updated.attributes['mcn.endpoint.slaaas']
+                writeLogFile(self.swComponent,'SLA EP is: ' + self.sla_endpoint, '', '')
+            else:
+                self.sla_endpoint = '134.191.243.7'
+                writeLogFile(self.swComponent,'SLA EP is: ' + self.sla_endpoint, '', '')
             #if 'mcn.endpoints.cdn.mgt' in updated.attributes:
                 #self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
                 #writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
@@ -672,6 +679,7 @@ class SOConfigure(threading.Thread):
         self.monitor = None
         self.instances = None
         self.mcr_host_name = None
+        self.sla_endpoint = None
 
         #self.cdn_password = None
         #self.cdn_endpoint = None
@@ -684,7 +692,7 @@ class SOConfigure(threading.Thread):
 
         self.timeout = 10
 
-        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready"}
+        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready","SLA":"not ready"}
 
         resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         self.ui_token = resp["token"]
@@ -761,6 +769,18 @@ class SOConfigure(threading.Thread):
         # And don't forget to set its stat to "Ready"                               #
         # self.dependencyStat["MON"] = "ready"                                      #
         #---------------------------------------------------------------------------#
+        writeLogFile(self.swComponent,"Waiting for SLAaaS config info ...",'','')
+        while self.dependencyStat["SLA"] != "ready":
+            if self.so_e.sla_endpoint != None:
+                #Now that all DSS SICs finished application deployment we can start monitoring
+                self.sla_endpoint = self.so_e.sla_endpoint
+                #resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
+                #writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
+                writeLogFile(self.swComponent,"SLA EP: " + self.sla_endpoint,'','')
+                self.dependencyStat["SLA"] = "ready"
+            time.sleep(3)
+        writeLogFile(self.swComponent,"SLAaaS dependency stat changed to READY",'','')
+
         writeLogFile(self.swComponent,"Waiting for Monitoring config info ...",'','')
         while self.dependencyStat["MON"] != "ready":
             if self.so_e.monitoring_endpoint != None:
@@ -951,7 +971,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp), '', '')
         #AGENT STARTS PROVISIONING OF VM
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_name":"' + self.mcr_host_name + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_name":"' + self.mcr_host_name + '","sla_endpoint":"' + self.sla_endpoint + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
 
     # Calls to the SIC agent to complete the provisioning

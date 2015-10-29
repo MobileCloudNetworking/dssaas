@@ -196,7 +196,7 @@ class Application:
                         LOG.debug(line)
                 else:
                     LOG.debug('Running command: ./provision_cms.sh ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["mcr_srv_ip"] + ' ' + self.cdn_enabled + ' ' + "http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl" + ' ' + self.icn_enabled + ' ' + self.aaa_enabled + ' ' + init_json["mcr_srv_name"])
-                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled,init_json["mcr_srv_name"]], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled,init_json["mcr_srv_name"],init_json["sla_endpoint"]], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
                     for line in out_p.stdout:
                         LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})
