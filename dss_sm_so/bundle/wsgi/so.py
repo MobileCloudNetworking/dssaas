@@ -1010,7 +1010,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dashboarddomainname":"' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dashboarddomainname":"' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '","sladomainname":"' + self.dssSlaRecordName + '.' + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp), '', '')
         #AGENT PUSH ICN EP & ACC INFO
         #ICN data to be used by CMS for finding closest icn router
