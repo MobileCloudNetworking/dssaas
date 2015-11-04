@@ -73,6 +73,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.dssCmsRecordName = "cms"
         self.dssDashboardRecordName = "dashboard"
         self.dssMcrRecordName = "mcr"
+        self.dssSlaRecordName = "sla"
         self.monitoring_endpoint = None
         self.icn_endpoint = None
         self.dns_forwarder = None
@@ -153,7 +154,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
         if self.templateManager.dns_enable == 'true':
-                writeLogFile(self.swComponent,'Trying to remove load balancer record: ' + self.dssCmsRecordName, '', '')
+                writeLogFile(self.swComponent,'Trying to remove CMS record: ' + self.dssCmsRecordName, '', '')
                 result = -1
                 while (result != 1):
                     time.sleep(1)
@@ -169,7 +170,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     except:
                         break
                 writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove dashboard record: ' + self.dssDashboardRecordName, '', '')
+                writeLogFile(self.swComponent,'Trying to remove Dashboard record: ' + self.dssDashboardRecordName, '', '')
                 result = -1
                 while (result != 1):
                     time.sleep(1)
@@ -201,8 +202,24 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     except:
                         break
                 writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
+                writeLogFile(self.swComponent,'Trying to remove SLA record: ' + self.dssMcrRecordName, '', '')
+                result = -1
+                while (result != 1):
+                    time.sleep(1)
+                    result = self.dnsManager.delete_record(self.dssCmsDomainName, self.dssSlaRecordName, 'A', self.token)
+                    writeLogFile(self.swComponent,result.__repr__(), '', '')
+                    try:
+                        if result.get('status', None) is not None:
+                            if(result['status'] == '404'):
+                                break
+                        elif result.get('code', None) is not None:
+                            if(result['code'] == 500):
+                                break
+                    except:
+                        break
+                writeLogFile(self.swComponent,self.dssSlaRecordName + 'has been successfully removed', '', '')
 
-                writeLogFile(self.swComponent,'Trying to remove load balancer domain: ' + self.dssCmsDomainName, '', '')
+                writeLogFile(self.swComponent,'Trying to remove DSS CMS domain: ' + self.dssCmsDomainName, '', '')
                 result = -1
                 while (result != 1):
                     time.sleep(1)
@@ -218,7 +235,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     except:
                         break
                 writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove MCR domain: ' + self.dssMcrDomainName, '', '')
+                writeLogFile(self.swComponent,'Trying to remove DSS MCR domain: ' + self.dssMcrDomainName, '', '')
                 result = -1
                 while (result != 1):
                     time.sleep(1)
@@ -867,7 +884,7 @@ class SOConfigure(threading.Thread):
             if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
                 result = -1
                 while (result != 1):
-                    time.sleep(2)
+                    time.sleep(1)
                     result = self.so_e.dnsManager.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
                     writeLogFile(self.swComponent,result.__repr__(), '', '')
                     writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
@@ -879,19 +896,30 @@ class SOConfigure(threading.Thread):
                 if lbRecordExists.get('code', None) is not None and lbRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
-                        time.sleep(2)
+                        time.sleep(1)
                         result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
                         writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS record creation attempt for: ' + str(self.instances[item]) , '', '')
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
+                slaRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssSlaRecordName, record_type='A', token=self.so_e.token)
+                if slaRecordExists.get('code', None) is not None and slaRecordExists['code'] == 404:
+                    result = -1
+                    while (result != 1):
+                        time.sleep(1)
+                        result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssSlaRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
+                        writeLogFile(self.swComponent,result.__repr__(), '', '')
+                        writeLogFile(self.swComponent,'DNS record creation attempt (SLA) for: ' + str(self.instances[item]) , '', '')
+                    writeLogFile(self.swComponent,'DNS record (SLA) created for: ' + str(self.instances[item]) , '', '')
+                else:
+                    writeLogFile(self.swComponent,'DNS record (SLA) already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + slaRecordExists.__repr__(), '', '')
             elif item == "mcn.dss.dashboard.lb.endpoint":
                 dashboardRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', token=self.so_e.token)
                 if dashboardRecordExists.get('code', None) is not None and dashboardRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
-                        time.sleep(2)
+                        time.sleep(1)
                         result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
                         writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
@@ -916,7 +944,7 @@ class SOConfigure(threading.Thread):
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
-                        time.sleep(2)
+                        time.sleep(1)
                         result = self.so_e.dnsManager.create_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
                         writeLogFile(self.swComponent,result.__repr__(), '', '')
                         writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')

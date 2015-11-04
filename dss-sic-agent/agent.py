@@ -404,6 +404,7 @@ class Application:
                 self.filemg.set_value('dnsendpoint', dns_json["dnsendpoint"])
                 self.filemg.set_value('dssdomainname', dns_json["dssdomainname"])
                 self.filemg.set_value('dashboarddomainname', dns_json["dashboarddomainname"])
+                self.filemg.set_value('sladomainname', dns_json["sladomainname"])
             except (ValueError, KeyError, TypeError):
                 return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
 
