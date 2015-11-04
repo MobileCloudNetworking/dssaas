@@ -689,6 +689,7 @@ class SOConfigure(threading.Thread):
         self.dssCmsDomainName = self.so_e.dssCmsDomainName
         self.dssMcrDomainName = self.so_e.dssMcrDomainName
         self.dssCmsRecordName = self.so_e.dssCmsRecordName
+        self.dssSlaRecordName = self.so_e.dssSlaRecordName
         self.dssDashboardRecordName = self.so_e.dssDashboardRecordName
         self.dssMcrRecordName = self.so_e.dssMcrRecordName
 
