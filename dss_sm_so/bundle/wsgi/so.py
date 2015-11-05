@@ -905,6 +905,7 @@ class SOConfigure(threading.Thread):
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
                 slaRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssSlaRecordName, record_type='A', token=self.so_e.token)
+            elif item == "mcn.dss.cms1.endpoint":
                 if slaRecordExists.get('code', None) is not None and slaRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):

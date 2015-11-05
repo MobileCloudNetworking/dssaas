@@ -51,12 +51,11 @@ class SLAManager:
         c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
                                           'Category: agreement; scheme="http://schemas.ogf.org/occi/sla#"; class=\"kind\"',
                                           'Category: dss_' + name + '; scheme="http://sla.dss.org/agreements#"; class=\"kind\"',
-                                          'Content-Type:text/occi',
                                           'Provider:DSS',
                                           'Provider_pass:dss_pass',
                                           'customer:lola',
-                                          'x-occi-attribute: occi.agreement.effectiveFrom=\"2014-11-02T02:20:26Z\"',
-                                          'x-occi-attribute: occi.agreement.effectiveUntil=\"2015-11-02T02:20:26Z\"'])
+                                          'x-occi-attribute: occi.agreement.effectiveFrom=\"2015-11-02T02:20:26Z\"',
+                                          'x-occi-attribute: occi.agreement.effectiveUntil=\"2016-11-02T02:20:26Z\"'])
         c.perform()
         c.close()
         print "----"
@@ -76,7 +75,6 @@ class SLAManager:
 
         c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
                                           'Category: agreement_link; scheme=\"http://schemas.ogf.org/occi/sla#\"; class=\"kind\"',
-                                          'Content-Type:text/occi',
                                           'Provider:DSS',
                                           'Provider_pass:dss_pass',
                                           'customer:lola',
@@ -94,8 +92,7 @@ class SLAManager:
         c.setopt(c.POSTFIELDS, urllib.urlencode(pf))
         c.setopt(c.WRITEFUNCTION, headers_accept.store)
         c.setopt(pycurl.HTTPHEADER, ['Content-Type: text/occi',
-                                          'Category: accept; scheme=\"http://schemas.ogf.org/occi/sla#\"; class=\"kind\"',
-                                          'Content-Type:text/occi',
+                                          'Category: accept; scheme=\"http://schemas.ogf.org/occi/sla#\"',
                                           'Provider:DSS',
                                           'Provider_pass:dss_pass',
                                           'customer:lola'])
