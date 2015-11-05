@@ -23,13 +23,13 @@ class Storage:
 class SLAManager:
     def __init__(self):
         self.SLAHost = "SLAENDPOINT"
-        self.SLAPort = "8005"
+        self.SLAPort = "8888"
         #self.SLATarget = "/"
         self.results = {
             "category":"",
             "status":"",
             "id":"",
-            "link":"http://SLAENDPOINT:8006/occi-viz/",
+            "link":"http://" + self.SLAHost + ":" + self.SLAPort + "/occi-viz/",
             "terms":[],
             "effective_from":"",
             "effective_until":""
