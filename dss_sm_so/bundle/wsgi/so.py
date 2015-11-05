@@ -291,7 +291,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 writeLogFile(self.swComponent,'SLA EP is: ' + self.sla_endpoint, '', '')
             else:
                 self.sla_endpoint = '134.191.243.7'
-                writeLogFile(self.swComponent,'SLA EP is: ' + self.sla_endpoint, '', '')
+                writeLogFile(self.swComponent,'SLA Default EP is: ' + self.sla_endpoint, '', '')
             #if 'mcn.endpoints.cdn.mgt' in updated.attributes:
                 #self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
                 #writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')

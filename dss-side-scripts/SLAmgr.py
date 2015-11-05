@@ -29,7 +29,7 @@ class SLAManager:
             "category":"",
             "status":"",
             "id":"",
-            "link":"http://134.191.243.7:8006/occi-viz/",
+            "link":"http://SLAENDPOINT:8006/occi-viz/",
             "terms":[],
             "effective_from":"",
             "effective_until":""
