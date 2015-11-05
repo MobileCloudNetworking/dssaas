@@ -880,18 +880,19 @@ class SOConfigure(threading.Thread):
         #configure instances
         writeLogFile(self.swComponent,"Entering the loop to push dns domain names for each instance ...",'','')
 
+        lbDomainExists = self.so_e.dnsManager.get_domain(self.dssCmsDomainName, self.so_e.token)
+        if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
+            result = -1
+            while (result != 1):
+                time.sleep(1)
+                result = self.so_e.dnsManager.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
+                writeLogFile(self.swComponent,result.__repr__(), '', '')
+                writeLogFile(self.swComponent,'DNS domain creation attempt' , '', '')
+            writeLogFile(self.swComponent,'DNS domain created' , '', '')
+        else:
+            writeLogFile(self.swComponent,'DNS domain already exists' + lbDomainExists.__repr__(), '', '')
+
         for item in self.instances:
-            lbDomainExists = self.so_e.dnsManager.get_domain(self.dssCmsDomainName, self.so_e.token)
-            if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.so_e.dnsManager.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    writeLogFile(self.swComponent,'DNS domain creation attempt for: ' + str(self.instances[item]) , '', '')
-                writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-            else:
-                writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbDomainExists.__repr__(), '', '')
             if item == "mcn.dss.lb.endpoint":
                 lbRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssCmsRecordName, record_type='A', token=self.so_e.token)
                 if lbRecordExists.get('code', None) is not None and lbRecordExists['code'] == 404:
@@ -904,8 +905,8 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
-                slaRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssSlaRecordName, record_type='A', token=self.so_e.token)
             elif item == "mcn.dss.cms1.endpoint":
+                slaRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssSlaRecordName, record_type='A', token=self.so_e.token)
                 if slaRecordExists.get('code', None) is not None and slaRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
@@ -928,20 +929,7 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
-
             elif item == "mcn.dss.mcr.endpoint":
-                #mcrDomainExists = DNSaaSClientAction.get_domain(self.dssMcrDomainName, self.so_e.token)
-                #writeLogFile(self.swComponent,mcrDomainExists.__repr__(), '', '')
-                #if mcrDomainExists['code'] == 404:
-                #    result = -1
-                #    while (result != 1):
-                #        time.sleep(2)
-                #        result = DNSaaSClientAction.create_domain(self.dssMcrDomainName, "info@dss-test.es", 3600, self.so_e.token)
-                #        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                #        writeLogFile(self.swComponent,'DNS domain creation attempt for:' + str(self.instances[item]) , '', '')
-                #    writeLogFile(self.swComponent,'DNS domain created for: ' + str(self.instances[item]) , '', '')
-                #else:
-                #    writeLogFile(self.swComponent,'DNS domain already exists for:' + str(self.instances[item]) , '', '')
                 mcrRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', token=self.so_e.token)
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
                     result = -1
