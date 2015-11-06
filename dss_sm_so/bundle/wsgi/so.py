@@ -153,7 +153,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         if self.stack_id is not None:
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
-        if self.templateManager.dns_enable == 'true':
+        if self.templateManager.dns_enable == 'true' and self.dnsManager is not None:
                 writeLogFile(self.swComponent,'Trying to remove CMS record: ' + self.dssCmsRecordName, '', '')
                 result = -1
                 while (result != 1):
