@@ -614,7 +614,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     'so_id': 'idnotusefulhere',
                     'sm_name': 'dssaas',
                     'so_phase': 'update',
-                    'phase_event': 'start',
+                    'phase_event': 'finished',
                     'response_time': diff.total_seconds(),
                     'tenant': self.so_e.tenant_name
                     }
