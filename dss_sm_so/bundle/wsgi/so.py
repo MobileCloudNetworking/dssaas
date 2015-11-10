@@ -617,7 +617,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     'sm_name': 'd-dss-sm',
                     'so_phase': 'update',
                     'phase_event': 'start',
-                    'response_time': str(diff.total_seconds()) + ' seconds',
+                    'response_time': diff.total_seconds(),
                     'tenant': self.so_e.tenant_name
                     }
         tmpJSON = json.dumps(infoDict)
