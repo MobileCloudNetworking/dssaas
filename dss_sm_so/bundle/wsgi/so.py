@@ -614,7 +614,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         diff = self.so_e.update_end - self.so_e.update_start
         infoDict = {
                     'so_id': self.so_e.occi_core_id,
-                    'sm_name': 'd-dss-sm',
+                    'sm_name': 'dssaas',
                     'so_phase': 'update',
                     'phase_event': 'start',
                     'response_time': diff.total_seconds(),
