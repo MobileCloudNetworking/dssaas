@@ -5,7 +5,8 @@ import logging
 import random
 import string
 import sys
-from subprocess import call
+import os
+from subprocess import call, Popen, PIPE, STDOUT
 import httplib
 import socket
 
@@ -28,18 +29,11 @@ LOG = config_logger()
 class fileManager:
         
     def __init__(self):
-        if (len(sys.argv)==3):
+        if (len(sys.argv)==5):
             self.path = sys.argv[1] #final slash is required!!
         else:
             self.path =''
         self.contents = '['
-        self.SERVER_ERROR_PARSE_JSON = 'Error in parsing input json'
-        self.SERVER_ERROR_SET_CONFIG_JSON = 'Error while setting instance json config file'
-        self.SERVER_ERROR_DEPLOY_NOT_FINISHED = 'Deployment not finished'
-        self.SERVER_ERROR_DB_NOT_READY = 'Database instance is not ready yet'
-        self.SERVER_ERROR_DB_NOT_FOUND = 'Database not found'
-        self.SERVER_ERROR_CALL_INSTANCE = 'Exception raised while trying to call application'
-        self.SERVER_ERROR_CALL_PROVISION_SCRIPT = 'Wrong number of parameters for the script'
         
     def __del__(self):
         pass
@@ -81,16 +75,34 @@ class Application:
         self.allowedtoken = 'NONE'
         self.alloweduser = 'NONE'
         self.filemg = fileManager()
-        
-        if (len(sys.argv)==3):
+        self.SERVER_ERROR_PARSE_JSON = 'Error in parsing input json'
+        self.SERVER_ERROR_SET_CONFIG_JSON = 'Error while setting instance json config file'
+        self.SERVER_ERROR_DEPLOY_NOT_FINISHED = 'Deployment not finished'
+        self.SERVER_ERROR_DB_NOT_READY = 'Database instance is not ready yet'
+        self.SERVER_ERROR_DB_NOT_FOUND = 'Database not found'
+        self.SERVER_ERROR_CALL_INSTANCE = 'Exception raised while trying to call application'
+        self.SERVER_ERROR_CALL_PROVISION_SCRIPT = 'Wrong number of parameters for the script'
+
+        self.icn_port = '9695'
+
+        if (len(sys.argv)==5):
             self.cdn_enabled = str(sys.argv[2]) #values are : true , false
+            self.icn_enabled = str(sys.argv[3]) #values are : true , false
         else:
             self.cdn_enabled = 'true'
-            
-        if self.cdn_enabled is 'false':
-            self.configurationstatus = {"cdn":"False","provision":"False","mon":"False","rcb":"False","dns":"False"}
+            self.icn_enabled = 'false'
+
+        if (len(sys.argv)==5):
+            self.aaa_enabled = str(sys.argv[4]) #values are : true , false
         else:
-            self.configurationstatus = {"cdn":"True","provision":"False","mon":"False","rcb":"False","dns":"False"}
+            self.aaa_enabled = 'false'
+
+        if self.cdn_enabled == 'true' and self.icn_enabled == 'false':
+            self.configurationstatus = {"cdn":"False", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
+        elif self.cdn_enabled == 'false' and self.icn_enabled == 'true':
+            self.configurationstatus = {"cdn":"True", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"False"}
+        else:
+            self.configurationstatus = {"cdn":"True", "provision":"False", "mon":"False", "rcb":"False", "dns":"False", "aaa":"True", "icn":"True"}
             
     def __call__(self, environ, start_response):
         self.environ=environ
@@ -104,10 +116,14 @@ class Application:
             return self.get_hostname()
         elif environ['PATH_INFO'] == '/v1.0/CDN':
             return self.cdn()
+        elif environ['PATH_INFO'] == '/v1.0/ICN':
+            return self.icn()
         elif environ['PATH_INFO'] == '/v1.0/MON':
             return self.mon()
         elif environ['PATH_INFO'] == '/v1.0/DNS':
             return self.dns()
+        elif environ['PATH_INFO'] == '/v1.0/AAA':
+            return self.aaa()
         elif environ['PATH_INFO'] == '/v1.0/auth':
             return self.auth()
         elif environ['PATH_INFO'] == '/v1.0/deploystat':
@@ -172,20 +188,23 @@ class Application:
             #check auth
             if not (init_json["user"]==self.alloweduser and init_json["token"]==self.allowedtoken):
                 return self.unauthorised()
-            
-            if 'mcr' in socket.gethostname():
-                ret_code = call(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled])
-                LOG.debug("Provision script returned : " + str(ret_code))
-            else:
-                ret_code = call(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"]])
-                LOG.debug("Provision script returned : " + str(ret_code))
-            if ret_code != 1:
+            try:
+                if 'mcr' in socket.gethostname():
+                    LOG.debug('Running command: ./provision_mcr.sh ' + init_json["mcr_srv_ip"] + ' ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["cms_srv_ip"] + ' ' + self.cdn_enabled + ' ' + self.icn_enabled + ' ' + self.icn_port)
+                    out_p = Popen(['./provision_mcr.sh',init_json["mcr_srv_ip"],init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["cms_srv_ip"],self.cdn_enabled,self.icn_enabled,self.icn_port], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    for line in out_p.stdout:
+                        LOG.debug(line)
+                else:
+                    LOG.debug('Running command: ./provision_cms.sh ' + init_json["dbname"] + ' ' + init_json["dbuser"] + ' ' + init_json["dbaas_srv_ip"] + ' ' + init_json["dbpassword"] + ' ' + init_json["mcr_srv_ip"] + ' ' + self.cdn_enabled + ' ' + "http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl" + ' ' + self.icn_enabled + ' ' + self.aaa_enabled + ' ' + init_json["mcr_srv_name"])
+                    out_p = Popen(['./provision_cms.sh',init_json["dbname"],init_json["dbuser"],init_json["dbaas_srv_ip"],init_json["dbpassword"],init_json["mcr_srv_ip"],self.cdn_enabled,"http://aaa-profile-instance.mcn.com:8080/IdentityProviderService/WsService?wsdl",self.icn_enabled,self.aaa_enabled,init_json["mcr_srv_name"],init_json["sla_endpoint"]], shell=False, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                    for line in out_p.stdout:
+                        LOG.debug(line)
                 response_body = json.dumps({"Message":"Provision Finished"})
                 self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
                 LOG.debug(str([response_body]))
                 self.configurationstatus["provision"] = "True"
                 return [response_body]
-            else:
+            except:
                 return self.servererror(self.SERVER_ERROR_CALL_PROVISION_SCRIPT)
         else:
             return self.not_found()
@@ -237,6 +256,69 @@ class Application:
             return [response_body]
         else:
             return self.not_found()
+
+    def icn(self):
+        if self.environ['REQUEST_METHOD'] == 'POST':
+            #get JSON from PAYLOAD
+            from cStringIO import StringIO
+            length = self.environ.get('CONTENT_LENGTH', '0')
+            length = 0 if length == '' else int(length)
+            body = self.environ['wsgi.input'].read(length)
+            jsonm = JSONManager()
+            jsonm.jprint(body)
+            icn_json = jsonm.read(body)
+            if (icn_json == -1):
+                return self.servererror(self.SERVER_ERROR_PARSE_JSON)
+            #check auth
+            if not (icn_json["user"]==self.alloweduser and icn_json["token"]==self.allowedtoken):
+                return self.unauthorised()
+
+            try:
+                self.filemg.set_value('icnendpoint', icn_json["icnendpoint"])
+            except (ValueError, KeyError, TypeError):
+                return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
+
+            #everything went fine
+            response_body = json.dumps({"Message":"ICN config Finished"})
+            self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            if 'mcr' in socket.gethostname() and self.icn_enabled == 'true':
+                ret_code = os.system('python icn_putcontents.py ' + icn_json["icnendpoint"] + ' &')
+                LOG.debug("icn python run script returned : " + str(ret_code))
+            else:
+                LOG.debug("Not an MCR host or ICN service not enabled")
+            self.configurationstatus["icn"] = "True"
+            return [response_body]
+        else:
+            return self.not_found()
+
+    def aaa(self):
+        if self.environ['REQUEST_METHOD'] == 'POST':
+            #get JSON from PAYLOAD
+            from cStringIO import StringIO
+            length = self.environ.get('CONTENT_LENGTH', '0')
+            length = 0 if length == '' else int(length)
+            body = self.environ['wsgi.input'].read(length)
+            jsonm = JSONManager()
+            jsonm.jprint(body)
+            aaa_json = jsonm.read(body)
+            if (aaa_json == -1):
+                return self.servererror(self.SERVER_ERROR_PARSE_JSON)
+            #check auth
+            if not (aaa_json["user"]==self.alloweduser and aaa_json["token"]==self.allowedtoken):
+                return self.unauthorised()
+
+            #everything went fine
+            response_body = json.dumps({"Message":"AAA config Finished"})
+            self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])
+            if 'cms' in socket.gethostname() and self.aaa_enabled == 'true':
+                ret_code = os.system('python aaa_apache.py -t ' + aaa_json["timeout"]  + ' -r ' + aaa_json["retrycount"] + ' &')
+                LOG.debug("AAA python run script returned : " + str(ret_code))
+            else:
+                LOG.debug("Not an CMS host or AAA service not enabled")
+            self.configurationstatus["aaa"] = "True"
+            return [response_body]
+        else:
+            return self.not_found()
         
     def mon(self):
         if self.environ['REQUEST_METHOD'] == 'POST':
@@ -252,15 +334,16 @@ class Application:
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
             if not (mon_json["user"]==self.alloweduser and mon_json["token"]==self.allowedtoken):
                 return self.unauthorised()
-            #create query
-            try:
-                self.filemg.set_value('monendpoint', mon_json["monendpoint"])
-            except (ValueError, KeyError, TypeError):
-                return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
             
-            #configure and reboot zabbix
-            call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
-            call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+            if 'cms' in socket.gethostname():
+                try:
+                    self.filemg.set_value('monendpoint', mon_json["monendpoint"])
+                except (ValueError, KeyError, TypeError):
+                    return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)    
+                #configure and reboot zabbix
+                call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        
             #if you are in mcr, add custom item for rcb
             if 'mcr' in socket.gethostname():
                 try:
@@ -269,6 +352,16 @@ class Application:
                     res = conn.getresponse()
                     conn.close()
                     if res.status == 200:
+                        #create query
+                        try:
+                            self.filemg.set_value('monendpoint', mon_json["monendpoint"])
+                        except (ValueError, KeyError, TypeError):
+                            return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
+                        
+                        #configure and reboot zabbix
+                        call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                        
                         dbuser = mon_json["dbuser"]
                         dbpassword = mon_json["dbpassword"]
                         dbhost = ''
@@ -276,8 +369,8 @@ class Application:
                             dbhost+=dbhostfile.read().replace('\n', '')
                         dbname = mon_json["dbname"]
                         call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
-                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
-                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
                     else:
                         return self.servererror(self.SERVER_ERROR_DEPLOY_NOT_FINISHED)
                 except:
@@ -301,17 +394,33 @@ class Application:
             body = self.environ['wsgi.input'].read(length)
             jsonm = JSONManager()
             jsonm.jprint(body)
-            mon_json = jsonm.read(body)
-            if (mon_json == -1):
+            dns_json = jsonm.read(body)
+            if (dns_json == -1):
                 return self.servererror(self.SERVER_ERROR_PARSE_JSON)
-            if not (mon_json["user"]==self.alloweduser and mon_json["token"]==self.allowedtoken):
+            if not (dns_json["user"]==self.alloweduser and dns_json["token"]==self.allowedtoken):
                 return self.unauthorised()
             #create query
             try:
-                self.filemg.set_value('dnsendpoint', mon_json["dnsendpoint"])
+                self.filemg.set_value('dnsendpoint', dns_json["dnsendpoint"])
+                self.filemg.set_value('dssdomainname', dns_json["dssdomainname"])
+                self.filemg.set_value('dashboarddomainname', dns_json["dashboarddomainname"])
+                self.filemg.set_value('sladomainname', dns_json["sladomainname"])
             except (ValueError, KeyError, TypeError):
                 return self.servererror(self.SERVER_ERROR_SET_CONFIG_JSON)
-            
+
+            try:
+                resolve_conf = open('/etc/resolvconf/resolv.conf.d/head', 'a+')
+                #resolve_conf = open('/etc/resolvconf/resolv.conf.d/base', 'w')
+                resolve_conf.write('nameserver ' + dns_json["dnsendpoint"])
+                resolve_conf.write("\n")
+                resolve_conf.close()
+            except IOError as e:
+                LOG.debug("I/O error({0}): {1}".format(e.errno, e.strerror))
+            except:
+                LOG.debug("Unknown error while reading resolv.conf file")
+
+            ret_code = os.system('resolvconf -u')
+            LOG.debug("resolvconf command returned : " + str(ret_code))
             #everything went fine
             response_body = json.dumps({"Message":"DNS config Finished"})
             self.start_response('200 OK', [('Content-Type', self.jsontype), ('Content-Length', str(len(response_body)))])

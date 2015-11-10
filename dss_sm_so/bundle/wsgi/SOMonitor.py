@@ -4,9 +4,7 @@
 import threading
 import json
 import time
-import os
-import csv
-import datetime
+import logging
 
 import httplib2 as http
 
@@ -15,14 +13,25 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-HERE = os.environ.get('OPENSHIFT_REPO_DIR', '.')
+def config_logger(log_level=logging.DEBUG):
+    logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p',
+                        log_level=log_level)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(log_level)
+    return logger
+
+LOG = config_logger()
 
 # To be replaced with python logging
 def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
+    LOG.debug(swComponent + ' ' + msgTo)
+    '''
     with os.fdopen(os.open(os.path.join(HERE, 'LOG_ERROR_FILE.csv'), os.O_WRONLY | os.O_CREAT, 0600), 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter=';',quotechar='|', quoting=csv.QUOTE_MINIMAL)
         writer.writerow([str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),' ['+swComponent+'] ',msgTo, statusReceived, jsonReceived ])
         csvfile.close()
+    '''
         
 class SOMonitor(threading.Thread):
     '''
@@ -59,7 +68,7 @@ class SOMonitor(threading.Thread):
             if self.mode == "checktriggers":
                 time.sleep(10)
                 if i > 6:
-                    serverList = self.so_e.getServerNamesList()
+                    result, serverList = self.so_e.getServerNamesList()
                     i = 0
                 else:
                     i += 1
@@ -68,15 +77,23 @@ class SOMonitor(threading.Thread):
                 for item in serverList:
                     writeLogFile(self.swComponent,item ,'','')
                     if len(item) > 1:
+                        if 'mcr' in item:
+                            self.so_d.playerCount = self.getMetric(item.replace("_","-"),"DSS.Players.CNT")
+                            writeLogFile(self.swComponent,"Number of active players: " + str(self.so_d.playerCount),'','')
+
                         res = self.getProblematicTriggers(item.replace("_","-"))
-                        for trigger in res:
-                            self.so_d.hostsWithIssues.append(trigger)
+                        try:
+                            for trigger in res:
+                                self.so_d.hostsWithIssues.append(trigger)
+                        except:
+                            writeLogFile(self.swComponent,'Be careful! Your trigger stats are messed up!' ,'','')
+                            continue;
                         writeLogFile(self.swComponent,str(res) ,'','')
                 writeLogFile(self.swComponent,str(self.so_d.hostsWithIssues) ,'','')
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
                 time.sleep(5)
-                
+
     #Add trigger to zabbix and update decision array            
     def configTrigger(self, tName, zName, tCondition):
         triggerName = tName
@@ -208,7 +225,88 @@ class SOMonitor(threading.Thread):
             else:
                 writeLogFile(self.swComponent,'MaaS Trigger Id', status, content)
                 return 'None'
-        
+            
+    def itemExists(self, hostName, itemKey):
+        '''
+        Checks existance of an item in Zabbix server for a special hostname
+        :param hostName: Hostname to add the item to
+        :param itemKey: Key defined in zabbix server for this item
+        '''
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "item.get",
+                        "params":{
+                                  "output": "extend",
+                                  "hostids": str(hostId[0]['hostid']),
+                                  "search": {
+                                             "key_": itemKey
+                                             },
+                                  "sortfield": "name"
+                                  },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]) > 0:
+                    writeLogFile(self.swComponent,'Item already exists on host:' + hostName, status, content)
+                    return 1
+        #'Item is not added to the host yet     
+        return -1
+
+    def getMetric(self, hostName, itemKey):
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "item.get",
+                        "params":{
+                                  "output": "extend",
+                                  "hostids": str(hostId[0]['hostid']),
+                                  "search": {
+                                             "key_": itemKey
+                                             },
+                                  "sortfield": "name"
+                                  },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]) > 0:
+                    return content["result"][0]["lastvalue"]
+                else:
+                    return None
+        else:
+            return None
+
+    def removeHost(self, hostName):
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "host.delete",
+                        "params":[
+                            {"hostid": str(hostId[0]['hostid'])}
+                        ],
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]["hostids"]) > 0:
+                    writeLogFile(self.swComponent,'Host successfully deleted:' + hostName, status, content)
+                    return 1
+                else:
+                    writeLogFile(self.swComponent,'Host ' + hostName + ' not found', status, content)
+        #Probably host doesn't exist or deletion failed
+        return -1
+
     def doRequestMaaS(self, method, body):
         '''
         Method to perform requests to the MaaS.

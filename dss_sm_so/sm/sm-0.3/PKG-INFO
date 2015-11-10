@@ -1,0 +1,16 @@
+Metadata-Version: 1.1
+Name: sm
+Version: 0.3
+Summary: Library for creating service managers and orchestrators
+Home-page: http://blog.zhaw.ch/icclab
+Author: Andy Edmonds
+Author-email: edmo@zhaw.ch
+License: Apache 2.0
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires: pyssf
+Requires: requests
+Requires: mako
+Requires: retrying
+Requires: tornado
+Requires: graypy

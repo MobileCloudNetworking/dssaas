@@ -11,19 +11,25 @@ class TemplateGenerator:
 
     def __init__(self):
         #Later to be filled by asking CC
-        self.public_network_id = "1b31bc6b-8aff-4e13-912a-d9c9a427475a"
-        self.public_sub_network_id = "017c2d8a-66d5-458f-ba57-646082fbd285"
-        self.private_network_id = "a8cbfc3c-42d0-4431-86ec-4597d38bbb52"
-        self.private_sub_network_id = "70506734-0b95-4a8e-b8b7-4a8a54330db0"
-        
-        self.key_name = "bart-key"
-        self.cdn_enable = 'true'
-        self.dss_cms_image_name = 'DSS-NW-IMG'
-        self.dss_mcr_image_name = 'DSS-NW-IMG'
+        self.public_network_id = "77e659dd-f1b4-430c-ac6f-d92ec0137c85"
+        self.public_sub_network_id = "a7628952-bb27-4217-8154-fb41ac727a61"
+        self.private_network_id = "82c56778-da2c-4e12-834d-8d09958d0563"
+        self.private_sub_network_id = "0e768fd0-2bbc-482c-9cbd-7469529d141f"
+        #self.private_network_id = "df6fc93e-6af7-4fb3-9d0f-71e4a377dccb"
+        #self.private_sub_network_id = "c8e7b799-50fc-4da1-89a3-9d7ea9671e88"
+        #self.key_name = "mcn-key"
+        #self.key_name = "ubern-key"
+        self.key_name = "mcn-key"
+        self.cdn_enable = 'false'
+        self.icn_enable = 'false'
+        self.aaa_enable = 'false'
+        self.dns_enable = 'false'
+        self.dss_cms_image_name = 'DSS-IMG-Analytics'
+        self.dss_mcr_image_name = 'DSS-IMG-Analytics'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
-        self.dbpass = 'pass'
+        self.dbpass = 'registro00'
         self.dbuser = 'root'
         
         self.mcr_flavor_idx = 1
@@ -36,6 +42,8 @@ class TemplateGenerator:
         
         self.baseCmsResourceName = ""
         self.lbNameRandom = ""
+
+        self.cmsHostToRemove = None
     
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
@@ -65,21 +73,22 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " &" + "\n"           
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " " + self.aaa_enable + " &" + "\n"
         template += "\n"             
         template += "  " + self.baseCmsResourceName + "_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
         template += "  " + self.baseCmsResourceName + "_floating_ip:" + "\n"             
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
         template += '      port_id: { Ref : ' + self.baseCmsResourceName + '_port }' + "\n"
-        
+
         return template             
     
     def getBaseMcrTemplate(self):
@@ -104,14 +113,15 @@ class TemplateGenerator:
         template += "        rm -f agent*" + "\n"
         template += "        curl http://213.165.68.82/agent.tar.gz > agent.tar.gz" + "\n"
         template += "        tar -xvzf agent.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " &" + "\n"          
+        template += "        python /home/ubuntu/agent.py /usr/share/tomcat7/ " + self.cdn_enable + " " + self.icn_enable + " " + self.aaa_enable + " &" + "\n"
         template += "\n"             
         template += "  mcr_server_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
         template += "  mcr_server_floating_ip:" + "\n"             
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
@@ -136,23 +146,31 @@ class TemplateGenerator:
         template += "    Value: { 'Fn::GetAtt': [ mcr_server_floating_ip, floating_ip_address ] }" + "\n"
         template += "\n"
         template += '  mcn.dss.db.endpoint:' + "\n"
-        template += '    Description: IP address of DSS MCR in private network' + "\n"
+        template += '    Description: IP address of DSS DB in private network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ dbaas_server, first_address ] }" + "\n"
         template += "\n"
         template += '  mcn.dss.lb.endpoint:' + "\n"
         template += '    Description: Floating IP address of DSS load balancer in public network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
         template += "\n"
+        template += '  mcn.dss.dashboard.lb.endpoint:' + "\n"
+        template += '    Description: Floating IP address of DSS Dashboard load balancer in public network' + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ dashboard_lb_floatingip, floating_ip_address ] }" + "\n"
+        template += "\n"
         template += '  mcn.dss.mcr.hostname:' + "\n"
         template += '    Description: open stack instance name' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_server, show ] }" + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ mcr_server, name ] }" + "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += "\n"
             template += '  mcn.dss.cms' + str(self.cmsCounter) + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.getCmsBaseName() + ", show ] }" + "\n"
-        
+            template += "    Value: { 'Fn::GetAtt': [ " + self.getCmsBaseName() + ", name ] }" + "\n"
+
+        template += '  mcn.endpoint.dssaas:' + "\n"
+        template += '    Description: DSS service endpoint' + "\n"
+        template += '    Value: "N/A"' + "\n"
+
         return template
         
     def getTemplate(self):
@@ -199,7 +217,8 @@ class TemplateGenerator:
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
         template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"             
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += "\n"
@@ -216,10 +235,12 @@ class TemplateGenerator:
         template += '  cms_healthmonitor:' + "\n"
         template += '    Type: OS::Neutron::HealthMonitor' + "\n"
         template += '    Properties:' + "\n"
-        template += '      delay : 3' + "\n"            
+        template += '      delay : 10' + "\n"            
         template += '      max_retries : 3' + "\n"            
-        template += '      timeout : 3' + "\n"            
-        template += '      type : HTTP' + "\n"            
+        template += '      timeout : 10' + "\n"            
+        template += '      type : HTTP' + "\n"
+        template += '      url_path : /WebAppDSS/' + "\n"
+        template += '      expected_codes : 200-399'            
         template += "\n"            
         template += '  cms_lb_pool:' + "\n"            
         template += '    Type: OS::Neutron::Pool' + "\n"            
@@ -229,7 +250,7 @@ class TemplateGenerator:
         template += '      protocol: HTTP' + "\n"            
         template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"            
         template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"            
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip, "protocol_port": 80 }' + "\n"            
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"            
         template += "\n"
         
         self.lbNameRandom = self.randomNameGenerator(6)
@@ -243,7 +264,10 @@ class TemplateGenerator:
         template += '{ Ref: ' + self.getCmsBaseName() +' }' 
         for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
             template += ', { Ref: ' + self.getCmsBaseName() +' }'
-            
+
+        self.cmsCounter = self.numberOfCmsInstances + 1
+        self.cmsHostToRemove = self.getCmsBaseName()
+
         template += ' ]' + "\n"           
         template += '      pool_id: { Ref: cms_lb_pool }' + "\n"           
         template += '      protocol_port: 80' + "\n"           
@@ -253,6 +277,56 @@ class TemplateGenerator:
         template += '    Properties:' + "\n"           
         template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed          
         template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"           
+        template += "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += '#                         LB_Dashboard / FRONTEND RESOURCES                                  #' + "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += "\n"
+        template += '  dashboard_healthmonitor:' + "\n"
+        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      delay : 10' + "\n"
+        template += '      max_retries : 3' + "\n"
+        template += '      timeout : 10' + "\n"
+        template += '      type : HTTP' + "\n"
+        template += '      url_path : /WebAppDSS/' + "\n"
+        template += '      expected_codes : 200-399'
+        template += "\n"
+        template += '  dashboard_lb_pool:' + "\n"
+        template += '    Type: OS::Neutron::Pool' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      lb_method: ROUND_ROBIN' + "\n"
+        template += '      name: mypool8080' + "\n"
+        template += '      protocol: HTTP' + "\n"
+        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      monitors : [{ Ref: dashboard_healthmonitor }]' + "\n"
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip8080, "protocol_port": 8080, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+        template += "\n"
+
+        self.lbNameRandom = self.randomNameGenerator(6)
+
+        template += '  ' + self.lbNameRandom  + '_loadbalancer:' + "\n"
+        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      members: [ '
+
+        self.cmsCounter = 1
+        template += '{ Ref: ' + self.getCmsBaseName() +' }'
+        for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
+            template += ', { Ref: ' + self.getCmsBaseName() +' }'
+
+        self.cmsCounter = self.numberOfCmsInstances + 1
+        self.cmsHostToRemove = self.getCmsBaseName()
+
+        template += ' ]' + "\n"
+        template += '      pool_id: { Ref: dashboard_lb_pool }' + "\n"
+        template += '      protocol_port: 8080' + "\n"
+        template += "\n"
+        template += '  dashboard_lb_floatingip:' + "\n"
+        template += '    Type: OS::Neutron::FloatingIP' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
+        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ dashboard_lb_pool, vip ] } ] }" + "\n"
         template += "\n"
         template += self.getOutput()           
         
@@ -282,3 +356,7 @@ class TemplateGenerator:
         if self.numberOfCmsInstances > 1:
             self.numberOfCmsInstances -= 1
         return self.getTemplate()
+
+if __name__ == '__main__':
+    mytemp = TemplateGenerator()
+    print mytemp.getTemplate()
