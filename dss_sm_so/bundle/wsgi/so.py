@@ -32,17 +32,19 @@ import datetime
 from sdk.mcn import util
 from sm.so.service_orchestrator import BUNDLE_DIR
 
-def config_logger(log_level=logging.DEBUG):
+def config_logger(log_level=logging.DEBUG, mode='normal'):
     logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         log_level=log_level)
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
-    gray_handler = graypy.GELFHandler('log.cloudcomplab.ch', '12201')
-    logger.addHandler(gray_handler)
+    if mode is 'graylog':
+        gray_handler = graypy.GELFHandler('log.cloudcomplab.ch', '12201')
+        logger.addHandler(gray_handler)
     return logger
 
 LOG = config_logger()
+GLOG = config_logger(mode='graylog')
 
 # To be replaced with python logging
 def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
@@ -613,7 +615,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.so_e.update_end = datetime.datetime.now()
         diff = self.so_e.update_end - self.so_e.update_start
         infoDict = {
-                    'so_id': self.so_e.occi_core_id,
+                    'so_id': 'idnotusefulhere',
                     'sm_name': 'dssaas',
                     'so_phase': 'update',
                     'phase_event': 'start',
@@ -621,7 +623,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     'tenant': self.so_e.tenant_name
                     }
         tmpJSON = json.dumps(infoDict)
-        LOG.debug(tmpJSON)
+        GLOG.debug(tmpJSON)
         writeLogFile(self.swComponent,"Update successful",'','')
         writeLogFile(self.swComponent,"Check config stat of instances",'','')
         checkList = {}
