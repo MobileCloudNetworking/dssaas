@@ -584,7 +584,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 #Scale has started
-                self.se_e.update_start = datetime.datetime.now()
+                self.so_e.update_start = datetime.datetime.now()
                 self.so_e.update_stack()
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
 
@@ -610,8 +610,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             result, listOfAllServers = self.so_e.getServerIPs()
 
         #Scale has finished
-        self.se_e.update_end = datetime.datetime.now()
-        diff = self.se_e.update_end - self.se_e.update_start
+        self.so_e.update_end = datetime.datetime.now()
+        diff = self.so_e.update_end - self.so_e.update_start
         infoDict = {
                     'so_id': self.so_e.occi_core_id,
                     'sm_name': 'd-dss-sm',
