@@ -26,6 +26,8 @@ from sm.so.service_orchestrator import LOG
 from TemplateGenerator import *
 from SOMonitor import *
 from dnsaascli import *
+import graypy
+import datetime
 
 from sdk.mcn import util
 from sm.so.service_orchestrator import BUNDLE_DIR
@@ -36,6 +38,8 @@ def config_logger(log_level=logging.DEBUG):
                         log_level=log_level)
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
+    gray_handler = graypy.GELFHandler('log.cloudcomplab.ch', '12201')
+    logger.addHandler(gray_handler)
     return logger
 
 LOG = config_logger()
@@ -80,6 +84,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.dns_api = None
         self.sla_endpoint = None
         self.dnsManager = None
+        self.occi_core_id = None
+        self.update_start = 0
+        self.update_end = 0
         # CDN Related Variables
         #self.cdn_password = 'password'
         #self.cdn_password = None
@@ -332,6 +339,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                                 i['output_value'] = instances[item]
                         #i['output_value'] = 'http://' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + ':8080/WebAppDSS/'
                         LOG.debug('Replaced mcn.endpoint.dssaas value with: ' + i['output_value'])
+                    if i['output_key'] == "occi.core.id":
+                        self.occi_core_id = i['output_key']
+
                 return tmp['state'], self.stack_id, tmp['output']
             else:
                 LOG.debug('Output was None :-/')
@@ -573,6 +583,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                             zHostToDelete = item
 
                 writeLogFile(self.swComponent,"Performing stack update",'','')
+                #Scale has started
+                self.se_e.update_start = datetime.datetime.now()
                 self.so_e.update_stack()
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
 
@@ -597,6 +609,19 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             time.sleep(1)
             result, listOfAllServers = self.so_e.getServerIPs()
 
+        #Scale has finished
+        self.se_e.update_end = datetime.datetime.now()
+        diff = self.se_e.update_end - self.se_e.update_start
+        infoDict = {
+                    'so_id': self.so_e.occi_core_id,
+                    'sm_name': 'd-dss-sm',
+                    'so_phase': 'update',
+                    'phase_event': 'start',
+                    'response_time': str(diff.total_seconds()) + ' seconds',
+                    'tenant': self.so_e.tenant_name
+                    }
+        tmpJSON = json.dumps(infoDict)
+        LOG.debug(tmpJSON)
         writeLogFile(self.swComponent,"Update successful",'','')
         writeLogFile(self.swComponent,"Check config stat of instances",'','')
         checkList = {}

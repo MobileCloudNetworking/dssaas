@@ -61,15 +61,20 @@ class IcnContentManager:
 
     def get_file_from_icn(self, filename, prefix, http_server_path, player_username):
         ret_code = -1
+        mv_ret_code = -1
         if filename != "" and prefix != "":
             #Using java client
             #LOG.debug("Running command: " + '/home/ubuntu/ccnxdir/bin/ccngetfile ' + '-v ' + 'ccnx:' + prefix + '/' + filename + ' ' + http_server_path + filename)
             #ret_code = call(['/home/ubuntu/ccnxdir/bin/ccngetfile', '-v', 'ccnx:' + prefix + '/' + filename, http_server_path + filename])
 
             #Using C client
-            f_handler = open(http_server_path + filename, "w")
-            LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + http_server_path + filename)
+            f_handler = open('/home/' + player_username + '/' + filename, "w")
+            #+ http_server_path + filename
+            LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + '/home/' + player_username + '/' + filename)
             ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
+            LOG.debug("Running command: mv " + '/home/' + player_username + '/' + filename + ' ' + http_server_path + filename)
+            mv_ret_code = call(['mv', '/home/' + player_username + '/' + filename, http_server_path + filename])
+            LOG.debug("Move command ret code for file " + filename + " is " + str(mv_ret_code))
             #f_handler.close()
         return ret_code
 
