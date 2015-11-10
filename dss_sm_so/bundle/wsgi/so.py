@@ -86,7 +86,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.dns_api = None
         self.sla_endpoint = None
         self.dnsManager = None
-        self.occi_core_id = None
         self.update_start = 0
         self.update_end = 0
         # CDN Related Variables
@@ -341,9 +340,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                                 i['output_value'] = instances[item]
                         #i['output_value'] = 'http://' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + ':8080/WebAppDSS/'
                         LOG.debug('Replaced mcn.endpoint.dssaas value with: ' + i['output_value'])
-                    if i['output_key'] == "occi.core.id":
-                        self.occi_core_id = i['output_key']
-
                 return tmp['state'], self.stack_id, tmp['output']
             else:
                 LOG.debug('Output was None :-/')
