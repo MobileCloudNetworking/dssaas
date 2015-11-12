@@ -17,12 +17,12 @@
 DSS SO.
 """
 
-import logging
-import sys
-import threading
+#import logging
+#import sys
+#import threading
+#import json
 
 from sm.so import service_orchestrator
-from sm.so.service_orchestrator import LOG
 from TemplateGenerator import *
 from SOMonitor import *
 from dnsaascli import *
@@ -30,7 +30,7 @@ import graypy
 import datetime
 
 from sdk.mcn import util
-from sm.so.service_orchestrator import BUNDLE_DIR
+#from sm.so.service_orchestrator import BUNDLE_DIR
 
 def config_logger(log_level=logging.DEBUG, mode='normal'):
     logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
@@ -39,7 +39,7 @@ def config_logger(log_level=logging.DEBUG, mode='normal'):
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
     if mode is 'graylog':
-        gray_handler = graypy.GELFHandler('log.cloudcomplab.ch', '12201')
+        gray_handler = graypy.GELFHandler('log.cloudcomplab.ch', 12201)
         logger.addHandler(gray_handler)
     return logger
 
@@ -582,6 +582,22 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 #Scale has started
+                scale_type = None
+                if cmsScaleInTriggered is True:
+                    scale_type = 'scaling-in'
+                elif cmsScaleOutTriggered is True:
+                    scale_type = 'scaling-out'
+                infoDict = {
+                    'so_id': 'idnotusefulhere',
+                    'sm_name': 'dssaas',
+                    'so_phase': 'update',
+                    'scaling': scale_type,
+                    'phase_event': 'start',
+                    'response_time': 0,
+                    'tenant': self.so_e.tenant_name
+                    }
+                tmpJSON = json.dumps(infoDict)
+                GLOG.debug(tmpJSON)
                 self.so_e.update_start = datetime.datetime.now()
                 self.so_e.update_stack()
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
@@ -596,11 +612,11 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
                 # Checking configuration status of the instances after scaling
-                self.checkConfigurationStats()
+                self.checkConfigurationStats(scale_type= scale_type)
                 self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
-    def checkConfigurationStats(self):
+    def checkConfigurationStats(self, scale_type):
         result = -1
         # Waits till the deployment of the stack is finished
         while(result == -1):
@@ -608,13 +624,15 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             result, listOfAllServers = self.so_e.getServerIPs()
 
         #Scale has finished
+        writeLogFile(self.swComponent,"Update Type: " + scale_type,'','')
         self.so_e.update_end = datetime.datetime.now()
         diff = self.so_e.update_end - self.so_e.update_start
         infoDict = {
                     'so_id': 'idnotusefulhere',
                     'sm_name': 'dssaas',
                     'so_phase': 'update',
-                    'phase_event': 'finished',
+                    'scaling': scale_type,
+                    'phase_event': 'done',
                     'response_time': diff.total_seconds(),
                     'tenant': self.so_e.tenant_name
                     }
@@ -1129,7 +1147,7 @@ class SOConfigure(threading.Thread):
                 time.sleep(1)
                 res = self.monitor.itemExists(zabbixName, "DSS.Players.CNT")
                 if res != 1:
-                    # 4 - Specifies data type "Unsigned" and 30 Specifies this item will be checked every 30 seconds
+                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
                     res = self.monitor.configItem("DSS number of active player data", zabbixName, "DSS.Players.CNT", 4, 30)
 
             res = 0
@@ -1151,6 +1169,13 @@ class SOConfigure(threading.Thread):
             while (res != 1):
                 time.sleep(1)
                 res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
+        res = 0
+        while (res != 1):
+            time.sleep(1)
+            res = self.monitor.itemExists(zabbixName, "DSS.Player.Reqcount")
+            if res != 1:
+                # 4 - Specifies data type "String" and 60 Specifies this item will be checked every 60 seconds
+                res = self.monitor.configItem("DSS players request count", zabbixName, "DSS.Player.Reqcount", 4, 60)
 
         writeLogFile(self.swComponent,'All triggers and items added succesfully for host: ' + targetHostName,'','')
 

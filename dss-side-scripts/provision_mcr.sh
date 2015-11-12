@@ -57,4 +57,5 @@ fi
 service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart
+service streaming restart
 exit 0

@@ -24,8 +24,8 @@ class TemplateGenerator:
         self.icn_enable = 'false'
         self.aaa_enable = 'false'
         self.dns_enable = 'false'
-        self.dss_cms_image_name = 'DSS-IMG-Analytics'
-        self.dss_mcr_image_name = 'DSS-IMG-Analytics'
+        self.dss_cms_image_name = 'DSS-IMG'
+        self.dss_mcr_image_name = 'DSS-IMG'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'

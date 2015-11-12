@@ -343,6 +343,8 @@ class Application:
                 #configure and reboot zabbix
                 call(['sed', '-i.bak', 's/Server=.*$/Server=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
                 call(['sed', '-i.bak', 's/ServerActive=.*$/ServerActive=' + mon_json["monendpoint"] + '/g', '/etc/zabbix/zabbix_agentd.conf'])
+                call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
+                call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Player.Reqcount,python /home/ubuntu/getrequests.py"g', '/etc/zabbix/zabbix_agentd.conf'])
                         
             #if you are in mcr, add custom item for rcb
             if 'mcr' in socket.gethostname():
@@ -370,7 +372,8 @@ class Application:
                         dbname = mon_json["dbname"]
                         call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
                         call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.RCB.CDRString,python /home/ubuntu/getcdr.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
-                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Player.Reqcount,python /home/ubuntu/getrequests.py"g', '/etc/zabbix/zabbix_agentd.conf'])
                     else:
                         return self.servererror(self.SERVER_ERROR_DEPLOY_NOT_FINISHED)
                 except:
