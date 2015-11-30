@@ -100,60 +100,6 @@ if __name__ == "__main__":
     resp_routers = cntManager.doRequest(icn_endpoint + '/icnaas/api/v1.0/routers','POST','{"public_ip":"MCRPUBLICIP","hostname":"MCRHOSTNAME","layer":"100","cell_id":"0"}')
     LOG.debug("ICN add server route response is:" + str(resp_routers))
 
-    resp = cntManager.doRequest(icn_endpoint + '/icnaas/api/v1.0/endpoints/server','get','')
-    LOG.debug("ICN get ICN server endpoints response is:" + str(resp))
-
-    if len(resp) <= 0:
-        LOG.debug("No icn server found. Now we exit ...")
-        sys.exit(1)
-
-    icn_route_config = None
-    try:
-        icn_route_config = open('/root/.ccnx/ccnd.conf', 'w')
-        for item in resp["routers"]:
-            icn_route_config.write('add ccnx:' + icn_prefix + '  tcp ' + item["public_ip"] + ' 9695')
-            icn_route_config.write("\n")
-            icn_route_config.write('add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
-            icn_route_config.write("\n")
-        icn_route_config.close()
-        out_p = Popen('service myccnd stop', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
-        for line in out_p.stdout:
-            LOG.debug(line)
-        time.sleep(3)
-        out_p = Popen('service myccnd start', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
-        for line in out_p.stdout:
-            LOG.debug(line)
-    except IOError as e:
-        LOG.debug("I/O error({0}): {1}".format(e.errno, e.strerror))
-    except:
-        LOG.debug("Unknown error while creating CCNX route config file")
-
-    if icn_route_config is None:
-        sys.exit(1)
-
-    time.sleep(3)
-    for item in resp["routers"]:
-        route_added = False
-        while route_added is not True:
-            desired_route = item["public_ip"] + ':9695'
-            out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndstatus', stdout=PIPE, stderr=STDOUT, bufsize=1)
-            for line in out_p.stdout:
-                if desired_route in line:
-                    route_added = True
-            if route_added == False:
-                LOG.debug("Route " + desired_route + ' not found, try to add the route:')
-
-                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:' + icn_prefix + ' tcp ' + item["public_ip"] + ' 9695')
-                first_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:' + icn_prefix + ' tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
-                for line in first_route_out_p.stdout:
-                    LOG.debug(line)
-
-                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
-                second_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
-                for line in second_route_out_p.stdout:
-                    LOG.debug(line)
-            time.sleep(3)
-
     resp_prefix = cntManager.doRequest(icn_endpoint + '/icnaas/api/v1.0/prefixes','POST','{"url":"ccnx:' + icn_prefix + '","balancing":"0"}')
     LOG.debug("ICN add prefix response is:" + str(resp_prefix))
 
@@ -165,6 +111,65 @@ if __name__ == "__main__":
             i = 0
             while i < len(cntList):
                 if cntList[i] not in oldCntList:
+                    resp = cntManager.doRequest(icn_endpoint + '/icnaas/api/v1.0/endpoints/server','get','')
+                    LOG.debug("ICN get ICN server endpoints response is:" + str(resp))
+
+                    if len(resp) <= 0:
+                        LOG.debug("No icn server found. Now we exit ...")
+                        sys.exit(1)
+
+                    icn_route_config = None
+                    try:
+                        icn_route_config = open('/root/.ccnx/ccnd.conf', 'w')
+                        for item in resp["routers"]:
+                            icn_route_config.write('add ccnx:' + icn_prefix + '  tcp ' + item["public_ip"] + ' 9695')
+                            icn_route_config.write("\n")
+                            icn_route_config.write('add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
+                            icn_route_config.write("\n")
+                        icn_route_config.close()
+                        out_p = Popen('service myccnd stop', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                        for line in out_p.stdout:
+                            LOG.debug(line)
+                        time.sleep(3)
+                        out_p = Popen('service myccnd start', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                        for line in out_p.stdout:
+                            LOG.debug(line)
+                    except IOError as e:
+                        LOG.debug("I/O error({0}): {1}".format(e.errno, e.strerror))
+                    except:
+                        LOG.debug("Unknown error while creating CCNX route config file")
+
+                    if icn_route_config is None:
+                        sys.exit(1)
+
+                    time.sleep(3)
+                    '''
+                    for item in resp["routers"]:
+                        route_added = False
+                        while route_added is not True:
+                            desired_route = item["public_ip"] + ':9695'
+                            out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndstatus', stdout=PIPE, stderr=STDOUT, bufsize=1)
+                            for line in out_p.stdout:
+                                if desired_route in line:
+                                    route_added = True
+                            if route_added == False:
+                                LOG.debug("Route " + desired_route + ' not found, try to add the route:')
+
+                                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:' + icn_prefix + ' tcp ' + item["public_ip"] + ' 9695')
+                                first_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:' + icn_prefix + ' tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                                for line in first_route_out_p.stdout:
+                                    LOG.debug(line)
+
+                                LOG.debug('Executing: /home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695')
+                                second_route_out_p = Popen('/home/ubuntu/ccnxdir/bin/ccndc add ccnx:/ccnx.org tcp ' + item["public_ip"] + ' 9695', shell=True, stdout=PIPE, stderr=STDOUT, bufsize=1)
+                                for line in second_route_out_p.stdout:
+                                    LOG.debug(line)
+                            time.sleep(3)
+                    '''
+
+                    ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + icn_prefix, 'loadsharing'])
+                    LOG.debug("ICN loadsharing command return code for is " + str(ret_code))
+
                     LOG.debug("Inserting file " + cntList[i])
                     ret_code = cntManager.insert_file_to_icn(cntList[i], icn_prefix, repo_path)
                     if ret_code == 0:

@@ -15,11 +15,14 @@ import pycurl
 import cStringIO
 import datetime
 import os
+import numpy
 
 class IcnContentManager:
 
     def __init__(self):
         self.dl_time = 0.0
+        self.zipfcounter = 0
+        self.zipfdist = numpy.random.zipf(1.01,5000) # list size 5000!!!!
 
     def doCurlRequest(self, target_url):
         response_status = 0
@@ -81,11 +84,36 @@ class IcnContentManager:
                 self.dl_time = 1.0
         return ret_code
 
+    def get_zipf_file_from_icn(self, prefix, http_server_path):
+        ret_code = -1
+        while (self.zipfdist[self.zipfcounter] > 199): # biggest file name 199.webm!!!!
+            self.zipfcounter = self.zipfcounter + 1
+        self.filename = str(self.zipfdist[self.zipfcounter]) + ".webm"
+        if (self.zipfcounter == 5000):
+            self.zipfconuter = 0
+        self.zipfcounter = self.zipfcounter + 1
+        if self.filename != "" and prefix != "":
+            #Using C client
+            f_handler = open(http_server_path + self.filename, "w")
+            start_t = datetime.datetime.now()
+            ret_code = call(['/home/ubuntu/ccnxdir/bin/ccncat', '-p16', 'ccnx:' + prefix + '/' + self.filename], stdout=f_handler)
+            end_t = datetime.datetime.now()
+            self.dl_time = float((end_t - start_t).seconds)
+            if self.dl_time < 1.0:
+                self.dl_time = 1.0
+        return ret_code
+
     def remove_file(self, filename, http_server_path):
         ret_code = -1
         if filename != "":
             ret_code = call(['rm', http_server_path + filename])
         return ret_code
+
+    def remove_zipf_file(self, http_server_path):
+        ret_code = -1
+        ret_code = call(['rm', http_server_path + self.filename])
+        return ret_code
+
 
 class icnThread(threading.Thread):
     def __init__(self, url_to_poll, ep_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, ready_event):
@@ -101,8 +129,8 @@ class icnThread(threading.Thread):
         self.icn_prefix = icn_prefix
         self.interest_count = interest_count
 
-        parseUrl = url_to_poll.split("/")
-        self.url_to_poll = "http://" + self.ep_to_poll + ":8080/WebAppDSS/display/" + parseUrl[5]
+        #parseUrl = url_to_poll.split("/")
+        self.url_to_poll = "http://localhost/"
 
     def run(self):
         print self.testComponent + " started."
@@ -120,58 +148,20 @@ class icnThread(threading.Thread):
                         ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'add', 'ccnx:/ccnx.org', 'tcp', resp_routers["routers"][i]["public_ip"], '9695'])
                         time.sleep(0.2)
                     i += 1
-
                 oldRouterList = resp_routers
-
                 ret_code = call(['/home/ubuntu/ccnxdir/bin/ccndc', 'setstrategy', 'ccnx:' + self.icn_prefix, 'loadsharing'])
 
-            data = cntManager.doCurlRequest(self.url_to_poll)
-            cntList = cntManager.generate_contentlist(data)
-            i = 0
-            while i < len(cntList):
-                ret_code = cntManager.get_file_from_icn(cntList[i], self.icn_prefix, self.http_server_path)
-                file_size = os.path.getsize(self.http_server_path + cntList[i])/1024
-                sleep_time = float(((file_size / 4)/ self.interest_count) - cntManager.dl_time)
-                print "Sleep time: " + str(sleep_time)
-                if sleep_time > 1:
-                    time.sleep(sleep_time)
-                if ret_code == 0:
-                    i += 1
-                else:
-                    print "Error while getting content " + str(i)
-            i = 0
-            while i < len(cntList):
-                ret_code = cntManager.remove_file(cntList[i], self.http_server_path)
-                if ret_code == 0:
-                    i += 1
-                else:
-                    print "Error while removing content " + str(i)
-                time.sleep(0.1)
+            ret_code = cntManager.get_zipf_file_from_icn(self.icn_prefix, self.http_server_path)
+            if ret_code == 0:
+                pass
+            else:
+                print "Error while getting content " + str(i)
 
-class playerThread(threading.Thread):
-    def __init__(self, url_to_poll, ready_event, dns_qps):
-        self.dnsqps = dns_qps # 10qps/process
-        self.event = ready_event
-        self.testComponent = 'playerThread'
-        threading.Thread.__init__(self)
-        print self.testComponent + " initialized."
-
-        parseUrl = url_to_poll.split("/")
-        self.url_to_poll = "http://" + parseUrl[2] + "/WebAppDSS/display/playAll?" + parseUrl[5].split("?")[1] + "&type_request=refresh"
-
-    def run(self):
-        print self.testComponent + " started."
-        print self.url_to_poll
-        cntManager = IcnContentManager()
-        #counter = 0
-        while 1:
-            data = cntManager.doCurlRequest(self.url_to_poll)
-            print self.url_to_poll
-            print str(1.0/float(self.dnsqps))
-            time.sleep(1.0/float(self.dnsqps))
-            #counter+=1
-            #if (counter % 100 == 0):
-                #print datetime.datetime.now() + "- 100 requests"
+            ret_code = cntManager.remove_zipf_file(self.http_server_path)
+            if ret_code == 0:
+                pass
+            else:
+                print "Error while removing content " + str(i)
 
 
 def main(argv):
@@ -236,11 +226,8 @@ def main(argv):
     shared_event = threading.Event()
     icn_thread = icnThread(url_to_poll, ep_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, shared_event)
     icn_thread.daemon = True
-    player_thread = playerThread(url_to_poll, shared_event, dns_qps)
-    player_thread.daemon = True
     #Running threads
     icn_thread.start()
-    player_thread.start()
     #Making app wait till someone actually kill the process
     while True:
         time.sleep(1)

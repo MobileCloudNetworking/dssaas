@@ -161,6 +161,8 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         if self.stack_id is not None:
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
+        #Remove DSS domain and record names from DNSaaS
+        '''
         if self.templateManager.dns_enable == 'true' and self.dnsManager is not None:
                 writeLogFile(self.swComponent,'Trying to remove CMS record: ' + self.dssCmsRecordName, '', '')
                 result = -1
@@ -259,6 +261,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     except:
                         break
                 writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
+        '''
         # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
 
@@ -416,7 +419,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                {"Less than 30% hard disk usage on {HOST.NAME}":0}]
                                #{"Number of active players on {HOST.NAME}":0}]
 
-        self.decisionMapCMS = [{"More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":0},
+        self.decisionMapCMS = [{"More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":0},
                                {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":0}]
 
         # Creating a configuring object ( REST client for SO::SIC interface )
@@ -493,14 +496,14 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             cmsScaleInTriggered = False
             writeLogFile(self.swComponent,"Checking CMS status",'','')
             for item in self.decisionMapCMS:
-                if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
-                    writeLogFile(self.swComponent,"More than 60% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
+                if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
+                    writeLogFile(self.swComponent,"More than 30% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
                 elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":
                     writeLogFile(self.swComponent,"Less than 10% cpu utilization for more than 10 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
                 writeLogFile(self.swComponent,"Total CMS machine(s) count is: " + str(cmsCount),'','')
                 if item[item.keys()[0]] == cmsCount:
                     # CMS scale out
-                    if item.keys()[0] == "More than 60% cpu utilization for more than 1 minute on {HOST.NAME}":
+                    if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
                         cmsScaleOutTriggered = True
                     # CMS scale in
                     elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}" and self.numberOfScaleOutsPerformed > 0:
@@ -514,6 +517,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 self.lastCmsScale = time.time()
                 self.so_e.templateManager.templateToScaleOut()
                 self.numberOfScaleOutsPerformed += 1
+                if cmsScaleOutTriggered is not True:
+                    cmsScaleOutTriggered = True
                 scaleTriggered = True
                 writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
 
@@ -604,7 +609,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
                 #Removing the deleted host from zabbix server
                 if zHostToDelete is not None:
-                    self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
+                    #self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
                     resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'DELETE', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances+1) + '"}]}')
                     writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
                 else:
@@ -1163,7 +1168,7 @@ class SOConfigure(threading.Thread):
             res = 0
             while (res != 1):
                 time.sleep(1)
-                res = self.monitor.configTrigger('More than 60% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<40')
+                res = self.monitor.configTrigger('More than 30% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<70')
 
             res = 0
             while (res != 1):
