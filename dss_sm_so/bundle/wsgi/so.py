@@ -64,13 +64,11 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.dssCmsDomainName = "dssaas.mcn.com"
         self.dssMcrDomainName = "dssaas.mcn.com"
         self.dssCmsRecordName = "cms"
-        self.dssDashboardRecordName = "dashboard"
         self.dssMcrRecordName = "mcr"
         self.monitoring_endpoint = None
         self.icn_endpoint = None
         self.dns_forwarder = None
         self.dns_api = None
-        self.sla_endpoint = None
         self.dnsManager = None
         self.update_start = 0
         self.update_end = 0
@@ -470,7 +468,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         writeLogFile(self.swComponent,"Check config stat of instances",'','')
         checkList = {}
         for item in listOfAllServers:
-            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.dss.dashboard.lb.endpoint" and item != "mcn.endpoint.dssaas":
+            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 checkList[listOfAllServers[item]] = "unknown"
 
         # Talking to DSS SIC agents to get the configuration status of each
@@ -628,7 +626,7 @@ class SOConfigure(threading.Thread):
 
         #WAIT FOR FINISHING THE DEPLOYMENT
         for item in self.instances:
-            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.dss.dashboard.lb.endpoint" and item != "mcn.endpoint.dssaas":
+            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 response_status = 0
                 i = self.instances[item]
                 while (response_status < 200 or response_status >= 400):
@@ -684,18 +682,6 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
-            elif item == "mcn.dss.dashboard.lb.endpoint":
-                dashboardRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', token=self.so_e.token)
-                if dashboardRecordExists.get('code', None) is not None and dashboardRecordExists['code'] == 404:
-                    result = -1
-                    while (result != 1):
-                        time.sleep(1)
-                        result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
-                        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                        writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
-                else:
-                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
             elif item == "mcn.dss.mcr.endpoint":
                 mcrRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', token=self.so_e.token)
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
@@ -732,12 +718,12 @@ class SOConfigure(threading.Thread):
         #configure instances
         writeLogFile(self.swComponent,"Entering the loop to provision each instance ...",'','')
         for item in self.instances:
-            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.dss.dashboard.lb.endpoint" and item != "mcn.endpoint.dssaas":
+            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 self.provisionInstance(self.instances[item],self.instances)
 
         writeLogFile(self.swComponent,"Entering the loop to create JSON config file for each instance ...",'','')
         for item in self.instances:
-            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.dss.dashboard.lb.endpoint" and item != "mcn.endpoint.dssaas":
+            if item != "mcn.dss.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 self.configInstance(self.instances[item])
 
         writeLogFile(self.swComponent,"Exiting the loop for JSON config file creation for all instances",'','')
@@ -761,7 +747,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dashboarddomainname":"' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '","sladomainname":"' + self.dssSlaRecordName + '.' + self.dssCmsDomainName + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp), '', '')
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
