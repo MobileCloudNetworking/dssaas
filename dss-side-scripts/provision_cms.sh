@@ -42,7 +42,6 @@ then
         echo "create database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
 fi
 #Start services
-service mysla restart
 service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart
