@@ -2,13 +2,10 @@
     "service_type": "http://schemas.mobile-cloud-networking.eu/occi/sm#dssaas",
     "service_description": "DSS as a Service -- DSSaaS",
     "service_attributes": {
-        "mcn.endpoint.icnaas": "",
         "mcn.endpoint.maas": "",
         "mcn.endpoint.dssaas": "immutable",
         "mcn.endpoint.api": "",
-        "mcn.endpoint.forwarder": "",
-        "mcn.endpoint.aaa": "",
-        "mcn.endpoint.slaaas": ""
+        "mcn.endpoint.forwarder": ""
     },
     "service_endpoint": "http://dss.cloudcomplab.ch:8891/dssaas/",
         "depends_on":  []
