@@ -526,8 +526,6 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                     continue
                                 response_status = int(response.get("status"))
                                 self.configure.SICMonConfig(content)
-                            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'POST', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
-                            writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
     # Updates the decision map according to the triggered triggers :-)
     def updateDecisionMap(self, type, description):
@@ -583,15 +581,10 @@ class SOConfigure(threading.Thread):
                 if self.so_e.dns_api != None and self.so_e.dns_forwarder != None:
                     self.dns_forwarder = self.so_e.dns_forwarder
                     self.dns_api = self.so_e.dns_api
-                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
-                    writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
                     LOG.debug("DNS Forwarder EP: " + self.dns_forwarder)
                     LOG.debug("DNS api EP: " + self.dns_api)
                     self.performDNSConfig()
                     self.dependencyStat["DNS"] = "ready"
-                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"dnsaas"}]}')
-                    writeLogFile(self.swComponent,"Service_ready post response is:" + str(resp),'','')
-
                 time.sleep(3)
         else:
             self.dns_forwarder = '4.2.2.4'
@@ -604,8 +597,6 @@ class SOConfigure(threading.Thread):
             if self.so_e.monitoring_endpoint != None:
                 #Now that all DSS SICs finished application deployment we can start monitoring
                 self.monitoring_endpoint = self.so_e.monitoring_endpoint
-                resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
-                writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
                 writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
                 self.dependencyStat["MON"] = "ready"
             time.sleep(3)
