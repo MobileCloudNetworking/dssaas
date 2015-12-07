@@ -23,8 +23,7 @@ class IcnContentManager:
 
     def doCurlRequest(self, target_url):
         response_status = 0
-        while (response_status < 200 or response_status >= 400):
-            time.sleep(0.1)
+        if (response_status < 200 or response_status >= 400):
             curl = pycurl.Curl()
             buff = cStringIO.StringIO()
             curl.setopt(pycurl.URL, target_url)
@@ -36,7 +35,8 @@ class IcnContentManager:
                     response_status = -1
             curl.close()
             if (response_status < 200 or response_status >= 400):
-                continue
+                print 'error in ' + target_url + 'request'
+                return None
             content_dict = json.loads(buff.getvalue())
         return content_dict
 
@@ -88,17 +88,21 @@ class IcnContentManager:
         return ret_code
 
 class icnThread(threading.Thread):
-    def __init__(self, url_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, ready_event):
+    def __init__(self, url_to_poll, ep_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, ready_event):
         self.event = ready_event
         self.testComponent = 'icnThread'
         threading.Thread.__init__(self)
         print self.testComponent + " initialized."
 
         self.url_to_poll = url_to_poll
+        self.ep_to_poll = ep_to_poll
         self.icn_api_url = icn_api_url
         self.http_server_path = http_server_path
         self.icn_prefix = icn_prefix
         self.interest_count = interest_count
+
+        parseUrl = url_to_poll.split("/")
+        self.url_to_poll = "http://" + self.ep_to_poll + ":8080/WebAppDSS/display/" + parseUrl[5]
 
     def run(self):
         print self.testComponent + " started."
@@ -145,7 +149,8 @@ class icnThread(threading.Thread):
                 time.sleep(0.1)
 
 class playerThread(threading.Thread):
-    def __init__(self, url_to_poll, ready_event):
+    def __init__(self, url_to_poll, ready_event, dns_qps):
+        self.dnsqps = dns_qps # 10qps/process
         self.event = ready_event
         self.testComponent = 'playerThread'
         threading.Thread.__init__(self)
@@ -158,28 +163,40 @@ class playerThread(threading.Thread):
         print self.testComponent + " started."
         print self.url_to_poll
         cntManager = IcnContentManager()
+        #counter = 0
         while 1:
             data = cntManager.doCurlRequest(self.url_to_poll)
+            print self.url_to_poll
+            print str(1.0/float(self.dnsqps))
+            time.sleep(1.0/float(self.dnsqps))
+            #counter+=1
+            #if (counter % 100 == 0):
+                #print datetime.datetime.now() + "- 100 requests"
+
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hu:i:c:f:p:",["url=","icn=","icount=","file_path=","prefix="])
+        opts, args = getopt.getopt(argv,"hu:e:i:c:f:p:q:",["url=","endpoint=","icn=","icount=","file_path=","prefix=","dns_qps="])
     except getopt.GetoptError:
-        print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+        print ("Usage: python player_emulated_performance_tool.py -u <URL_TO_POLL_FROM> -e <DSS_CMS_IP> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss] -q [dns_qps]")
         sys.exit(0)
 
     url_to_poll = None
+    ep_to_poll = None
     request_delay = None
     http_server_path = None
     icn_prefix = None
     icn_api_url = None
+    dns_qps = None
 
     for opt, arg in opts:
         if opt == '-h':
-            print ("Usage: python icn_dss_dns_load_test.py -u <URL_TO_POLL_FROM> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
+            print ("Usage: python player_emulated_performance_tool.py -u <URL_TO_POLL_FROM> -e <DSS_CMS_IP> -i <ICN_API_URL> -c [Number of desired interests per sec: 300] -f [PATH_TO_SAVE-FILES default: ./] -p [ICN_PREFIX default: /dss]")
             sys.exit(0)
         elif opt in ("-u", "--url"):
             url_to_poll = arg
+        elif opt in ("-e", "--endpoint"):
+            ep_to_poll = arg
         elif opt in ("-i", "--icn"):
             icn_api_url = arg
         elif opt in ("-c", "--icount"):
@@ -188,9 +205,15 @@ def main(argv):
             http_server_path = arg
         elif opt in ("-p", "--prefix"):
             icn_prefix = arg
+        elif opt in ("-q", "--dns_qps"):
+            dns_qps = arg
 
     if url_to_poll is None:
         print 'Polling URL is mandatory!'
+        exit(0)
+
+    if ep_to_poll is None:
+        print 'Polling Endpoint is mandatory!'
         exit(0)
 
     if icn_api_url is None:
@@ -198,7 +221,7 @@ def main(argv):
         exit(0)
 
     if interest_count is None:
-        interest_count = 300
+        interest_count = 10
 
     if http_server_path is None:
         http_server_path = './'
@@ -206,11 +229,14 @@ def main(argv):
     if icn_prefix is None:
         icn_prefix = '/dss'
 
+    if dns_qps is None:
+        dns_qps = 10
+
 
     shared_event = threading.Event()
-    icn_thread = icnThread(url_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, shared_event)
+    icn_thread = icnThread(url_to_poll, ep_to_poll, icn_api_url, interest_count, http_server_path, icn_prefix, shared_event)
     icn_thread.daemon = True
-    player_thread = playerThread(url_to_poll, shared_event)
+    player_thread = playerThread(url_to_poll, shared_event, dns_qps)
     player_thread.daemon = True
     #Running threads
     icn_thread.start()
