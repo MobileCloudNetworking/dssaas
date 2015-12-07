@@ -20,12 +20,9 @@ class TemplateGenerator:
         #self.key_name = "mcn-key"
         #self.key_name = "ubern-key"
         self.key_name = "mcn-key"
-        self.cdn_enable = 'false'
-        self.icn_enable = 'false'
-        self.aaa_enable = 'false'
         self.dns_enable = 'false'
-        self.dss_cms_image_name = 'DSS-IMG'
-        self.dss_mcr_image_name = 'DSS-IMG'
+        self.dss_cms_image_name = 'DSS-IMG-cln'
+        self.dss_mcr_image_name = 'DSS-IMG-cln'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'

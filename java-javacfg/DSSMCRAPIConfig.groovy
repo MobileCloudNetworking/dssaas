@@ -12,28 +12,26 @@ hibernate {
 // environment specific settings
 environments {
     production {
-    	//example = "true" 
-        SERVICE.CDN.ENABLED = "SERVICECDNENABLED"
     	//example = "/api/contents/*"
     	cors.url.pattern = 'MCRAPICONTENTMANAGEMENTPATTERN'
     	//example = "http://localhost:8080"
         cors.allow.origin.regex = 'http://DSSCMSSERVER:80'
-	//example = "./files/"
-	MCRAPI.storageDirectory = "MCRAPISTORAGEDIRECTORY"
-	//example = "http://localhost"
+	    //example = "./files/"
+	    MCRAPI.storageDirectory = "MCRAPISTORAGEDIRECTORY"
+	    //example = "http://localhost"
         MCRAPI.storageServerUrl = "MCRAPISTORAGESERVERURL"
-	//example = "8081"
+	    //example = "8081"
         MCRAPI.storageServerPort = "MCRAPISTORAGESERVERPORT"
-	//example = "/api/contents"
+	    //example = "/api/contents"
         MCRAPI.contentManagementUrl = "MCRAPICONTENTMANAGEMENTURL"
 	
-	//example = "localhost"
+	    //example = "localhost"
         DSS.MCRAPI.DBServerUrl = "DSSMCRAPIDBSERVERURL"
-	//example = "mcrapi"
+	    //example = "mcrapi"
         DSS.MCRAPI.DBName = "DSSMCRAPIDBNAME"
-	//example = "root"
+	    //example = "root"
         DSS.MCRAPI.DBUsername = "DSSMCRAPIDBUSERNAME"
-	//example = ""
+	    //example = ""
         DSS.MCRAPI.DBPassword = "DSSMCRAPIDBPASSWORD"
 		
         dataSource {

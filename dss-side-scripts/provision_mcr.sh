@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 9 ]; then
+if [ "$#" -ne 6 ]; then
     exit 1
 fi
 cd /home/ubuntu/
@@ -13,16 +13,12 @@ databaseusername="$3"
 databasehost="$4"
 databasepassword="$5"
 corsalloworiginregex="$6"
-servicecdnenabled="$7"
-serviceicnenabled="$8"
-icnport="$9"
 machinehostname=`hostname`
 machinepublicip="$1"
 corsurlpattern="/api/contents/\*"
 echo $4 > /home/ubuntu/dbhost
 sed -i.bak "s,Hostname=,#Hostname=,g" /etc/zabbix/zabbix_agentd.conf
 #Autoconf
-sed -i.bak "s,SERVICECDNENABLED,$servicecdnenabled,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,MCRAPISTORAGEDIRECTORY,$mcrapistoragedirectory,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,MCRAPISTORAGESERVERURL,$mcrapistorageserverurl,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,MCRAPISTORAGESERVERPORT,$mcrapistorageserverport,g" DSSMCRAPIConfig.groovy
@@ -37,12 +33,8 @@ sed -i.bak "s,MCRHOSTNAME,$machinehostname,g" icn_putcontents.py
 sed -i.bak "s,MCRPUBLICIP,$machinepublicip,g" icn_putcontents.py
 cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
-if [[ $serviceicnenabled == "true" ]]
-then
-    service myccnd start
-fi
 
-#Create db if required
+# Create db if required
 # Check database aaS is already there
 while [[ `echo "status" | mysql -h $databasehost -u $databaseusername -p$databasepassword | grep Uptime` != *Uptime* ]]
 do

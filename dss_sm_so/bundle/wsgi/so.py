@@ -17,11 +17,6 @@
 DSS SO.
 """
 
-#import logging
-#import sys
-#import threading
-#import json
-
 from sm.so import service_orchestrator
 from TemplateGenerator import *
 from SOMonitor import *
@@ -30,7 +25,6 @@ import graypy
 import datetime
 
 from sdk.mcn import util
-#from sm.so.service_orchestrator import BUNDLE_DIR
 
 def config_logger(log_level=logging.DEBUG, mode='normal'):
     logging.basicConfig(format='%(threadName)s \t %(levelname)s %(asctime)s: \t%(message)s',
@@ -49,12 +43,6 @@ GLOG = config_logger(mode='graylog')
 # To be replaced with python logging
 def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
     LOG.debug(swComponent + ' ' +  msgTo)
-    '''
-    with os.fdopen(os.open(os.path.join(BUNDLE_DIR, 'LOG_ERROR_FILE.csv'), os.O_WRONLY | os.O_CREAT, 0600), 'a') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow([str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),' ['+swComponent+'] ',msgTo, statusReceived, jsonReceived ])
-        csvfile.close()
-    '''
 
 class ServiceOrchestratorExecution(service_orchestrator.Execution):
     """
@@ -73,13 +61,11 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.templateUpdate = ""
         self.stack_id = None
         #Variables of other services
-        #self.dnsObject = None
         self.dssCmsDomainName = "dssaas.mcn.com"
         self.dssMcrDomainName = "dssaas.mcn.com"
         self.dssCmsRecordName = "cms"
         self.dssDashboardRecordName = "dashboard"
         self.dssMcrRecordName = "mcr"
-        self.dssSlaRecordName = "sla"
         self.monitoring_endpoint = None
         self.icn_endpoint = None
         self.dns_forwarder = None
@@ -88,16 +74,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.dnsManager = None
         self.update_start = 0
         self.update_end = 0
-        # CDN Related Variables
-        #self.cdn_password = 'password'
-        #self.cdn_password = None
-        #self.cdn_endpoint = '160.85.4.104:8182'
-        #self.cdn_endpoint = None
-        #self.cdn_global_id = 'd3e30c11-8a4d-41b4-b0c0-17de168de2a9'
-        #self.cdn_global_id = None
-        #self.cdn_origin = '160.85.4.103:8181'
-        #self.cdn_origin = None
-        #------------------------
 
         # make sure we can talk to deployer...
         writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
@@ -129,24 +105,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         (Optional) if not done during deployment - provision.
         """
         self.resolver.provision()
-        LOG.debug('DSS SO provision - Getting EPs')
-        for ep_entity in self.resolver.service_inst_endpoints:
-            for item in ep_entity:
-                if 'mcn.endpoint.icnaas' in item['attributes']:
-                    # The endpoint includes http:// part
-                    self.icn_endpoint = item['attributes']['mcn.endpoint.icnaas']
-                    writeLogFile(self.swComponent,'ICN EP is: ' + item['attributes']['mcn.endpoint.icnaas'], '', '')
-                if 'mcn.endpoint.maas' in item['attributes']:
-                    self.monitoring_endpoint = item['attributes']['mcn.endpoint.maas']
-                    writeLogFile(self.swComponent,'MON EP is: ' + item['attributes']['mcn.endpoint.maas'], '', '')
-                if 'mcn.endpoint.forwarder' in item['attributes']:
-                    self.dns_forwarder = item['attributes']['mcn.endpoint.forwarder']
-                    writeLogFile(self.swComponent,'DNS forwarder EP is: ' + self.dns_forwarder, '', '')
-                if 'mcn.endpoint.api' in item['attributes']:
-                    self.dns_api = item['attributes']['mcn.endpoint.api']
-                    self.dnsManager = DnsaasClientAction(self.dns_api, token=self.token)
-                    LOG.debug(str(self.dnsManager))
-                    writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_api, '', '')
 
         # once logic executes, deploy phase is done
         self.event.set()
@@ -161,108 +119,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         if self.stack_id is not None:
             self.deployer.dispose(self.stack_id, self.token)
             self.stack_id = None
-        #Remove DSS domain and record names from DNSaaS
-        '''
-        if self.templateManager.dns_enable == 'true' and self.dnsManager is not None:
-                writeLogFile(self.swComponent,'Trying to remove CMS record: ' + self.dssCmsRecordName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_record(self.dssCmsDomainName, self.dssCmsRecordName, 'A', self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssCmsRecordName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove Dashboard record: ' + self.dssDashboardRecordName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_record(self.dssCmsDomainName, self.dssDashboardRecordName, 'A', self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssDashboardRecordName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove MCR record: ' + self.dssMcrRecordName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_record(self.dssMcrDomainName, self.dssMcrRecordName, 'A', self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssMcrRecordName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove SLA record: ' + self.dssMcrRecordName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_record(self.dssCmsDomainName, self.dssSlaRecordName, 'A', self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssSlaRecordName + 'has been successfully removed', '', '')
 
-                writeLogFile(self.swComponent,'Trying to remove DSS CMS domain: ' + self.dssCmsDomainName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_domain(self.dssCmsDomainName, self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssCmsDomainName + 'has been successfully removed', '', '')
-                writeLogFile(self.swComponent,'Trying to remove DSS MCR domain: ' + self.dssMcrDomainName, '', '')
-                result = -1
-                while (result != 1):
-                    time.sleep(1)
-                    result = self.dnsManager.delete_domain(self.dssMcrDomainName, self.token)
-                    writeLogFile(self.swComponent,result.__repr__(), '', '')
-                    try:
-                        if result.get('status', None) is not None:
-                            if(result['status'] == '404'):
-                                break
-                        elif result.get('code', None) is not None:
-                            if(result['code'] == 500):
-                                break
-                    except:
-                        break
-                writeLogFile(self.swComponent,self.dssMcrDomainName + 'has been successfully removed', '', '')
-        '''
-        # TODO on disposal, remove the registered hosts on MaaS service
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
 
     def update_stack(self):
@@ -286,9 +143,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             if 'mcn.endpoint.maas' in updated.attributes:
                 self.monitoring_endpoint = updated.attributes['mcn.endpoint.maas']
                 writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
-            if 'mcn.endpoint.icnaas' in updated.attributes:
-                self.icn_endpoint = updated.attributes['mcn.endpoint.icnaas']
-                writeLogFile(self.swComponent,'ICN EP is: ' + self.icn_endpoint, '', '')
             if 'mcn.endpoint.forwarder' in updated.attributes:
                 self.dns_forwarder = updated.attributes['mcn.endpoint.forwarder']
                 writeLogFile(self.swComponent,'DNS forwarder EP is: ' + self.dns_forwarder, '', '')
@@ -297,24 +151,6 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                 self.dnsManager = DnsaasClientAction(self.dns_api, token=self.token)
                 LOG.debug(str(self.dnsManager))
                 writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_api, '', '')
-            if 'mcn.endpoint.slaaas' in updated.attributes:
-                self.sla_endpoint = updated.attributes['mcn.endpoint.slaaas']
-                writeLogFile(self.swComponent,'SLA EP is: ' + self.sla_endpoint, '', '')
-            else:
-                self.sla_endpoint = '134.191.243.7'
-                writeLogFile(self.swComponent,'SLA Default EP is: ' + self.sla_endpoint, '', '')
-            #if 'mcn.endpoints.cdn.mgt' in updated.attributes:
-                #self.cdn_endpoint = updated.attributes['mcn.endpoints.cdn.mgt']
-                #writeLogFile(self.swComponent,'CDN EP is: ' + self.cdn_endpoint, '', '')
-            #if 'mcn.endpoints.cdn.origin' in updated.attributes:
-                #self.cdn_origin = updated.attributes['mcn.endpoints.cdn.origin']
-                #writeLogFile(self.swComponent,'CDN Origin EP is: ' + self.cdn_origin, '', '')
-            #if 'mcn.cdn.password' in updated.attributes:
-                #self.cdn_password = updated.attributes['mcn.cdn.password']
-                #writeLogFile(self.swComponent,'CDN Pass is: ' + self.cdn_password, '', '')
-            #if 'mcn.cdn.id' in updated.attributes:
-                #self.cdn_global_id = updated.attributes['mcn.cdn.id']
-                #writeLogFile(self.swComponent,'CDN Golobal id is: ' + self.cdn_global_id, '', '')
 
     def state(self):
         """
@@ -445,16 +281,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         Decision part implementation goes here.
         """
         # it is unlikely that logic executed will be of any use until the provisioning phase has completed
-        resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"so"}]}')
-        writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
         LOG.debug('Waiting for deploy and provisioning to finish')
         self.event.wait()
-        resp = ''
-        if self.so_e.templateManager.aaa_enable == "true":
-            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
-        else:
-            resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
-        writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
         self.configure.start()
         LOG.debug('Waiting for local config to finish')
         self.event.clear()
@@ -608,13 +436,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 writeLogFile(self.swComponent,"Update in progress ...",'','')
 
                 #Removing the deleted host from zabbix server
-                if zHostToDelete is not None:
+                #if zHostToDelete is not None:
                     #self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
-                    resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'DELETE', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances+1) + '"}]}')
-                    writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
-                else:
-                    resp = self.configure.sendRequestToStatusUI(self.configure.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.configure.ui_token + '","components":[{"name":"cms' + str(self.so_e.templateManager.numberOfCmsInstances) + '"}]}')
-                    writeLogFile(self.swComponent,"Request response is:" + str(resp),'','')
 
                 # Checking configuration status of the instances after scaling
                 self.checkConfigurationStats(scale_type= scale_type)
@@ -735,32 +558,16 @@ class SOConfigure(threading.Thread):
         self.dssCmsDomainName = self.so_e.dssCmsDomainName
         self.dssMcrDomainName = self.so_e.dssMcrDomainName
         self.dssCmsRecordName = self.so_e.dssCmsRecordName
-        self.dssSlaRecordName = self.so_e.dssSlaRecordName
         self.dssDashboardRecordName = self.so_e.dssDashboardRecordName
         self.dssMcrRecordName = self.so_e.dssMcrRecordName
 
         self.monitoring_endpoint = None
         self.monitor = None
         self.instances = None
-        self.mcr_host_name = None
-        self.sla_endpoint = None
-
-        #self.cdn_password = None
-        #self.cdn_endpoint = None
-        #self.cdn_global_id = None
-        #self.cdn_origin = None
-
-        self.ui_url = "http://54.171.14.235:8055"
-
-        self.icn_endpoint = None
 
         self.timeout = 10
 
-        self.dependencyStat = {"DNS":"not ready","MON":"not ready","CDN":"ready","ICN":"not ready","SLA":"not ready"}
-
-        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
-        self.ui_token = resp["token"]
-        writeLogFile(self.swComponent,"Auth response is:" + str(resp),'','')
+        self.dependencyStat = {"DNS":"not ready","MON":"not ready"}
 
     def run(self):
         #Pushing DNS configurations to DNS SICs
@@ -792,59 +599,6 @@ class SOConfigure(threading.Thread):
             LOG.debug("DNSaaS disabled, using " + self.dns_forwarder + " as DNS server")
         writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
 
-        #------------------------------------------------------------------------------#
-        # Comment the next 16 lines in case you are using SDK GET CDNaaS functionality #
-        # And don't forget to set its stat to "Ready"                                  #
-        # self.dependencyStat["CDN"] = "ready"                                         #
-        #------------------------------------------------------------------------------#
-        #writeLogFile(self.swComponent,"Waiting for CDN config info ...",'','')
-        #while self.dependencyStat["CDN"] != "ready":
-        #    if self.so_e.cdn_endpoint != None:
-        #        self.cdn_password = self.so_e.cdn_password
-        #        self.cdn_endpoint = self.so_e.cdn_endpoint
-        #        self.cdn_global_id = self.so_e.cdn_global_id
-        #        self.cdn_origin = self.so_e.cdn_origin
-        #        #Configuring primary parameters of CDN service - empty for now
-        #        self.performCDNConfig()
-        #        writeLogFile(self.swComponent,"CDN Origin: " + self.cdn_origin,'','')
-        #        writeLogFile(self.swComponent,"CDN Endpoint: " + self.cdn_endpoint,'','')
-        #        writeLogFile(self.swComponent,"CDN Global Id: " + self.cdn_global_id,'','')
-        #        writeLogFile(self.swComponent,"CDN Password: " + self.cdn_password,'','')
-        #        self.dependencyStat["CDN"] = "ready"
-        #    time.sleep(3)
-        #writeLogFile(self.swComponent,"CDNaaS dependency stat changed to READY",'','')
-
-        if self.so_e.templateManager.icn_enable == 'true':
-            writeLogFile(self.swComponent,"Waiting for ICN config info ...",'','')
-            while self.dependencyStat["ICN"] != "ready":
-                if self.so_e.icn_endpoint != None:
-                    self.icn_endpoint = self.so_e.icn_endpoint
-                    resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"icnaas"}]}')
-                    writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
-                    #Configuring primary parameters of ICN service - empty for now
-                    self.performICNConfig()
-                    writeLogFile(self.swComponent,"ICN Endpoint: " + self.icn_endpoint,'','')
-                    self.dependencyStat["ICN"] = "ready"
-                time.sleep(3)
-            writeLogFile(self.swComponent,"ICNaaS dependency stat changed to READY",'','')
-
-        #---------------------------------------------------------------------------#
-        # Comment the next 9 lines in case you are using SDK GET MaaS functionality #
-        # And don't forget to set its stat to "Ready"                               #
-        # self.dependencyStat["MON"] = "ready"                                      #
-        #---------------------------------------------------------------------------#
-        writeLogFile(self.swComponent,"Waiting for SLAaaS config info ...",'','')
-        while self.dependencyStat["SLA"] != "ready":
-            if self.so_e.sla_endpoint != None:
-                #Now that all DSS SICs finished application deployment we can start monitoring
-                self.sla_endpoint = self.so_e.sla_endpoint
-                #resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'PUT', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
-                #writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
-                writeLogFile(self.swComponent,"SLA EP: " + self.sla_endpoint,'','')
-                self.dependencyStat["SLA"] = "ready"
-            time.sleep(3)
-        writeLogFile(self.swComponent,"SLAaaS dependency stat changed to READY",'','')
-
         writeLogFile(self.swComponent,"Waiting for Monitoring config info ...",'','')
         while self.dependencyStat["MON"] != "ready":
             if self.so_e.monitoring_endpoint != None:
@@ -862,24 +616,12 @@ class SOConfigure(threading.Thread):
 
         #Wait for DSS SICs to finish application deployment
         self.deploymentPause()
-        if self.so_e.templateManager.aaa_enable == 'true':
-            resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"aaaaas"},{"name":"lbaas"}]}')
-            writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
-        else:
-            resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"cms1"},{"name":"mcr"},{"name":"db"},{"name":"slaaas"},{"name":"lbaas"}]}')
-            writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
 
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it
 
-        #maas_obj = util.get_maas(token=YOUR_TOKEN, tenant_name=SHARED_TENANT)
-        #This get_address function is recursive so we don't have to put it inside an infinite loop
-        #self.monitoring_endpoint = maas_obj.get_address(YOUR_TOKEN)
-
         self.monitor = SOMonitor(self.so_e,self.so_d,self.monitoring_endpoint,0,'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php','admin','zabbix')
         self.performMonConfig()
-        resp = self.sendRequestToStatusUI(self.ui_url + '/v1.0/service_ready', 'POST', '{"user":"SO","token":"' + self.ui_token + '","components":[{"name":"monaas"}]}')
-        writeLogFile(self.swComponent,"Service_ready response is:" + str(resp),'','')
 
         #writeLogFile(self.swComponent,"Start monitoring service ...",'','')
         self.monitor.start()
@@ -951,18 +693,6 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
                 else:
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
-            elif item == "mcn.dss.cms1.endpoint":
-                slaRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssSlaRecordName, record_type='A', token=self.so_e.token)
-                if slaRecordExists.get('code', None) is not None and slaRecordExists['code'] == 404:
-                    result = -1
-                    while (result != 1):
-                        time.sleep(1)
-                        result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssSlaRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
-                        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                        writeLogFile(self.swComponent,'DNS record creation attempt (SLA) for: ' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS record (SLA) created for: ' + str(self.instances[item]) , '', '')
-                else:
-                    writeLogFile(self.swComponent,'DNS record (SLA) already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + slaRecordExists.__repr__(), '', '')
             elif item == "mcn.dss.dashboard.lb.endpoint":
                 dashboardRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssDashboardRecordName, record_type='A', token=self.so_e.token)
                 if dashboardRecordExists.get('code', None) is not None and dashboardRecordExists['code'] == 404:
@@ -989,12 +719,6 @@ class SOConfigure(threading.Thread):
                     writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
 
         writeLogFile(self.swComponent,"Exiting the loop to push dns domain names for all instances",'','')
-
-    def performCDNConfig(self):
-        pass
-
-    def performICNConfig(self):
-        pass
 
     def performLocalConfig(self):
         result = -1
@@ -1035,7 +759,7 @@ class SOConfigure(threading.Thread):
         writeLogFile(self.swComponent,"Auth response is:" + str(resp), '', '')
         #AGENT STARTS PROVISIONING OF VM
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_name":"' + self.mcr_host_name + '","sla_endpoint":"' + self.sla_endpoint + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
 
     # Calls to the SIC agent to complete the provisioning
@@ -1048,11 +772,6 @@ class SOConfigure(threading.Thread):
         #DNS endpoint will be used later by CMS application to generate the player configuration script
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dashboarddomainname":"' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '","sladomainname":"' + self.dssSlaRecordName + '.' + self.dssCmsDomainName + '"}')
         writeLogFile(self.swComponent,"DNS response is:" + str(resp), '', '')
-        #AGENT PUSH ICN EP & ACC INFO
-        #ICN data to be used by CMS for finding closest icn router
-        if self.so_e.templateManager.icn_enable == 'true':
-            resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/ICN', 'POST', '{"user":"SO","token":"' + token + '","icnendpoint":"' + self.icn_endpoint + '"}')
-            writeLogFile(self.swComponent,"ICN response is:" + str(resp), '', '')
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
         #DB info is being sent to be used by the getcdr script in zabbix custom item definitions
@@ -1062,13 +781,6 @@ class SOConfigure(threading.Thread):
         #DB info is used to create an event for generating cdr data in DB
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         writeLogFile(self.swComponent,"RCB response is:" + str(resp), '', '')
-        #AGENT PUSH AAA CONFIG
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/AAA', 'POST', '{"user":"SO","token":"' + token + '","timeout":"5","retrycount":"180"}')
-        writeLogFile(self.swComponent,"AAA response is:" + str(resp), '', '')
-        #AGENT PUSH CDN EP & ACC INFO
-        #CDN data to be used by MCR for uploading data
-        #resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/CDN','POST','{"user":"SO","token":"'+ token +'","cdnpassword":"'+ self.cdn_password +'","cdnglobalid":"'+ self.cdn_global_id +'","cdnendpoint":"'+ self.cdn_origin +'","cdnfirstpop":"' + self.cdn_origin + '"}')
-        #writeLogFile(self.swComponent,"CDN response is:" + str(resp)  ,'','')
 
     def sendRequestToSICAgent(self, api_url, req_type, json_data):
         response_status = 0
@@ -1097,24 +809,6 @@ class SOConfigure(threading.Thread):
             return content_dict
             #if response status is not OK, retry
 
-    def sendRequestToStatusUI(self, api_url, req_type, json_data):
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8'
-        }
-        try:
-            h = http.Http()
-            h.timeout = 10
-            writeLogFile(self.swComponent,"Sending request to:" + api_url  ,'','')
-            response, content = h.request(api_url, req_type, json_data, headers)
-        except Exception as e:
-            writeLogFile(self.swComponent,"Handled " + api_url + " exception." + str(e) ,'','')
-        response_status = int(response.get("status"))
-        writeLogFile(self.swComponent,"response status is:" + str(response_status) + " Content: " + str(content) ,'','')
-        content_dict = json.loads(content)
-        return content_dict
-        #if response status is not OK, retry
-
     def performMonConfig(self):
         result = -1
         while (result < 0):
@@ -1138,14 +832,6 @@ class SOConfigure(threading.Thread):
                 res = self.monitor.itemExists(zabbixName, "vfs.fs.size[/,pfree]")
                 if res != 1:
                     res = self.monitor.configItem("Free disk space in %", zabbixName, "vfs.fs.size[/,pfree]", 0, 10)
-
-            res = 0
-            while (res != 1):
-                time.sleep(1)
-                res = self.monitor.itemExists(zabbixName, "DSS.RCB.CDRString")
-                if res != 1:
-                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds 
-                    res = self.monitor.configItem("DSS RCB CDR data", zabbixName, "DSS.RCB.CDRString", 4, 30)
 
             res = 0
             while (res != 1):
