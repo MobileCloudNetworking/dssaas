@@ -16,12 +16,12 @@ import threading
 class TorrentManager(threading.Thread):
     def __init__(self, file_manager, session_manager, tracker_manager):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger(Config.get('log','name'))
+        self.log = logging.getLogger(Config.get('log', 'name'))
         self.fm = file_manager
         self.sm = session_manager
         self.tm = tracker_manager
-        self.path = Config.get('main','path')
-        self.torrent_list = self.fm.list_files('.',['.torrent'])[1]
+        self.path = Config.get('main', 'path')
+        self.torrent_list = self.fm.list_files('.', ['.torrent'])[1]
 
     def run(self):
         self.log.debug("Starting File Monitoring Thread")

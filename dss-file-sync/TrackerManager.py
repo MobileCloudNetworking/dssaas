@@ -17,12 +17,12 @@ import threading
 class TrackerManager(threading.Thread):
     def __init__(self, file_manager):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger(Config.get('log','name'))
+        self.log = logging.getLogger(Config.get('log', 'name'))
         self.fm = file_manager
         self.tracker = {'url': self.get_ip_address(Config.get('main','interface')), 'timestamp': repr(time.time())}
         self.tracker_list = []
         self.tracker_list.append(self.tracker)
-        self.tracker_timeout = int(Config.get('main','tracker_timeout'))
+        self.tracker_timeout = int(Config.get('main', 'tracker_timeout'))
 
     def run(self):
         self.log.debug("Starting Tracker Expiration Monitoring")

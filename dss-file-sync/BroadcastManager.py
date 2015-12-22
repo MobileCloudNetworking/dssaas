@@ -23,7 +23,7 @@ class BroadcastManager(threading.Thread):
         self.fm = file_manager
         self.path = './'
         #check
-        self.log = logging.getLogger(Config.get('log','name'))
+        self.log = logging.getLogger(Config.get('log', 'name'))
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
         self.log.debug('TrackerList:' + str(self.tm.get_tracker_list()))
 
@@ -36,7 +36,7 @@ class BroadcastManager(threading.Thread):
         s = socket(AF_INET, SOCK_DGRAM)
         s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        data = 'udp://' + str(self.tm.get_self_tracker()) +':6969/announce' + '!' + repr(time.time())
+        data = 'udp://' + str(self.tm.get_self_tracker()) + ':6969/announce' + '!' + repr(time.time())
         for torrent in self.tm.get_torrent_list():
             self.log.debug('Checking torrent: ' + str(torrent))
             data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
@@ -48,7 +48,7 @@ class BroadcastManager(threading.Thread):
     def sendAmazon_broadcast_message(self):
         s = socket(AF_INET, SOCK_DGRAM)
         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        data = 'udp://' + str(self.tm.get_self_tracker()) +':6969/announce' + '!' + repr(time.time())
+        data = 'udp://' + str(self.tm.get_self_tracker()) + ':6969/announce' + '!' + repr(time.time())
         self.log.debug(str(self.tm.get_torrent_list()))
         for torrent in self.tm.get_torrent_list():
             self.log.debug('Checking torrent: ' + str(torrent))
@@ -56,12 +56,12 @@ class BroadcastManager(threading.Thread):
         data += '\n'
         self.log.debug(data)
         for i in range(4,254):
-            s.sendto(data, ('172.30.2.'+str(i), self.broadcast_port))
+            s.sendto(data, ('172.30.2.' + str(i), self.broadcast_port))
         time.sleep(1)
 
     def receive_broadcast_message(self):
         s = socket(AF_INET,SOCK_DGRAM) # UDP
-        s.bind(('0.0.0.0',self.broadcast_port))
+        s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(4096) # buffer size is 4096 bytes
             self.log.debug("received message:", data)
@@ -74,12 +74,12 @@ class BroadcastManager(threading.Thread):
         if (msg_list[0] not in self.tm.get_tracker_list()):
             self.tm.add_tracker(msg_list[0])
             #new tracker was added, I should recreate my torrents for fully downloaded files
-            for filename in self.fm.list_files(self.path,['.webm'])[1]:
-                self.tm.create_torrent(self.path,filename.split('.')[0]+'.torrent')
-        for index in range (2, len(msg_list),2):
+            for filename in self.fm.list_files(self.path, ['.webm'])[1]:
+                self.tm.create_torrent(self.path,filename.split('.')[0] + '.torrent')
+        for index in range (2, len(msg_list), 2):
             #check if I do have the torrent file
             torrent_name =  msg_list[index]
-            torrent_content = msg_list[index+1]
+            torrent_content = msg_list[index + 1]
             if (torrent_name not in self.tm.get_torrent_list()):
                 with open(self.path + torrent_name, "wb") as torrentfileh:
                     torrentfileh.write(base64.b64decode(torrent_content))
