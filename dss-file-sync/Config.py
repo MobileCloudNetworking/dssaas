@@ -21,7 +21,7 @@ class Config:
             print "Error reading conf file"
 
     #get config param
-    def get(self,section,name):
+    def get(self, section, name):
         try:
             return self.conf.get(section, name)
         except:

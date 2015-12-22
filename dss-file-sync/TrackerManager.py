@@ -4,14 +4,15 @@ from socket import *
 import fcntl
 import struct
 import logging
+import Config
 
 class TrackerManager:
     #TODO: Tracker expiration thread
     def __init__(self, file_manager):
-        self.log=logging.getLogger('mylog')
+        self.log = logging.getLogger(Config.get('log','name'))
         self.fm = file_manager
-        self.tracker = self.get_ip_address('eth0')
-        self.tracker_list=[]
+        self.tracker = self.get_ip_address(Config.get('main','interface'))
+        self.tracker_list = []
         self.tracker_list.append(self.tracker)
 
     def get_ip_address(ifname):
@@ -19,17 +20,17 @@ class TrackerManager:
         return inet_ntoa(fcntl.ioctl( s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
     # Not available ATM
-    def addTracker(self,tracker_ep):
+    def add_tracker(self,tracker_ep):
         pass
 
     # Not available ATM
-    def removeTracker(self,tracker_ep):
+    def remove_tracker(self,tracker_ep):
         pass
 
     # Not available ATM
-    def getTrackerList(self):
+    def get_tracker_list(self):
         return self.tracker_list
 
     # Not available ATM
-    def getSelfTracker(self):
+    def get_self_tracker(self):
         return self.tracker

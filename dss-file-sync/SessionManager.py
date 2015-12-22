@@ -2,13 +2,14 @@ __author__ = 'Santi'
 
 import libtorrent as lt
 import logging
+import Config
 
 class SessionManager:
 
     def __init__(self):
         self.session = None
         self.torrent_handle_list = []
-        self.log=logging.getLogger('mylog')
+        self.log=logging.getLogger(Config.get('log','name'))
 
     def start_session(self):
         self.session = lt.session()

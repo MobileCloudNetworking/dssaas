@@ -9,7 +9,7 @@ import TorrentManager
 import TrackerManager
 
 if __name__ == "__main__":
-    logger = Log.setup_custom_logger('mylog')
+    logger = Log.setup_custom_logger(Config.get('log','name'))
     logger.debug('main message')
 
     file_manager = FileManager()

@@ -2,12 +2,13 @@ __author__ = 'Santi'
 
 import os
 import logging
+import Config
 
 class FileManager:
 
     def __init__(self):
         self.file_list = []
-        self.log = logging.getLogger('mylog')
+        self.log = logging.getLogger(Config.get('log','name'))
 
     # Lists all the file with specified extensions in specified path
     # Note: Needs to be called to snapshot the new list of files after remove or remove_all operations
