@@ -1,5 +1,3 @@
-__author__ = 'Santi'
-
 import logging
 import Config
 

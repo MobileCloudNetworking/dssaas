@@ -1,4 +1,10 @@
-__author__ = 'Santi'
+__author__ = "Santiago Ruiz"
+__copyright__ = "Copyright 2015, SoftTelecom"
+__credits__ = ["Santiago Ruiz"]
+__version__ = "1.0.1"
+__maintainer__ = "Santiago Ruiz"
+__email__ = "srv@softtelecom.eu"
+__status__ = "Alpha"
 
 import os
 import logging
@@ -33,16 +39,10 @@ class FileManager:
                     list_of_new_files.append(current_file_list[i])
                 i += 1
             self.file_list = current_file_list
-            self.notify_all(list_of_new_files)
             return True, list_of_new_files
         else:
             self.file_list = current_file_list
             return False, list_of_new_files
-
-    #notify manually
-    def notify_all(self, list_of_new_files):
-        self.log.debug("Notified others about the new files")
-        return
 
     # Removes the specified file in given path
     # Note: call list_files function to update the file list snapshot after each delete call

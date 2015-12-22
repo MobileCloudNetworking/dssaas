@@ -1,14 +1,22 @@
-__author__ = 'Santi'
+__author__ = "Santiago Ruiz", "Mohammad Valipoor"
+__copyright__ = "Copyright 2015, SoftTelecom"
+__credits__ = ["Santiago Ruiz", "Mohammad Valipoor"]
+__version__ = "1.0.1"
+__maintainer__ = "Santiago Ruiz", "Mohammad Valipoor"
+__email__ = "srv@softtelecom.eu"
+__status__ = "Alpha"
 
 from socket import *
 import time
 import base64
 import logging
 import Config
+import threading
 
-class BroadcastManager:
+class BroadcastManager(threading.Thread):
     #TODO: Sending thread, recieving thread
     def __init__(self, file_manager, torrent_manager):
+        threading.Thread.__init__(self)
         self.broadcast_port = 6977
         self.broadcast_ip = '255.255.255.255'
         self.tm = torrent_manager
@@ -18,6 +26,11 @@ class BroadcastManager:
         self.log = logging.getLogger(Config.get('log','name'))
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
         self.log.debug('TrackerList:' + str(self.tm.get_tracker_list()))
+
+    def run(self):
+        self.log.debug("Starting")
+        # LOGIC GOES here
+        self.log.debug("Exiting")
 
     def send_broadcast_message(self):
         s = socket(AF_INET, SOCK_DGRAM)

@@ -1,4 +1,10 @@
-__author__ = 'Santi'
+__author__ = "Santiago Ruiz", "Mohammad Valipoor"
+__copyright__ = "Copyright 2015, SoftTelecom"
+__credits__ = ["Santiago Ruiz", "Mohammad Valipoor"]
+__version__ = "1.0.1"
+__maintainer__ = "Santiago Ruiz", "Mohammad Valipoor"
+__email__ = "srv@softtelecom.eu"
+__status__ = "Alpha"
 
 import Log
 import BroadcastManager
