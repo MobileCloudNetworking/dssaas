@@ -21,7 +21,7 @@ class BroadcastManager(threading.Thread):
         self.broadcast_ip = '255.255.255.255'
         self.tm = torrent_manager
         self.fm = file_manager
-        self.path = './'
+        self.path = Config.get('log', 'name')
         #check
         self.log = logging.getLogger(Config.get('log', 'name'))
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
