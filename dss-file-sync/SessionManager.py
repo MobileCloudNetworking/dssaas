@@ -31,9 +31,9 @@ class SessionManager:
         return proxy
 
     # Gets a torrent name and returns the handler of that torrent
-    def find_torrent(self, torrent_name):
+    def find_torrent(self, file_name):
         for item in self.torrent_handle_list:
-            if item.name() == torrent_name:
+            if item.name() == file_name:
                 return item
         return None
 
@@ -46,7 +46,9 @@ class SessionManager:
         try:
 	    self.log.debug("Adding torrent " + torrent_name + " to BitTorrent session")
             handler = self.session.add_torrent({'ti': lt.torrent_info(torrent_name), 'save_path': '.', 'seed_mode': True, 'auto_managed': True})
+            self.log.debug('Torrent handler created: '+ str(handler.name()) )
             self.torrent_handle_list.append(handler)
+	    self.log.debug('Torrent handler list is: ' + str(self.torrent_handle_list))
             return True
         except:
 	    self.log.debug("Adding torrent " + torrent_name + " to BitTorrent FAILED!")
@@ -59,7 +61,7 @@ class SessionManager:
     #   Keep trying till you get True as return value from add_torrent
     def remove_torrent(self, torrent_name):
         if self.session is not None:
-            target_handler = self.find_torrent(torrent_name)
+            target_handler = self.find_torrent(torrent_name.split('.')[0]+'.webm')
             self.session.remove_torrent(target_handler)
             self.torrent_handle_list.remove(target_handler)
             return True
@@ -70,14 +72,14 @@ class SessionManager:
     # Given that variable s is the return value, sample interpretation of it would be:
     # state_str = ['queued', 'checking', 'downloading metadata', 'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
     # print('\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
-    def get_torrent_stat(self, torrent_name):
-        target_handler = self.find_torrent(torrent_name)
+    def get_torrent_stat(self, file_name):
+        target_handler = self.find_torrent(file_name)
         if target_handler is not None:
             return target_handler.status()
         return None
 
-    def get_torrent_stat_str(self, torrent_name):
-	s = self.get_torrent_stat(torrent_name)
+    def get_torrent_stat_str(self, file_name):
+	s = self.get_torrent_stat(file_name)
 	if s is not None:
             state_str = ['queued', 'checking', 'downloading metadata', 'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
 	    self.log.debug('\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))

@@ -35,6 +35,6 @@ if __name__ == "__main__":
 
     for i in range(1,5000):
 	#print "Sleeping...\n"
-	time.sleep(10)
+	time.sleep(1)
 	for torrent_file in file_manager.list_files('./',['.torrent'])[1]:
-	    session_manager.get_torrent_stat_str(torrent_file)
+	    session_manager.get_torrent_stat_str(torrent_file.split('.')[0]+'.webm')
