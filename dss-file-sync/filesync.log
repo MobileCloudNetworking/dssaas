@@ -628,3 +628,1631 @@ DEBUG 12/22/2015 04:55:35 PM: received message: udp://172.30.2.46:6969/announce!
 
 DEBUG 12/22/2015 04:55:35 PM: TorrentList:[]
 DEBUG 12/22/2015 04:55:35 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450803335.015505'}]
+DEBUG 12/22/2015 05:57:33 PM: main message
+DEBUG 12/22/2015 05:57:33 PM: TorrentList:[]
+DEBUG 12/22/2015 05:57:33 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807053.269318'}]
+DEBUG 12/22/2015 05:57:33 PM: []
+DEBUG 12/22/2015 05:57:33 PM: udp://172.30.2.46:6969/announce!1450807053.272359
+
+DEBUG 12/22/2015 05:57:33 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 05:57:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807053.269318'}
+DEBUG 12/22/2015 05:57:43 PM: []
+DEBUG 12/22/2015 05:57:43 PM: udp://172.30.2.46:6969/announce!1450807063.28095
+
+DEBUG 12/22/2015 05:57:43 PM: received message: udp://172.30.2.46:6969/announce!1450807063.28095
+
+DEBUG 12/22/2015 05:57:43 PM: TorrentList:[]
+DEBUG 12/22/2015 05:57:43 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807063.28095'}]
+DEBUG 12/22/2015 05:59:17 PM: main message
+DEBUG 12/22/2015 05:59:17 PM: TorrentList:[]
+DEBUG 12/22/2015 05:59:17 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}]
+DEBUG 12/22/2015 05:59:17 PM: []
+DEBUG 12/22/2015 05:59:17 PM: udp://172.30.2.46:6969/announce!1450807157.25192
+
+DEBUG 12/22/2015 05:59:17 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 05:59:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:17 PM: Tracker is 0.0066249370575 seconds old
+DEBUG 12/22/2015 05:59:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:18 PM: Tracker is 1.00820398331 seconds old
+DEBUG 12/22/2015 05:59:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:19 PM: Tracker is 2.00975894928 seconds old
+DEBUG 12/22/2015 05:59:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:20 PM: Tracker is 3.01133394241 seconds old
+DEBUG 12/22/2015 05:59:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:21 PM: Tracker is 4.01293897629 seconds old
+DEBUG 12/22/2015 05:59:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:22 PM: Tracker is 5.0162498951 seconds old
+DEBUG 12/22/2015 05:59:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:23 PM: Tracker is 6.01785302162 seconds old
+DEBUG 12/22/2015 05:59:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:24 PM: Tracker is 7.01946592331 seconds old
+DEBUG 12/22/2015 05:59:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807157.248629'}
+DEBUG 12/22/2015 05:59:25 PM: Tracker is 8.02110886574 seconds old
+DEBUG 12/22/2015 06:00:10 PM: main message
+DEBUG 12/22/2015 06:00:10 PM: TorrentList:[]
+DEBUG 12/22/2015 06:00:10 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}]
+DEBUG 12/22/2015 06:00:10 PM: []
+DEBUG 12/22/2015 06:00:10 PM: udp://172.30.2.46:6969/announce!1450807210.559388
+
+DEBUG 12/22/2015 06:00:10 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:00:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:10 PM: Tracker is 0.00667285919189 seconds old
+DEBUG 12/22/2015 06:00:10 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:00:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:11 PM: Tracker is 1.00984501839 seconds old
+DEBUG 12/22/2015 06:00:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:12 PM: Tracker is 2.01102805138 seconds old
+DEBUG 12/22/2015 06:00:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:13 PM: Tracker is 3.01255393028 seconds old
+DEBUG 12/22/2015 06:00:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:14 PM: Tracker is 4.01405596733 seconds old
+DEBUG 12/22/2015 06:00:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:15 PM: Tracker is 5.01505589485 seconds old
+DEBUG 12/22/2015 06:00:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:16 PM: Tracker is 6.0174100399 seconds old
+DEBUG 12/22/2015 06:00:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:17 PM: Tracker is 7.01898694038 seconds old
+DEBUG 12/22/2015 06:00:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:18 PM: Tracker is 8.02053403854 seconds old
+DEBUG 12/22/2015 06:00:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807210.5564'}
+DEBUG 12/22/2015 06:00:19 PM: Tracker is 9.0220849514 seconds old
+DEBUG 12/22/2015 06:00:20 PM: []
+DEBUG 12/22/2015 06:00:20 PM: udp://172.30.2.46:6969/announce!1450807220.571262
+
+DEBUG 12/22/2015 06:00:20 PM: received message: udp://172.30.2.46:6969/announce!1450807220.571262
+
+DEBUG 12/22/2015 06:00:20 PM: TorrentList:[]
+DEBUG 12/22/2015 06:00:20 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}]
+DEBUG 12/22/2015 06:00:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:20 PM: Tracker is 0.00798511505127 seconds old
+DEBUG 12/22/2015 06:00:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:21 PM: Tracker is 1.01030111313 seconds old
+DEBUG 12/22/2015 06:00:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:22 PM: Tracker is 2.01181006432 seconds old
+DEBUG 12/22/2015 06:00:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:23 PM: Tracker is 3.01333522797 seconds old
+DEBUG 12/22/2015 06:00:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:24 PM: Tracker is 4.01484107971 seconds old
+DEBUG 12/22/2015 06:00:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:25 PM: Tracker is 5.01639819145 seconds old
+DEBUG 12/22/2015 06:00:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:26 PM: Tracker is 6.01879501343 seconds old
+DEBUG 12/22/2015 06:00:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:27 PM: Tracker is 7.0203192234 seconds old
+DEBUG 12/22/2015 06:00:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:28 PM: Tracker is 8.02184319496 seconds old
+DEBUG 12/22/2015 06:00:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807220.571262'}
+DEBUG 12/22/2015 06:00:29 PM: Tracker is 9.02338409424 seconds old
+DEBUG 12/22/2015 06:00:30 PM: []
+DEBUG 12/22/2015 06:00:30 PM: udp://172.30.2.46:6969/announce!1450807230.576647
+
+DEBUG 12/22/2015 06:00:30 PM: received message: udp://172.30.2.46:6969/announce!1450807230.576647
+
+DEBUG 12/22/2015 06:00:30 PM: TorrentList:[]
+DEBUG 12/22/2015 06:00:30 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}]
+DEBUG 12/22/2015 06:00:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:30 PM: Tracker is 0.0194098949432 seconds old
+DEBUG 12/22/2015 06:00:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:31 PM: Tracker is 1.02170085907 seconds old
+DEBUG 12/22/2015 06:00:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:32 PM: Tracker is 2.02323198318 seconds old
+DEBUG 12/22/2015 06:00:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:33 PM: Tracker is 3.02474784851 seconds old
+DEBUG 12/22/2015 06:00:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:34 PM: Tracker is 4.02627205849 seconds old
+DEBUG 12/22/2015 06:00:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:35 PM: Tracker is 5.02781391144 seconds old
+DEBUG 12/22/2015 06:00:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:36 PM: Tracker is 6.03023791313 seconds old
+DEBUG 12/22/2015 06:00:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:37 PM: Tracker is 7.03176689148 seconds old
+DEBUG 12/22/2015 06:00:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:38 PM: Tracker is 8.03341889381 seconds old
+DEBUG 12/22/2015 06:00:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807230.576647'}
+DEBUG 12/22/2015 06:00:39 PM: Tracker is 9.03508090973 seconds old
+DEBUG 12/22/2015 06:00:40 PM: []
+DEBUG 12/22/2015 06:00:40 PM: udp://172.30.2.46:6969/announce!1450807240.590304
+
+DEBUG 12/22/2015 06:00:40 PM: received message: udp://172.30.2.46:6969/announce!1450807240.590304
+
+DEBUG 12/22/2015 06:00:40 PM: TorrentList:[]
+DEBUG 12/22/2015 06:00:40 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}]
+DEBUG 12/22/2015 06:00:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:40 PM: Tracker is 0.0230550765991 seconds old
+DEBUG 12/22/2015 06:00:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:41 PM: Tracker is 1.02544116974 seconds old
+DEBUG 12/22/2015 06:00:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:42 PM: Tracker is 2.02698802948 seconds old
+DEBUG 12/22/2015 06:00:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:43 PM: Tracker is 3.02852320671 seconds old
+DEBUG 12/22/2015 06:00:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:44 PM: Tracker is 4.03007507324 seconds old
+DEBUG 12/22/2015 06:00:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:45 PM: Tracker is 5.03164815903 seconds old
+DEBUG 12/22/2015 06:00:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:46 PM: Tracker is 6.03435111046 seconds old
+DEBUG 12/22/2015 06:00:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:47 PM: Tracker is 7.03594613075 seconds old
+DEBUG 12/22/2015 06:00:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:48 PM: Tracker is 8.0375289917 seconds old
+DEBUG 12/22/2015 06:00:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807240.590304'}
+DEBUG 12/22/2015 06:00:49 PM: Tracker is 9.03909420967 seconds old
+DEBUG 12/22/2015 06:00:50 PM: []
+DEBUG 12/22/2015 06:00:50 PM: udp://172.30.2.46:6969/announce!1450807250.603941
+
+DEBUG 12/22/2015 06:00:50 PM: received message: udp://172.30.2.46:6969/announce!1450807250.603941
+
+DEBUG 12/22/2015 06:00:50 PM: TorrentList:[]
+DEBUG 12/22/2015 06:00:50 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}]
+DEBUG 12/22/2015 06:00:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:50 PM: Tracker is 0.0268280506134 seconds old
+DEBUG 12/22/2015 06:00:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:51 PM: Tracker is 1.02917408943 seconds old
+DEBUG 12/22/2015 06:00:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:52 PM: Tracker is 2.03072595596 seconds old
+DEBUG 12/22/2015 06:00:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:53 PM: Tracker is 3.03227901459 seconds old
+DEBUG 12/22/2015 06:00:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:54 PM: Tracker is 4.0338139534 seconds old
+DEBUG 12/22/2015 06:00:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:55 PM: Tracker is 5.0354449749 seconds old
+DEBUG 12/22/2015 06:00:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:56 PM: Tracker is 6.03775906563 seconds old
+DEBUG 12/22/2015 06:00:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:57 PM: Tracker is 7.03928494453 seconds old
+DEBUG 12/22/2015 06:00:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:58 PM: Tracker is 8.04086613655 seconds old
+DEBUG 12/22/2015 06:00:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807250.603941'}
+DEBUG 12/22/2015 06:00:59 PM: Tracker is 9.04247403145 seconds old
+DEBUG 12/22/2015 06:01:00 PM: []
+DEBUG 12/22/2015 06:01:00 PM: udp://172.30.2.46:6969/announce!1450807260.616833
+
+DEBUG 12/22/2015 06:01:00 PM: received message: udp://172.30.2.46:6969/announce!1450807260.616833
+
+DEBUG 12/22/2015 06:01:00 PM: TorrentList:[]
+DEBUG 12/22/2015 06:01:00 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}]
+DEBUG 12/22/2015 06:01:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:00 PM: Tracker is 0.0305879116058 seconds old
+DEBUG 12/22/2015 06:01:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:01 PM: Tracker is 1.03303098679 seconds old
+DEBUG 12/22/2015 06:01:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:02 PM: Tracker is 2.03457212448 seconds old
+DEBUG 12/22/2015 06:01:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:03 PM: Tracker is 3.0361020565 seconds old
+DEBUG 12/22/2015 06:01:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:04 PM: Tracker is 4.03767704964 seconds old
+DEBUG 12/22/2015 06:01:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:05 PM: Tracker is 5.03931903839 seconds old
+DEBUG 12/22/2015 06:01:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:06 PM: Tracker is 6.04196214676 seconds old
+DEBUG 12/22/2015 06:01:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:07 PM: Tracker is 7.04350304604 seconds old
+DEBUG 12/22/2015 06:01:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:08 PM: Tracker is 8.04504108429 seconds old
+DEBUG 12/22/2015 06:01:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807260.616833'}
+DEBUG 12/22/2015 06:01:09 PM: Tracker is 9.04657506943 seconds old
+DEBUG 12/22/2015 06:01:10 PM: []
+DEBUG 12/22/2015 06:01:10 PM: udp://172.30.2.46:6969/announce!1450807270.630362
+
+DEBUG 12/22/2015 06:01:10 PM: received message: udp://172.30.2.46:6969/announce!1450807270.630362
+
+DEBUG 12/22/2015 06:01:10 PM: TorrentList:[]
+DEBUG 12/22/2015 06:01:10 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}]
+DEBUG 12/22/2015 06:01:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:10 PM: Tracker is 0.0345809459686 seconds old
+DEBUG 12/22/2015 06:01:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:11 PM: Tracker is 1.03689599037 seconds old
+DEBUG 12/22/2015 06:01:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:12 PM: Tracker is 2.03846096992 seconds old
+DEBUG 12/22/2015 06:01:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:13 PM: Tracker is 3.04008197784 seconds old
+DEBUG 12/22/2015 06:01:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:14 PM: Tracker is 4.04161787033 seconds old
+DEBUG 12/22/2015 06:01:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:15 PM: Tracker is 5.04316306114 seconds old
+DEBUG 12/22/2015 06:01:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:16 PM: Tracker is 6.04585504532 seconds old
+DEBUG 12/22/2015 06:01:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:17 PM: Tracker is 7.0473780632 seconds old
+DEBUG 12/22/2015 06:01:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:18 PM: Tracker is 8.04900288582 seconds old
+DEBUG 12/22/2015 06:01:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807270.630362'}
+DEBUG 12/22/2015 06:01:19 PM: Tracker is 9.05063700676 seconds old
+DEBUG 12/22/2015 06:01:20 PM: []
+DEBUG 12/22/2015 06:01:20 PM: udp://172.30.2.46:6969/announce!1450807280.644062
+
+DEBUG 12/22/2015 06:01:20 PM: received message: udp://172.30.2.46:6969/announce!1450807280.644062
+
+DEBUG 12/22/2015 06:01:20 PM: TorrentList:[]
+DEBUG 12/22/2015 06:01:20 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}]
+DEBUG 12/22/2015 06:01:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:20 PM: Tracker is 0.0383079051971 seconds old
+DEBUG 12/22/2015 06:01:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:21 PM: Tracker is 1.04067087173 seconds old
+DEBUG 12/22/2015 06:01:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:22 PM: Tracker is 2.04223585129 seconds old
+DEBUG 12/22/2015 06:01:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:23 PM: Tracker is 3.04339885712 seconds old
+DEBUG 12/22/2015 06:01:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:24 PM: Tracker is 4.04493784904 seconds old
+DEBUG 12/22/2015 06:01:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:25 PM: Tracker is 5.04646492004 seconds old
+DEBUG 12/22/2015 06:01:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:26 PM: Tracker is 6.04824399948 seconds old
+DEBUG 12/22/2015 06:01:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:27 PM: Tracker is 7.04985904694 seconds old
+DEBUG 12/22/2015 06:01:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:28 PM: Tracker is 8.05141806602 seconds old
+DEBUG 12/22/2015 06:01:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807280.644062'}
+DEBUG 12/22/2015 06:01:29 PM: Tracker is 9.05295801163 seconds old
+DEBUG 12/22/2015 06:01:30 PM: []
+DEBUG 12/22/2015 06:01:30 PM: udp://172.30.2.46:6969/announce!1450807290.656946
+
+DEBUG 12/22/2015 06:01:30 PM: received message: udp://172.30.2.46:6969/announce!1450807290.656946
+
+DEBUG 12/22/2015 06:01:30 PM: TorrentList:[]
+DEBUG 12/22/2015 06:01:30 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}]
+DEBUG 12/22/2015 06:01:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:30 PM: Tracker is 0.0414741039276 seconds old
+DEBUG 12/22/2015 06:01:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:31 PM: Tracker is 1.04384708405 seconds old
+DEBUG 12/22/2015 06:01:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:32 PM: Tracker is 2.04548501968 seconds old
+DEBUG 12/22/2015 06:01:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:33 PM: Tracker is 3.0465631485 seconds old
+DEBUG 12/22/2015 06:01:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:34 PM: Tracker is 4.04810595512 seconds old
+DEBUG 12/22/2015 06:01:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:35 PM: Tracker is 5.04965400696 seconds old
+DEBUG 12/22/2015 06:01:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:36 PM: Tracker is 6.05202317238 seconds old
+DEBUG 12/22/2015 06:01:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:37 PM: Tracker is 7.05360198021 seconds old
+DEBUG 12/22/2015 06:01:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:38 PM: Tracker is 8.05460715294 seconds old
+DEBUG 12/22/2015 06:01:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807290.656946'}
+DEBUG 12/22/2015 06:01:39 PM: Tracker is 9.05613803864 seconds old
+DEBUG 12/22/2015 06:01:40 PM: []
+DEBUG 12/22/2015 06:01:40 PM: udp://172.30.2.46:6969/announce!1450807300.669602
+
+DEBUG 12/22/2015 06:01:40 PM: received message: udp://172.30.2.46:6969/announce!1450807300.669602
+
+DEBUG 12/22/2015 06:01:40 PM: TorrentList:[]
+DEBUG 12/22/2015 06:01:40 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}]
+DEBUG 12/22/2015 06:01:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}
+DEBUG 12/22/2015 06:01:40 PM: Tracker is 0.044860124588 seconds old
+DEBUG 12/22/2015 06:01:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}
+DEBUG 12/22/2015 06:01:41 PM: Tracker is 1.04716515541 seconds old
+DEBUG 12/22/2015 06:01:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}
+DEBUG 12/22/2015 06:01:42 PM: Tracker is 2.04879212379 seconds old
+DEBUG 12/22/2015 06:01:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}
+DEBUG 12/22/2015 06:01:43 PM: Tracker is 3.04994297028 seconds old
+DEBUG 12/22/2015 06:01:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807300.669602'}
+DEBUG 12/22/2015 06:01:44 PM: Tracker is 4.05158615112 seconds old
+DEBUG 12/22/2015 06:08:33 PM: main message
+DEBUG 12/22/2015 06:08:33 PM: TorrentList:[]
+DEBUG 12/22/2015 06:08:33 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}]
+DEBUG 12/22/2015 06:08:33 PM: []
+DEBUG 12/22/2015 06:08:33 PM: udp://172.30.2.46:6969/announce!1450807713.293762
+
+DEBUG 12/22/2015 06:08:33 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:08:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:33 PM: Tracker is 0.00617098808289 seconds old
+DEBUG 12/22/2015 06:08:33 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:08:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:34 PM: Tracker is 1.00774002075 seconds old
+DEBUG 12/22/2015 06:08:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:35 PM: Tracker is 2.0087480545 seconds old
+DEBUG 12/22/2015 06:08:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:36 PM: Tracker is 3.01037406921 seconds old
+DEBUG 12/22/2015 06:08:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:37 PM: Tracker is 4.01199913025 seconds old
+DEBUG 12/22/2015 06:08:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:38 PM: Tracker is 5.0146420002 seconds old
+DEBUG 12/22/2015 06:08:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:39 PM: Tracker is 6.01623702049 seconds old
+DEBUG 12/22/2015 06:08:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:40 PM: Tracker is 7.0178501606 seconds old
+DEBUG 12/22/2015 06:08:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:41 PM: Tracker is 8.01947307587 seconds old
+DEBUG 12/22/2015 06:08:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807713.290747'}
+DEBUG 12/22/2015 06:08:42 PM: Tracker is 9.02075099945 seconds old
+DEBUG 12/22/2015 06:08:43 PM: []
+DEBUG 12/22/2015 06:08:43 PM: udp://172.30.2.46:6969/announce!1450807723.301073
+
+DEBUG 12/22/2015 06:08:43 PM: received message: udp://172.30.2.46:6969/announce!1450807723.301073
+
+DEBUG 12/22/2015 06:08:43 PM: TorrentList:[]
+DEBUG 12/22/2015 06:08:43 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}]
+DEBUG 12/22/2015 06:08:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:43 PM: Tracker is 0.0118248462677 seconds old
+DEBUG 12/22/2015 06:08:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:44 PM: Tracker is 1.01345300674 seconds old
+DEBUG 12/22/2015 06:08:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:45 PM: Tracker is 2.01442193985 seconds old
+DEBUG 12/22/2015 06:08:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:46 PM: Tracker is 3.01600193977 seconds old
+DEBUG 12/22/2015 06:08:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:47 PM: Tracker is 4.01762700081 seconds old
+DEBUG 12/22/2015 06:08:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:48 PM: Tracker is 5.01929593086 seconds old
+DEBUG 12/22/2015 06:08:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:49 PM: Tracker is 6.02090501785 seconds old
+DEBUG 12/22/2015 06:08:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:50 PM: Tracker is 7.02249884605 seconds old
+DEBUG 12/22/2015 06:08:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:51 PM: Tracker is 8.02409100533 seconds old
+DEBUG 12/22/2015 06:08:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807723.301073'}
+DEBUG 12/22/2015 06:08:52 PM: Tracker is 9.02568292618 seconds old
+DEBUG 12/22/2015 06:08:53 PM: []
+DEBUG 12/22/2015 06:08:53 PM: udp://172.30.2.46:6969/announce!1450807733.314124
+
+DEBUG 12/22/2015 06:08:53 PM: received message: udp://172.30.2.46:6969/announce!1450807733.314124
+
+DEBUG 12/22/2015 06:08:53 PM: TorrentList:[]
+DEBUG 12/22/2015 06:08:53 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}]
+DEBUG 12/22/2015 06:08:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:53 PM: Tracker is 0.0142338275909 seconds old
+DEBUG 12/22/2015 06:08:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:54 PM: Tracker is 1.01579284668 seconds old
+DEBUG 12/22/2015 06:08:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:55 PM: Tracker is 2.017359972 seconds old
+DEBUG 12/22/2015 06:08:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:56 PM: Tracker is 3.01893687248 seconds old
+DEBUG 12/22/2015 06:08:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:57 PM: Tracker is 4.02051687241 seconds old
+DEBUG 12/22/2015 06:08:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:58 PM: Tracker is 5.02376580238 seconds old
+DEBUG 12/22/2015 06:08:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807733.314124'}
+DEBUG 12/22/2015 06:08:59 PM: Tracker is 6.02538585663 seconds old
+DEBUG 12/22/2015 06:09:38 PM: main message
+DEBUG 12/22/2015 06:09:38 PM: TorrentList:[]
+DEBUG 12/22/2015 06:09:38 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}]
+DEBUG 12/22/2015 06:09:38 PM: []
+DEBUG 12/22/2015 06:09:38 PM: udp://172.30.2.46:6969/announce!1450807778.25852
+
+DEBUG 12/22/2015 06:09:38 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:09:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:38 PM: Tracker is 0.00606799125671 seconds old
+DEBUG 12/22/2015 06:09:38 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:09:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:39 PM: Tracker is 1.00947594643 seconds old
+DEBUG 12/22/2015 06:09:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:40 PM: Tracker is 2.01101207733 seconds old
+DEBUG 12/22/2015 06:09:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:41 PM: Tracker is 3.01192998886 seconds old
+DEBUG 12/22/2015 06:09:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:42 PM: Tracker is 4.01354598999 seconds old
+DEBUG 12/22/2015 06:09:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:43 PM: Tracker is 5.01511597633 seconds old
+DEBUG 12/22/2015 06:09:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:44 PM: Tracker is 6.01668405533 seconds old
+DEBUG 12/22/2015 06:09:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:45 PM: Tracker is 7.01828503609 seconds old
+DEBUG 12/22/2015 06:09:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:46 PM: Tracker is 8.01988196373 seconds old
+DEBUG 12/22/2015 06:09:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807778.255558'}
+DEBUG 12/22/2015 06:09:47 PM: Tracker is 9.02146100998 seconds old
+DEBUG 12/22/2015 06:09:48 PM: []
+DEBUG 12/22/2015 06:09:48 PM: udp://172.30.2.46:6969/announce!1450807788.266495
+
+DEBUG 12/22/2015 06:09:48 PM: received message: udp://172.30.2.46:6969/announce!1450807788.266495
+
+DEBUG 12/22/2015 06:09:48 PM: TorrentList:[]
+DEBUG 12/22/2015 06:09:48 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}]
+DEBUG 12/22/2015 06:09:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:48 PM: Tracker is 0.0119349956512 seconds old
+DEBUG 12/22/2015 06:09:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:49 PM: Tracker is 1.01489090919 seconds old
+DEBUG 12/22/2015 06:09:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:50 PM: Tracker is 2.01648211479 seconds old
+DEBUG 12/22/2015 06:09:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:51 PM: Tracker is 3.01810097694 seconds old
+DEBUG 12/22/2015 06:09:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:52 PM: Tracker is 4.01971006393 seconds old
+DEBUG 12/22/2015 06:09:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:53 PM: Tracker is 5.02134895325 seconds old
+DEBUG 12/22/2015 06:09:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807788.266495'}
+DEBUG 12/22/2015 06:09:54 PM: Tracker is 6.02385902405 seconds old
+DEBUG 12/22/2015 06:10:27 PM: main message
+DEBUG 12/22/2015 06:10:27 PM: TorrentList:[]
+DEBUG 12/22/2015 06:10:27 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807827.793327'}]
+DEBUG 12/22/2015 06:10:27 PM: []
+DEBUG 12/22/2015 06:10:27 PM: udp://172.30.2.46:6969/announce!1450807827.7964
+
+DEBUG 12/22/2015 06:10:27 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:10:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807827.793327'}
+DEBUG 12/22/2015 06:10:27 PM: Tracker is 0.00688195228577 seconds old
+DEBUG 12/22/2015 06:10:27 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:10:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807827.793327'}
+DEBUG 12/22/2015 06:10:28 PM: Tracker is 1.00844693184 seconds old
+DEBUG 12/22/2015 06:10:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807827.793327'}
+DEBUG 12/22/2015 06:10:29 PM: Tracker is 2.01004290581 seconds old
+DEBUG 12/22/2015 06:10:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807827.793327'}
+DEBUG 12/22/2015 06:10:30 PM: Tracker is 3.01165986061 seconds old
+DEBUG 12/22/2015 06:11:38 PM: main message
+DEBUG 12/22/2015 06:11:38 PM: TorrentList:[]
+DEBUG 12/22/2015 06:11:38 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}]
+DEBUG 12/22/2015 06:11:38 PM: []
+DEBUG 12/22/2015 06:11:38 PM: udp://172.30.2.46:6969/announce!1450807898.432846
+
+DEBUG 12/22/2015 06:11:38 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:11:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:38 PM: Tracker is 0.00614881515503 seconds old
+DEBUG 12/22/2015 06:11:38 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:11:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:39 PM: Tracker is 1.00771284103 seconds old
+DEBUG 12/22/2015 06:11:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:40 PM: Tracker is 2.00928902626 seconds old
+DEBUG 12/22/2015 06:11:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:41 PM: Tracker is 3.01092100143 seconds old
+DEBUG 12/22/2015 06:11:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:42 PM: Tracker is 4.01226997375 seconds old
+DEBUG 12/22/2015 06:11:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:43 PM: Tracker is 5.01388788223 seconds old
+DEBUG 12/22/2015 06:11:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:44 PM: Tracker is 6.01550984383 seconds old
+DEBUG 12/22/2015 06:11:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:45 PM: Tracker is 7.01803302765 seconds old
+DEBUG 12/22/2015 06:11:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:46 PM: Tracker is 8.0186958313 seconds old
+DEBUG 12/22/2015 06:11:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807898.429825'}
+DEBUG 12/22/2015 06:11:47 PM: Tracker is 9.01984786987 seconds old
+DEBUG 12/22/2015 06:11:48 PM: []
+DEBUG 12/22/2015 06:11:48 PM: udp://172.30.2.46:6969/announce!1450807908.441329
+
+DEBUG 12/22/2015 06:11:48 PM: received message: udp://172.30.2.46:6969/announce!1450807908.441329
+
+DEBUG 12/22/2015 06:11:48 PM: TorrentList:[]
+DEBUG 12/22/2015 06:11:48 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807908.441329'}]
+DEBUG 12/22/2015 06:11:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807908.441329'}
+DEBUG 12/22/2015 06:11:48 PM: Tracker is 0.00932788848877 seconds old
+DEBUG 12/22/2015 06:11:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450807908.441329'}
+DEBUG 12/22/2015 06:11:49 PM: Tracker is 1.01064610481 seconds old
+DEBUG 12/22/2015 06:13:21 PM: main message
+DEBUG 12/22/2015 06:13:21 PM: TorrentList:[]
+DEBUG 12/22/2015 06:13:21 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}]
+DEBUG 12/22/2015 06:13:21 PM: []
+DEBUG 12/22/2015 06:13:21 PM: udp://172.30.2.46:6969/announce!1450808001.373928
+
+DEBUG 12/22/2015 06:13:21 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:13:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:21 PM: Tracker is 0.00673198699951 seconds old
+DEBUG 12/22/2015 06:13:21 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:13:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:22 PM: Tracker is 1.00835108757 seconds old
+DEBUG 12/22/2015 06:13:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:23 PM: Tracker is 2.0113530159 seconds old
+DEBUG 12/22/2015 06:13:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:24 PM: Tracker is 3.01250886917 seconds old
+DEBUG 12/22/2015 06:13:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:25 PM: Tracker is 4.01407790184 seconds old
+DEBUG 12/22/2015 06:13:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808001.370985'}
+DEBUG 12/22/2015 06:13:26 PM: Tracker is 5.01565885544 seconds old
+DEBUG 12/22/2015 06:13:37 PM: main message
+DEBUG 12/22/2015 06:13:37 PM: TorrentList:[]
+DEBUG 12/22/2015 06:13:37 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}]
+DEBUG 12/22/2015 06:13:37 PM: []
+DEBUG 12/22/2015 06:13:37 PM: udp://172.30.2.46:6969/announce!1450808017.716968
+
+DEBUG 12/22/2015 06:13:37 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:13:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:37 PM: Tracker is 0.00599813461304 seconds old
+DEBUG 12/22/2015 06:13:37 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:13:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:38 PM: Tracker is 1.00755500793 seconds old
+DEBUG 12/22/2015 06:13:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:39 PM: Tracker is 2.00916194916 seconds old
+DEBUG 12/22/2015 06:13:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:40 PM: Tracker is 3.01083302498 seconds old
+DEBUG 12/22/2015 06:13:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:41 PM: Tracker is 4.01246094704 seconds old
+DEBUG 12/22/2015 06:13:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:42 PM: Tracker is 5.01486611366 seconds old
+DEBUG 12/22/2015 06:13:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:43 PM: Tracker is 6.01544213295 seconds old
+DEBUG 12/22/2015 06:13:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:44 PM: Tracker is 7.01718401909 seconds old
+DEBUG 12/22/2015 06:13:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:45 PM: Tracker is 8.01867294312 seconds old
+DEBUG 12/22/2015 06:13:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808017.714098'}
+DEBUG 12/22/2015 06:13:46 PM: Tracker is 9.01987099648 seconds old
+DEBUG 12/22/2015 06:13:47 PM: []
+DEBUG 12/22/2015 06:13:47 PM: udp://172.30.2.46:6969/announce!1450808027.724949
+
+DEBUG 12/22/2015 06:13:47 PM: received message: udp://172.30.2.46:6969/announce!1450808027.724949
+
+DEBUG 12/22/2015 06:13:47 PM: TorrentList:[]
+DEBUG 12/22/2015 06:13:47 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}]
+DEBUG 12/22/2015 06:13:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:47 PM: Tracker is 0.0104310512543 seconds old
+DEBUG 12/22/2015 06:13:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:48 PM: Tracker is 1.01130509377 seconds old
+DEBUG 12/22/2015 06:13:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:49 PM: Tracker is 2.01248908043 seconds old
+DEBUG 12/22/2015 06:13:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:50 PM: Tracker is 3.01366519928 seconds old
+DEBUG 12/22/2015 06:13:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:51 PM: Tracker is 4.01492214203 seconds old
+DEBUG 12/22/2015 06:13:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:52 PM: Tracker is 5.01736116409 seconds old
+DEBUG 12/22/2015 06:13:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:53 PM: Tracker is 6.01856207848 seconds old
+DEBUG 12/22/2015 06:13:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:54 PM: Tracker is 7.02013301849 seconds old
+DEBUG 12/22/2015 06:13:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:55 PM: Tracker is 8.02170920372 seconds old
+DEBUG 12/22/2015 06:13:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808027.724949'}
+DEBUG 12/22/2015 06:13:56 PM: Tracker is 9.02255821228 seconds old
+DEBUG 12/22/2015 06:13:57 PM: []
+DEBUG 12/22/2015 06:13:57 PM: udp://172.30.2.46:6969/announce!1450808037.738186
+
+DEBUG 12/22/2015 06:13:57 PM: received message: udp://172.30.2.46:6969/announce!1450808037.738186
+
+DEBUG 12/22/2015 06:13:57 PM: TorrentList:[]
+DEBUG 12/22/2015 06:13:57 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}]
+DEBUG 12/22/2015 06:13:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:13:57 PM: Tracker is 0.0107262134552 seconds old
+DEBUG 12/22/2015 06:13:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:13:58 PM: Tracker is 1.01224303246 seconds old
+DEBUG 12/22/2015 06:13:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:13:59 PM: Tracker is 2.01336121559 seconds old
+DEBUG 12/22/2015 06:14:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:00 PM: Tracker is 3.0149512291 seconds old
+DEBUG 12/22/2015 06:14:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:01 PM: Tracker is 4.01655721664 seconds old
+DEBUG 12/22/2015 06:14:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:02 PM: Tracker is 5.01719713211 seconds old
+DEBUG 12/22/2015 06:14:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:03 PM: Tracker is 6.01868915558 seconds old
+DEBUG 12/22/2015 06:14:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:04 PM: Tracker is 7.02022314072 seconds old
+DEBUG 12/22/2015 06:14:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:05 PM: Tracker is 8.02133107185 seconds old
+DEBUG 12/22/2015 06:14:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808037.738186'}
+DEBUG 12/22/2015 06:14:06 PM: Tracker is 9.0229279995 seconds old
+DEBUG 12/22/2015 06:14:07 PM: []
+DEBUG 12/22/2015 06:14:07 PM: udp://172.30.2.46:6969/announce!1450808047.750557
+
+DEBUG 12/22/2015 06:14:07 PM: received message: udp://172.30.2.46:6969/announce!1450808047.750557
+
+DEBUG 12/22/2015 06:14:07 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:07 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}]
+DEBUG 12/22/2015 06:14:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:07 PM: Tracker is 0.0119659900665 seconds old
+DEBUG 12/22/2015 06:14:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:08 PM: Tracker is 1.01451802254 seconds old
+DEBUG 12/22/2015 06:14:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:09 PM: Tracker is 2.0161011219 seconds old
+DEBUG 12/22/2015 06:14:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:10 PM: Tracker is 3.01766395569 seconds old
+DEBUG 12/22/2015 06:14:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:11 PM: Tracker is 4.01922702789 seconds old
+DEBUG 12/22/2015 06:14:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:12 PM: Tracker is 5.02083301544 seconds old
+DEBUG 12/22/2015 06:14:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:13 PM: Tracker is 6.02326798439 seconds old
+DEBUG 12/22/2015 06:14:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:14 PM: Tracker is 7.02486205101 seconds old
+DEBUG 12/22/2015 06:14:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:15 PM: Tracker is 8.02644109726 seconds old
+DEBUG 12/22/2015 06:14:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808047.750557'}
+DEBUG 12/22/2015 06:14:16 PM: Tracker is 9.02803206444 seconds old
+DEBUG 12/22/2015 06:14:17 PM: []
+DEBUG 12/22/2015 06:14:17 PM: udp://172.30.2.46:6969/announce!1450808057.756042
+
+DEBUG 12/22/2015 06:14:17 PM: received message: udp://172.30.2.46:6969/announce!1450808057.756042
+
+DEBUG 12/22/2015 06:14:17 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:17 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}]
+DEBUG 12/22/2015 06:14:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:17 PM: Tracker is 0.0239510536194 seconds old
+DEBUG 12/22/2015 06:14:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:18 PM: Tracker is 1.02627706528 seconds old
+DEBUG 12/22/2015 06:14:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:19 PM: Tracker is 2.02786707878 seconds old
+DEBUG 12/22/2015 06:14:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:20 PM: Tracker is 3.02944588661 seconds old
+DEBUG 12/22/2015 06:14:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:21 PM: Tracker is 4.03103399277 seconds old
+DEBUG 12/22/2015 06:14:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:22 PM: Tracker is 5.03259205818 seconds old
+DEBUG 12/22/2015 06:14:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:23 PM: Tracker is 6.03851890564 seconds old
+DEBUG 12/22/2015 06:14:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:24 PM: Tracker is 7.0394320488 seconds old
+DEBUG 12/22/2015 06:14:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:25 PM: Tracker is 8.04102611542 seconds old
+DEBUG 12/22/2015 06:14:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808057.756042'}
+DEBUG 12/22/2015 06:14:26 PM: Tracker is 9.04265904427 seconds old
+DEBUG 12/22/2015 06:14:27 PM: []
+DEBUG 12/22/2015 06:14:27 PM: udp://172.30.2.46:6969/announce!1450808067.766605
+
+DEBUG 12/22/2015 06:14:27 PM: received message: udp://172.30.2.46:6969/announce!1450808067.766605
+
+DEBUG 12/22/2015 06:14:27 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:27 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}]
+DEBUG 12/22/2015 06:14:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:27 PM: Tracker is 0.0327641963959 seconds old
+DEBUG 12/22/2015 06:14:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:28 PM: Tracker is 1.03846001625 seconds old
+DEBUG 12/22/2015 06:14:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:29 PM: Tracker is 2.0400390625 seconds old
+DEBUG 12/22/2015 06:14:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:30 PM: Tracker is 3.04162621498 seconds old
+DEBUG 12/22/2015 06:14:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:31 PM: Tracker is 4.04321408272 seconds old
+DEBUG 12/22/2015 06:14:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:32 PM: Tracker is 5.04480910301 seconds old
+DEBUG 12/22/2015 06:14:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:33 PM: Tracker is 6.04734015465 seconds old
+DEBUG 12/22/2015 06:14:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:34 PM: Tracker is 7.0489180088 seconds old
+DEBUG 12/22/2015 06:14:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:35 PM: Tracker is 8.05057811737 seconds old
+DEBUG 12/22/2015 06:14:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808067.766605'}
+DEBUG 12/22/2015 06:14:36 PM: Tracker is 9.0522069931 seconds old
+DEBUG 12/22/2015 06:14:37 PM: []
+DEBUG 12/22/2015 06:14:37 PM: udp://172.30.2.46:6969/announce!1450808077.777184
+
+DEBUG 12/22/2015 06:14:37 PM: received message: udp://172.30.2.46:6969/announce!1450808077.777184
+
+DEBUG 12/22/2015 06:14:37 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:37 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}]
+DEBUG 12/22/2015 06:14:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:37 PM: Tracker is 0.0421710014343 seconds old
+DEBUG 12/22/2015 06:14:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:38 PM: Tracker is 1.04473900795 seconds old
+DEBUG 12/22/2015 06:14:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:39 PM: Tracker is 2.04642295837 seconds old
+DEBUG 12/22/2015 06:14:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:40 PM: Tracker is 3.0480029583 seconds old
+DEBUG 12/22/2015 06:14:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:41 PM: Tracker is 4.04961299896 seconds old
+DEBUG 12/22/2015 06:14:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:42 PM: Tracker is 5.0512650013 seconds old
+DEBUG 12/22/2015 06:14:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:43 PM: Tracker is 6.05292010307 seconds old
+DEBUG 12/22/2015 06:14:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:44 PM: Tracker is 7.0545539856 seconds old
+DEBUG 12/22/2015 06:14:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:45 PM: Tracker is 8.0561978817 seconds old
+DEBUG 12/22/2015 06:14:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808077.777184'}
+DEBUG 12/22/2015 06:14:46 PM: Tracker is 9.05785703659 seconds old
+DEBUG 12/22/2015 06:14:47 PM: []
+DEBUG 12/22/2015 06:14:47 PM: udp://172.30.2.46:6969/announce!1450808087.787359
+
+DEBUG 12/22/2015 06:14:47 PM: received message: udp://172.30.2.46:6969/announce!1450808087.787359
+
+DEBUG 12/22/2015 06:14:47 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:47 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}]
+DEBUG 12/22/2015 06:14:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:47 PM: Tracker is 0.0491800308228 seconds old
+DEBUG 12/22/2015 06:14:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:48 PM: Tracker is 1.05171203613 seconds old
+DEBUG 12/22/2015 06:14:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:49 PM: Tracker is 2.05336093903 seconds old
+DEBUG 12/22/2015 06:14:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:50 PM: Tracker is 3.05495691299 seconds old
+DEBUG 12/22/2015 06:14:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:51 PM: Tracker is 4.05659008026 seconds old
+DEBUG 12/22/2015 06:14:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:52 PM: Tracker is 5.05823397636 seconds old
+DEBUG 12/22/2015 06:14:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:53 PM: Tracker is 6.06071400642 seconds old
+DEBUG 12/22/2015 06:14:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:54 PM: Tracker is 7.06230592728 seconds old
+DEBUG 12/22/2015 06:14:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:55 PM: Tracker is 8.06390094757 seconds old
+DEBUG 12/22/2015 06:14:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808087.787359'}
+DEBUG 12/22/2015 06:14:56 PM: Tracker is 9.06518697739 seconds old
+DEBUG 12/22/2015 06:14:57 PM: []
+DEBUG 12/22/2015 06:14:57 PM: udp://172.30.2.46:6969/announce!1450808097.790914
+
+DEBUG 12/22/2015 06:14:57 PM: received message: udp://172.30.2.46:6969/announce!1450808097.790914
+
+DEBUG 12/22/2015 06:14:57 PM: TorrentList:[]
+DEBUG 12/22/2015 06:14:57 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}]
+DEBUG 12/22/2015 06:14:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:14:57 PM: Tracker is 0.0631129741669 seconds old
+DEBUG 12/22/2015 06:14:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:14:58 PM: Tracker is 1.06466889381 seconds old
+DEBUG 12/22/2015 06:14:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:14:59 PM: Tracker is 2.06618595123 seconds old
+DEBUG 12/22/2015 06:15:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:00 PM: Tracker is 3.06778502464 seconds old
+DEBUG 12/22/2015 06:15:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:01 PM: Tracker is 4.06940293312 seconds old
+DEBUG 12/22/2015 06:15:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:02 PM: Tracker is 5.0710568428 seconds old
+DEBUG 12/22/2015 06:15:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:03 PM: Tracker is 6.07272696495 seconds old
+DEBUG 12/22/2015 06:15:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:04 PM: Tracker is 7.07518196106 seconds old
+DEBUG 12/22/2015 06:15:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:05 PM: Tracker is 8.07681083679 seconds old
+DEBUG 12/22/2015 06:15:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808097.790914'}
+DEBUG 12/22/2015 06:15:06 PM: Tracker is 9.07842803001 seconds old
+DEBUG 12/22/2015 06:15:07 PM: []
+DEBUG 12/22/2015 06:15:07 PM: udp://172.30.2.46:6969/announce!1450808107.797462
+
+DEBUG 12/22/2015 06:15:07 PM: received message: udp://172.30.2.46:6969/announce!1450808107.797462
+
+DEBUG 12/22/2015 06:15:07 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:07 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}]
+DEBUG 12/22/2015 06:15:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:07 PM: Tracker is 0.0734961032867 seconds old
+DEBUG 12/22/2015 06:15:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:08 PM: Tracker is 1.07507205009 seconds old
+DEBUG 12/22/2015 06:15:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:09 PM: Tracker is 2.077491045 seconds old
+DEBUG 12/22/2015 06:15:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:10 PM: Tracker is 3.07908797264 seconds old
+DEBUG 12/22/2015 06:15:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:11 PM: Tracker is 4.08072495461 seconds old
+DEBUG 12/22/2015 06:15:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:12 PM: Tracker is 5.08236598969 seconds old
+DEBUG 12/22/2015 06:15:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:13 PM: Tracker is 6.0839650631 seconds old
+DEBUG 12/22/2015 06:15:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:14 PM: Tracker is 7.08652496338 seconds old
+DEBUG 12/22/2015 06:15:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:15 PM: Tracker is 8.08816194534 seconds old
+DEBUG 12/22/2015 06:15:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808107.797462'}
+DEBUG 12/22/2015 06:15:16 PM: Tracker is 9.08981990814 seconds old
+DEBUG 12/22/2015 06:15:17 PM: []
+DEBUG 12/22/2015 06:15:17 PM: udp://172.30.2.46:6969/announce!1450808117.807676
+
+DEBUG 12/22/2015 06:15:17 PM: received message: udp://172.30.2.46:6969/announce!1450808117.807676
+
+DEBUG 12/22/2015 06:15:17 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:17 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}]
+DEBUG 12/22/2015 06:15:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:17 PM: Tracker is 0.0812809467316 seconds old
+DEBUG 12/22/2015 06:15:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:18 PM: Tracker is 1.08296990395 seconds old
+DEBUG 12/22/2015 06:15:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:19 PM: Tracker is 2.08504390717 seconds old
+DEBUG 12/22/2015 06:15:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:20 PM: Tracker is 3.0866830349 seconds old
+DEBUG 12/22/2015 06:15:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:21 PM: Tracker is 4.08833003044 seconds old
+DEBUG 12/22/2015 06:15:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:22 PM: Tracker is 5.08991980553 seconds old
+DEBUG 12/22/2015 06:15:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:23 PM: Tracker is 6.09160685539 seconds old
+DEBUG 12/22/2015 06:15:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:24 PM: Tracker is 7.09412789345 seconds old
+DEBUG 12/22/2015 06:15:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:25 PM: Tracker is 8.09580802917 seconds old
+DEBUG 12/22/2015 06:15:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808117.807676'}
+DEBUG 12/22/2015 06:15:26 PM: Tracker is 9.09744501114 seconds old
+DEBUG 12/22/2015 06:15:27 PM: []
+DEBUG 12/22/2015 06:15:27 PM: udp://172.30.2.46:6969/announce!1450808127.818287
+
+DEBUG 12/22/2015 06:15:27 PM: received message: udp://172.30.2.46:6969/announce!1450808127.818287
+
+DEBUG 12/22/2015 06:15:27 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:27 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}]
+DEBUG 12/22/2015 06:15:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:27 PM: Tracker is 0.0885171890259 seconds old
+DEBUG 12/22/2015 06:15:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:28 PM: Tracker is 1.09014511108 seconds old
+DEBUG 12/22/2015 06:15:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:29 PM: Tracker is 2.09301519394 seconds old
+DEBUG 12/22/2015 06:15:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:30 PM: Tracker is 3.09464001656 seconds old
+DEBUG 12/22/2015 06:15:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:31 PM: Tracker is 4.09628605843 seconds old
+DEBUG 12/22/2015 06:15:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:32 PM: Tracker is 5.09796500206 seconds old
+DEBUG 12/22/2015 06:15:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:33 PM: Tracker is 6.09961605072 seconds old
+DEBUG 12/22/2015 06:15:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:34 PM: Tracker is 7.10214304924 seconds old
+DEBUG 12/22/2015 06:15:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:35 PM: Tracker is 8.103703022 seconds old
+DEBUG 12/22/2015 06:15:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808127.818287'}
+DEBUG 12/22/2015 06:15:36 PM: Tracker is 9.10536909103 seconds old
+DEBUG 12/22/2015 06:15:37 PM: []
+DEBUG 12/22/2015 06:15:37 PM: udp://172.30.2.46:6969/announce!1450808137.83135
+
+DEBUG 12/22/2015 06:15:37 PM: received message: udp://172.30.2.46:6969/announce!1450808137.83135
+
+DEBUG 12/22/2015 06:15:37 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:37 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}]
+DEBUG 12/22/2015 06:15:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:37 PM: Tracker is 0.0939359664917 seconds old
+DEBUG 12/22/2015 06:15:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:38 PM: Tracker is 1.09558582306 seconds old
+DEBUG 12/22/2015 06:15:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:39 PM: Tracker is 2.09819984436 seconds old
+DEBUG 12/22/2015 06:15:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:40 PM: Tracker is 3.09986591339 seconds old
+DEBUG 12/22/2015 06:15:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:41 PM: Tracker is 4.10151481628 seconds old
+DEBUG 12/22/2015 06:15:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:42 PM: Tracker is 5.10317182541 seconds old
+DEBUG 12/22/2015 06:15:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:43 PM: Tracker is 6.10482597351 seconds old
+DEBUG 12/22/2015 06:15:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:44 PM: Tracker is 7.10734391212 seconds old
+DEBUG 12/22/2015 06:15:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:45 PM: Tracker is 8.10904884338 seconds old
+DEBUG 12/22/2015 06:15:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808137.83135'}
+DEBUG 12/22/2015 06:15:46 PM: Tracker is 9.11072301865 seconds old
+DEBUG 12/22/2015 06:15:47 PM: []
+DEBUG 12/22/2015 06:15:47 PM: udp://172.30.2.46:6969/announce!1450808147.83908
+
+DEBUG 12/22/2015 06:15:47 PM: received message: udp://172.30.2.46:6969/announce!1450808147.83908
+
+DEBUG 12/22/2015 06:15:47 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:47 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}]
+DEBUG 12/22/2015 06:15:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:47 PM: Tracker is 0.104645013809 seconds old
+DEBUG 12/22/2015 06:15:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:48 PM: Tracker is 1.10630393028 seconds old
+DEBUG 12/22/2015 06:15:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:49 PM: Tracker is 2.10888981819 seconds old
+DEBUG 12/22/2015 06:15:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:50 PM: Tracker is 3.11049199104 seconds old
+DEBUG 12/22/2015 06:15:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:51 PM: Tracker is 4.11213088036 seconds old
+DEBUG 12/22/2015 06:15:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:52 PM: Tracker is 5.11379289627 seconds old
+DEBUG 12/22/2015 06:15:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:53 PM: Tracker is 6.11544394493 seconds old
+DEBUG 12/22/2015 06:15:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:54 PM: Tracker is 7.11788988113 seconds old
+DEBUG 12/22/2015 06:15:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:55 PM: Tracker is 8.11956381798 seconds old
+DEBUG 12/22/2015 06:15:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808147.83908'}
+DEBUG 12/22/2015 06:15:56 PM: Tracker is 9.12116789818 seconds old
+DEBUG 12/22/2015 06:15:57 PM: []
+DEBUG 12/22/2015 06:15:57 PM: udp://172.30.2.46:6969/announce!1450808157.849658
+
+DEBUG 12/22/2015 06:15:57 PM: received message: udp://172.30.2.46:6969/announce!1450808157.849658
+
+DEBUG 12/22/2015 06:15:57 PM: TorrentList:[]
+DEBUG 12/22/2015 06:15:57 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}]
+DEBUG 12/22/2015 06:15:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:15:57 PM: Tracker is 0.112206935883 seconds old
+DEBUG 12/22/2015 06:15:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:15:58 PM: Tracker is 1.11384701729 seconds old
+DEBUG 12/22/2015 06:15:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:15:59 PM: Tracker is 2.11637806892 seconds old
+DEBUG 12/22/2015 06:16:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:00 PM: Tracker is 3.11802792549 seconds old
+DEBUG 12/22/2015 06:16:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:01 PM: Tracker is 4.11964297295 seconds old
+DEBUG 12/22/2015 06:16:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:02 PM: Tracker is 5.1212720871 seconds old
+DEBUG 12/22/2015 06:16:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:03 PM: Tracker is 6.12291193008 seconds old
+DEBUG 12/22/2015 06:16:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:04 PM: Tracker is 7.12600207329 seconds old
+DEBUG 12/22/2015 06:16:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:05 PM: Tracker is 8.12779188156 seconds old
+DEBUG 12/22/2015 06:16:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808157.849658'}
+DEBUG 12/22/2015 06:16:06 PM: Tracker is 9.12948989868 seconds old
+DEBUG 12/22/2015 06:16:07 PM: []
+DEBUG 12/22/2015 06:16:07 PM: udp://172.30.2.46:6969/announce!1450808167.860204
+
+DEBUG 12/22/2015 06:16:07 PM: received message: udp://172.30.2.46:6969/announce!1450808167.860204
+
+DEBUG 12/22/2015 06:16:07 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:07 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}]
+DEBUG 12/22/2015 06:16:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:07 PM: Tracker is 0.120584964752 seconds old
+DEBUG 12/22/2015 06:16:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:08 PM: Tracker is 1.1222410202 seconds old
+DEBUG 12/22/2015 06:16:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:09 PM: Tracker is 2.12540793419 seconds old
+DEBUG 12/22/2015 06:16:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:10 PM: Tracker is 3.12706708908 seconds old
+DEBUG 12/22/2015 06:16:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:11 PM: Tracker is 4.12869691849 seconds old
+DEBUG 12/22/2015 06:16:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:12 PM: Tracker is 5.13032412529 seconds old
+DEBUG 12/22/2015 06:16:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:13 PM: Tracker is 6.1313829422 seconds old
+DEBUG 12/22/2015 06:16:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:14 PM: Tracker is 7.13381004333 seconds old
+DEBUG 12/22/2015 06:16:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:15 PM: Tracker is 8.13548398018 seconds old
+DEBUG 12/22/2015 06:16:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808167.860204'}
+DEBUG 12/22/2015 06:16:16 PM: Tracker is 9.13713502884 seconds old
+DEBUG 12/22/2015 06:16:17 PM: []
+DEBUG 12/22/2015 06:16:17 PM: udp://172.30.2.46:6969/announce!1450808177.870802
+
+DEBUG 12/22/2015 06:16:17 PM: received message: udp://172.30.2.46:6969/announce!1450808177.870802
+
+DEBUG 12/22/2015 06:16:17 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:17 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}]
+DEBUG 12/22/2015 06:16:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:17 PM: Tracker is 0.12815618515 seconds old
+DEBUG 12/22/2015 06:16:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:18 PM: Tracker is 1.12874817848 seconds old
+DEBUG 12/22/2015 06:16:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:20 PM: Tracker is 2.13129901886 seconds old
+DEBUG 12/22/2015 06:16:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:21 PM: Tracker is 3.13298916817 seconds old
+DEBUG 12/22/2015 06:16:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:22 PM: Tracker is 4.13458418846 seconds old
+DEBUG 12/22/2015 06:16:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:23 PM: Tracker is 5.13622999191 seconds old
+DEBUG 12/22/2015 06:16:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:24 PM: Tracker is 6.1379430294 seconds old
+DEBUG 12/22/2015 06:16:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:25 PM: Tracker is 7.14048814774 seconds old
+DEBUG 12/22/2015 06:16:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:26 PM: Tracker is 8.14215898514 seconds old
+DEBUG 12/22/2015 06:16:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808177.870802'}
+DEBUG 12/22/2015 06:16:27 PM: Tracker is 9.14380908012 seconds old
+DEBUG 12/22/2015 06:16:27 PM: []
+DEBUG 12/22/2015 06:16:27 PM: udp://172.30.2.46:6969/announce!1450808187.883248
+
+DEBUG 12/22/2015 06:16:27 PM: received message: udp://172.30.2.46:6969/announce!1450808187.883248
+
+DEBUG 12/22/2015 06:16:27 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:27 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}]
+DEBUG 12/22/2015 06:16:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:28 PM: Tracker is 0.133023023605 seconds old
+DEBUG 12/22/2015 06:16:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:29 PM: Tracker is 1.13461899757 seconds old
+DEBUG 12/22/2015 06:16:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:30 PM: Tracker is 2.13712096214 seconds old
+DEBUG 12/22/2015 06:16:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:31 PM: Tracker is 3.13873386383 seconds old
+DEBUG 12/22/2015 06:16:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:32 PM: Tracker is 4.14033579826 seconds old
+DEBUG 12/22/2015 06:16:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:33 PM: Tracker is 5.14195585251 seconds old
+DEBUG 12/22/2015 06:16:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:34 PM: Tracker is 6.14351892471 seconds old
+DEBUG 12/22/2015 06:16:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:35 PM: Tracker is 7.14667987823 seconds old
+DEBUG 12/22/2015 06:16:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:36 PM: Tracker is 8.14828586578 seconds old
+DEBUG 12/22/2015 06:16:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808187.883248'}
+DEBUG 12/22/2015 06:16:37 PM: Tracker is 9.14992189407 seconds old
+DEBUG 12/22/2015 06:16:37 PM: []
+DEBUG 12/22/2015 06:16:37 PM: udp://172.30.2.46:6969/announce!1450808197.896471
+
+DEBUG 12/22/2015 06:16:37 PM: received message: udp://172.30.2.46:6969/announce!1450808197.896471
+
+DEBUG 12/22/2015 06:16:37 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:37 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}]
+DEBUG 12/22/2015 06:16:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:38 PM: Tracker is 0.138325929642 seconds old
+DEBUG 12/22/2015 06:16:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:39 PM: Tracker is 1.13997602463 seconds old
+DEBUG 12/22/2015 06:16:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:40 PM: Tracker is 2.14306092262 seconds old
+DEBUG 12/22/2015 06:16:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:41 PM: Tracker is 3.14469790459 seconds old
+DEBUG 12/22/2015 06:16:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:42 PM: Tracker is 4.14634799957 seconds old
+DEBUG 12/22/2015 06:16:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:43 PM: Tracker is 5.14794802666 seconds old
+DEBUG 12/22/2015 06:16:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:44 PM: Tracker is 6.14958691597 seconds old
+DEBUG 12/22/2015 06:16:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:45 PM: Tracker is 7.15390396118 seconds old
+DEBUG 12/22/2015 06:16:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:46 PM: Tracker is 8.15551686287 seconds old
+DEBUG 12/22/2015 06:16:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808197.896471'}
+DEBUG 12/22/2015 06:16:47 PM: Tracker is 9.15712594986 seconds old
+DEBUG 12/22/2015 06:16:47 PM: []
+DEBUG 12/22/2015 06:16:47 PM: udp://172.30.2.46:6969/announce!1450808207.899838
+
+DEBUG 12/22/2015 06:16:47 PM: received message: udp://172.30.2.46:6969/announce!1450808207.899838
+
+DEBUG 12/22/2015 06:16:47 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:47 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}]
+DEBUG 12/22/2015 06:16:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:48 PM: Tracker is 0.155385971069 seconds old
+DEBUG 12/22/2015 06:16:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:49 PM: Tracker is 1.15701913834 seconds old
+DEBUG 12/22/2015 06:16:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:50 PM: Tracker is 2.15945291519 seconds old
+DEBUG 12/22/2015 06:16:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:51 PM: Tracker is 3.16109991074 seconds old
+DEBUG 12/22/2015 06:16:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:52 PM: Tracker is 4.16273593903 seconds old
+DEBUG 12/22/2015 06:16:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:53 PM: Tracker is 5.1643910408 seconds old
+DEBUG 12/22/2015 06:16:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:54 PM: Tracker is 6.16566991806 seconds old
+DEBUG 12/22/2015 06:16:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:55 PM: Tracker is 7.16899204254 seconds old
+DEBUG 12/22/2015 06:16:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:56 PM: Tracker is 8.17061805725 seconds old
+DEBUG 12/22/2015 06:16:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808207.899838'}
+DEBUG 12/22/2015 06:16:57 PM: Tracker is 9.17161607742 seconds old
+DEBUG 12/22/2015 06:16:57 PM: []
+DEBUG 12/22/2015 06:16:57 PM: udp://172.30.2.46:6969/announce!1450808217.910395
+
+DEBUG 12/22/2015 06:16:57 PM: received message: udp://172.30.2.46:6969/announce!1450808217.910395
+
+DEBUG 12/22/2015 06:16:57 PM: TorrentList:[]
+DEBUG 12/22/2015 06:16:57 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}]
+DEBUG 12/22/2015 06:16:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:16:58 PM: Tracker is 0.162667036057 seconds old
+DEBUG 12/22/2015 06:16:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:16:59 PM: Tracker is 1.16429901123 seconds old
+DEBUG 12/22/2015 06:17:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:00 PM: Tracker is 2.16689801216 seconds old
+DEBUG 12/22/2015 06:17:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:01 PM: Tracker is 3.16854715347 seconds old
+DEBUG 12/22/2015 06:17:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:02 PM: Tracker is 4.17018604279 seconds old
+DEBUG 12/22/2015 06:17:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:03 PM: Tracker is 5.17188215256 seconds old
+DEBUG 12/22/2015 06:17:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:04 PM: Tracker is 6.1732070446 seconds old
+DEBUG 12/22/2015 06:17:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:05 PM: Tracker is 7.17654705048 seconds old
+DEBUG 12/22/2015 06:17:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:06 PM: Tracker is 8.17799305916 seconds old
+DEBUG 12/22/2015 06:17:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808217.910395'}
+DEBUG 12/22/2015 06:17:07 PM: Tracker is 9.17890620232 seconds old
+DEBUG 12/22/2015 06:17:07 PM: []
+DEBUG 12/22/2015 06:17:07 PM: udp://172.30.2.46:6969/announce!1450808227.920946
+
+DEBUG 12/22/2015 06:17:07 PM: received message: udp://172.30.2.46:6969/announce!1450808227.920946
+
+DEBUG 12/22/2015 06:17:07 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:07 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}]
+DEBUG 12/22/2015 06:17:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:08 PM: Tracker is 0.170040130615 seconds old
+DEBUG 12/22/2015 06:17:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:09 PM: Tracker is 1.17180204391 seconds old
+DEBUG 12/22/2015 06:17:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:10 PM: Tracker is 2.17426013947 seconds old
+DEBUG 12/22/2015 06:17:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:11 PM: Tracker is 3.17556905746 seconds old
+DEBUG 12/22/2015 06:17:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:12 PM: Tracker is 4.17733407021 seconds old
+DEBUG 12/22/2015 06:17:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:13 PM: Tracker is 5.17906308174 seconds old
+DEBUG 12/22/2015 06:17:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:14 PM: Tracker is 6.18084812164 seconds old
+DEBUG 12/22/2015 06:17:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:15 PM: Tracker is 7.18439221382 seconds old
+DEBUG 12/22/2015 06:17:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:16 PM: Tracker is 8.18602919579 seconds old
+DEBUG 12/22/2015 06:17:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808227.920946'}
+DEBUG 12/22/2015 06:17:17 PM: Tracker is 9.18768310547 seconds old
+DEBUG 12/22/2015 06:17:17 PM: []
+DEBUG 12/22/2015 06:17:17 PM: udp://172.30.2.46:6969/announce!1450808237.931345
+
+DEBUG 12/22/2015 06:17:17 PM: received message: udp://172.30.2.46:6969/announce!1450808237.931345
+
+DEBUG 12/22/2015 06:17:17 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:17 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}]
+DEBUG 12/22/2015 06:17:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:18 PM: Tracker is 0.178920984268 seconds old
+DEBUG 12/22/2015 06:17:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:19 PM: Tracker is 1.18017411232 seconds old
+DEBUG 12/22/2015 06:17:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:20 PM: Tracker is 2.18254494667 seconds old
+DEBUG 12/22/2015 06:17:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:21 PM: Tracker is 3.18390893936 seconds old
+DEBUG 12/22/2015 06:17:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:22 PM: Tracker is 4.18561697006 seconds old
+DEBUG 12/22/2015 06:17:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:23 PM: Tracker is 5.18739700317 seconds old
+DEBUG 12/22/2015 06:17:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:24 PM: Tracker is 6.18913197517 seconds old
+DEBUG 12/22/2015 06:17:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:25 PM: Tracker is 7.19215798378 seconds old
+DEBUG 12/22/2015 06:17:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:26 PM: Tracker is 8.1929359436 seconds old
+DEBUG 12/22/2015 06:17:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808237.931345'}
+DEBUG 12/22/2015 06:17:27 PM: Tracker is 9.19471001625 seconds old
+DEBUG 12/22/2015 06:17:27 PM: []
+DEBUG 12/22/2015 06:17:27 PM: udp://172.30.2.46:6969/announce!1450808247.941914
+
+DEBUG 12/22/2015 06:17:27 PM: received message: udp://172.30.2.46:6969/announce!1450808247.941914
+
+DEBUG 12/22/2015 06:17:27 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:27 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}]
+DEBUG 12/22/2015 06:17:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:28 PM: Tracker is 0.185921907425 seconds old
+DEBUG 12/22/2015 06:17:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:29 PM: Tracker is 1.18768596649 seconds old
+DEBUG 12/22/2015 06:17:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:30 PM: Tracker is 2.19011497498 seconds old
+DEBUG 12/22/2015 06:17:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:31 PM: Tracker is 3.19165992737 seconds old
+DEBUG 12/22/2015 06:17:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:32 PM: Tracker is 4.19345283508 seconds old
+DEBUG 12/22/2015 06:17:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:33 PM: Tracker is 5.19517302513 seconds old
+DEBUG 12/22/2015 06:17:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:34 PM: Tracker is 6.19677400589 seconds old
+DEBUG 12/22/2015 06:17:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:35 PM: Tracker is 7.19956493378 seconds old
+DEBUG 12/22/2015 06:17:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:36 PM: Tracker is 8.20126080513 seconds old
+DEBUG 12/22/2015 06:17:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808247.941914'}
+DEBUG 12/22/2015 06:17:37 PM: Tracker is 9.20194888115 seconds old
+DEBUG 12/22/2015 06:17:37 PM: []
+DEBUG 12/22/2015 06:17:37 PM: udp://172.30.2.46:6969/announce!1450808257.952458
+
+DEBUG 12/22/2015 06:17:37 PM: received message: udp://172.30.2.46:6969/announce!1450808257.952458
+
+DEBUG 12/22/2015 06:17:37 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:37 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}]
+DEBUG 12/22/2015 06:17:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:38 PM: Tracker is 0.19317317009 seconds old
+DEBUG 12/22/2015 06:17:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:39 PM: Tracker is 1.19496512413 seconds old
+DEBUG 12/22/2015 06:17:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:40 PM: Tracker is 2.1974542141 seconds old
+DEBUG 12/22/2015 06:17:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:41 PM: Tracker is 3.19914698601 seconds old
+DEBUG 12/22/2015 06:17:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:42 PM: Tracker is 4.2008960247 seconds old
+DEBUG 12/22/2015 06:17:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:43 PM: Tracker is 5.20265316963 seconds old
+DEBUG 12/22/2015 06:17:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:44 PM: Tracker is 6.20437121391 seconds old
+DEBUG 12/22/2015 06:17:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:45 PM: Tracker is 7.2069940567 seconds old
+DEBUG 12/22/2015 06:17:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:46 PM: Tracker is 8.20876407623 seconds old
+DEBUG 12/22/2015 06:17:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808257.952458'}
+DEBUG 12/22/2015 06:17:47 PM: Tracker is 9.21059417725 seconds old
+DEBUG 12/22/2015 06:17:47 PM: []
+DEBUG 12/22/2015 06:17:47 PM: udp://172.30.2.46:6969/announce!1450808267.964418
+
+DEBUG 12/22/2015 06:17:47 PM: received message: udp://172.30.2.46:6969/announce!1450808267.964418
+
+DEBUG 12/22/2015 06:17:47 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:47 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}]
+DEBUG 12/22/2015 06:17:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:48 PM: Tracker is 0.200294971466 seconds old
+DEBUG 12/22/2015 06:17:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:49 PM: Tracker is 1.20205903053 seconds old
+DEBUG 12/22/2015 06:17:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:50 PM: Tracker is 2.20453000069 seconds old
+DEBUG 12/22/2015 06:17:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:51 PM: Tracker is 3.2063331604 seconds old
+DEBUG 12/22/2015 06:17:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:52 PM: Tracker is 4.20798206329 seconds old
+DEBUG 12/22/2015 06:17:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:53 PM: Tracker is 5.21003603935 seconds old
+DEBUG 12/22/2015 06:17:54 PM: New files detected: ['big-buck-bunny_trailer.webm']
+DEBUG 12/22/2015 06:17:54 PM: Generating torrent file for: big-buck-bunny_trailer.webm
+DEBUG 12/22/2015 06:17:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:54 PM: Tracker is 6.21168613434 seconds old
+DEBUG 12/22/2015 06:17:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:55 PM: Tracker is 7.21488118172 seconds old
+DEBUG 12/22/2015 06:17:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:56 PM: Tracker is 8.21583294868 seconds old
+DEBUG 12/22/2015 06:17:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808267.964418'}
+DEBUG 12/22/2015 06:17:57 PM: Tracker is 9.21756696701 seconds old
+DEBUG 12/22/2015 06:17:57 PM: []
+DEBUG 12/22/2015 06:17:57 PM: udp://172.30.2.46:6969/announce!1450808277.973259
+
+DEBUG 12/22/2015 06:17:57 PM: received message: udp://172.30.2.46:6969/announce!1450808277.973259
+
+DEBUG 12/22/2015 06:17:57 PM: TorrentList:[]
+DEBUG 12/22/2015 06:17:57 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808277.973259'}]
+DEBUG 12/22/2015 06:17:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808277.973259'}
+DEBUG 12/22/2015 06:17:58 PM: Tracker is 0.21040391922 seconds old
+DEBUG 12/22/2015 06:17:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808277.973259'}
+DEBUG 12/22/2015 06:17:59 PM: Tracker is 1.21135997772 seconds old
+DEBUG 12/22/2015 06:18:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808277.973259'}
+DEBUG 12/22/2015 06:18:00 PM: Tracker is 2.21332406998 seconds old
+DEBUG 12/22/2015 06:21:01 PM: main message
+DEBUG 12/22/2015 06:21:01 PM: TorrentList:[]
+DEBUG 12/22/2015 06:21:01 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}]
+DEBUG 12/22/2015 06:21:01 PM: []
+DEBUG 12/22/2015 06:21:01 PM: udp://172.30.2.46:6969/announce!1450808461.770592
+
+DEBUG 12/22/2015 06:21:01 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:21:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:01 PM: Tracker is 0.00612497329712 seconds old
+DEBUG 12/22/2015 06:21:01 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:21:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:02 PM: Tracker is 1.00768208504 seconds old
+DEBUG 12/22/2015 06:21:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:03 PM: Tracker is 2.00925803185 seconds old
+DEBUG 12/22/2015 06:21:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:04 PM: Tracker is 3.0108320713 seconds old
+DEBUG 12/22/2015 06:21:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:05 PM: Tracker is 4.0124809742 seconds old
+DEBUG 12/22/2015 06:21:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:06 PM: Tracker is 5.014108181 seconds old
+DEBUG 12/22/2015 06:21:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:07 PM: Tracker is 6.01570320129 seconds old
+DEBUG 12/22/2015 06:21:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:08 PM: Tracker is 7.01742005348 seconds old
+DEBUG 12/22/2015 06:21:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:09 PM: Tracker is 8.01893615723 seconds old
+DEBUG 12/22/2015 06:21:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808461.767598'}
+DEBUG 12/22/2015 06:21:10 PM: Tracker is 9.02011108398 seconds old
+DEBUG 12/22/2015 06:21:11 PM: []
+DEBUG 12/22/2015 06:21:11 PM: udp://172.30.2.46:6969/announce!1450808471.779068
+
+DEBUG 12/22/2015 06:21:11 PM: received message: udp://172.30.2.46:6969/announce!1450808471.779068
+
+DEBUG 12/22/2015 06:21:11 PM: TorrentList:[]
+DEBUG 12/22/2015 06:21:11 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}]
+DEBUG 12/22/2015 06:21:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:11 PM: Tracker is 0.00960111618042 seconds old
+DEBUG 12/22/2015 06:21:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:12 PM: Tracker is 1.01097393036 seconds old
+DEBUG 12/22/2015 06:21:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:13 PM: Tracker is 2.01216292381 seconds old
+DEBUG 12/22/2015 06:21:14 PM: New files detected: ['big-buck-bunny_trailer.webm']
+DEBUG 12/22/2015 06:21:14 PM: Generating torrent file for: big-buck-bunny_trailer.webm
+DEBUG 12/22/2015 06:21:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:14 PM: Tracker is 3.01793909073 seconds old
+DEBUG 12/22/2015 06:21:14 PM: Adding torrent big-buck-bunny_trailer.torrent to BitTorrent session
+DEBUG 12/22/2015 06:21:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:15 PM: Tracker is 4.01959109306 seconds old
+DEBUG 12/22/2015 06:21:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:16 PM: Tracker is 5.02272391319 seconds old
+DEBUG 12/22/2015 06:21:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:17 PM: Tracker is 6.02433395386 seconds old
+DEBUG 12/22/2015 06:21:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:18 PM: Tracker is 7.02595710754 seconds old
+DEBUG 12/22/2015 06:21:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:19 PM: Tracker is 8.02756309509 seconds old
+DEBUG 12/22/2015 06:21:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:20 PM: Tracker is 9.02843689919 seconds old
+DEBUG 12/22/2015 06:21:21 PM: ['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:21:21 PM: Checking torrent: big-buck-bunny_trailer.torrent
+DEBUG 12/22/2015 06:21:21 PM: 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
+DEBUG 12/22/2015 06:21:21 PM: udp://172.30.2.46:6969/announce!1450808481.791265!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:21:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:21 PM: Tracker is 10.0306921005 seconds old
+DEBUG 12/22/2015 06:21:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:22 PM: Tracker is 11.0322620869 seconds old
+DEBUG 12/22/2015 06:21:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808471.779068'}
+DEBUG 12/22/2015 06:21:23 PM: Tracker is 12.0338540077 seconds old
+DEBUG 12/22/2015 06:21:24 PM: received message: udp://172.30.2.46:6969/announce!1450808481.791265!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:21:24 PM: TorrentList:['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:21:24 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}]
+DEBUG 12/22/2015 06:21:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:24 PM: Tracker is 3.02306509018 seconds old
+DEBUG 12/22/2015 06:21:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:25 PM: Tracker is 4.02467608452 seconds old
+DEBUG 12/22/2015 06:21:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:26 PM: Tracker is 5.0271089077 seconds old
+DEBUG 12/22/2015 06:21:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:27 PM: Tracker is 6.02868795395 seconds old
+DEBUG 12/22/2015 06:21:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:28 PM: Tracker is 7.03026294708 seconds old
+DEBUG 12/22/2015 06:21:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:29 PM: Tracker is 8.03188800812 seconds old
+DEBUG 12/22/2015 06:21:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:30 PM: Tracker is 9.03345799446 seconds old
+DEBUG 12/22/2015 06:21:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:31 PM: Tracker is 10.0358378887 seconds old
+DEBUG 12/22/2015 06:21:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:32 PM: Tracker is 11.0374400616 seconds old
+DEBUG 12/22/2015 06:21:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:33 PM: Tracker is 12.0390429497 seconds old
+DEBUG 12/22/2015 06:21:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:34 PM: Tracker is 13.0396399498 seconds old
+DEBUG 12/22/2015 06:21:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:35 PM: Tracker is 14.0412790775 seconds old
+DEBUG 12/22/2015 06:21:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:36 PM: Tracker is 15.04428792 seconds old
+DEBUG 12/22/2015 06:21:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:37 PM: Tracker is 16.0458710194 seconds old
+DEBUG 12/22/2015 06:21:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:38 PM: Tracker is 17.047524929 seconds old
+DEBUG 12/22/2015 06:21:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:39 PM: Tracker is 18.0491490364 seconds old
+DEBUG 12/22/2015 06:21:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:40 PM: Tracker is 19.050770998 seconds old
+DEBUG 12/22/2015 06:21:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:41 PM: Tracker is 20.0533239841 seconds old
+DEBUG 12/22/2015 06:21:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:42 PM: Tracker is 21.0549108982 seconds old
+DEBUG 12/22/2015 06:21:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:43 PM: Tracker is 22.0565500259 seconds old
+DEBUG 12/22/2015 06:21:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:44 PM: Tracker is 23.0581459999 seconds old
+DEBUG 12/22/2015 06:21:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:45 PM: Tracker is 24.0597250462 seconds old
+DEBUG 12/22/2015 06:21:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:46 PM: Tracker is 25.0624740124 seconds old
+DEBUG 12/22/2015 06:21:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:47 PM: Tracker is 26.0641410351 seconds old
+DEBUG 12/22/2015 06:21:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:48 PM: Tracker is 27.0657548904 seconds old
+DEBUG 12/22/2015 06:21:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:49 PM: Tracker is 28.0673670769 seconds old
+DEBUG 12/22/2015 06:21:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:50 PM: Tracker is 29.0689549446 seconds old
+DEBUG 12/22/2015 06:21:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:51 PM: Tracker is 30.071395874 seconds old
+DEBUG 12/22/2015 06:21:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:52 PM: Tracker is 31.0729899406 seconds old
+DEBUG 12/22/2015 06:21:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:53 PM: Tracker is 32.0745739937 seconds old
+DEBUG 12/22/2015 06:21:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:54 PM: Tracker is 33.0761640072 seconds old
+DEBUG 12/22/2015 06:21:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:55 PM: Tracker is 34.0777850151 seconds old
+DEBUG 12/22/2015 06:21:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:56 PM: Tracker is 35.0822739601 seconds old
+DEBUG 12/22/2015 06:21:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:57 PM: Tracker is 36.0838968754 seconds old
+DEBUG 12/22/2015 06:21:58 PM: ['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:21:58 PM: Checking torrent: big-buck-bunny_trailer.torrent
+DEBUG 12/22/2015 06:21:58 PM: ZDg6YW5ub3VuY2UzMTp1ZHA6Ly8xNzIuMzAuMi40Njo2OTY5L2Fubm91bmNlNzpjb21tZW50NDp0ZXN0MTA6Y3JlYXRlZCBieTIwOmxpYnRvcnJlbnQgMC4xNi4xMy4wMTM6Y3JlYXRpb24gZGF0ZWkxNDUwODA4NDc0ZTQ6aW5mb2Q2Omxlbmd0aGkyMTY1MTc1ZTQ6bmFtZTI3OmJpZy1idWNrLWJ1bm55X3RyYWlsZXIud2VibTEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczI2NjA6PHz9f/dWs7yyT4Se9VCpqDnEI3CYuT+8LSJwu2oBjsuRBiP45+sXfK7bHbcoWQgJA9+kkXrh1sMrL/pt7T5sgMlCyuCD9nX8xxuWV9I5hJyWKw4gIZVGgdk+g7kSQU+uo2Hpi3kKAVTCDzm9Vam+fynXqsMaSzlkSrctJlvHoPgNC7zH3LPy5UU0TGEoUY0sNXwnBfh12Or3ZZnf9sX4tp/IszApgt/teGT9VsY08klE8pJiocY6GLR/RRSFvmzWEYG0BBJj4UUd+yLWw0lqMQONxVMvuJa+esVben/WjrjazkV4iVL4O/S+iLZqwft0NPNFUzD98ApQRC1ZULEka/biJSbeC8xHncp6nUG0+H+XQMM+I0GoMTkv6boXl8fffJnUJdZWjy5ifRlt0xjZcsB34r0meACTNVOLUVAVCeKUnha/Jp84uFOL4woGggSoF5XxMtXW9e2M2ralwBZfCenpZIOcBG0+cGV7jEYvOu14wcTNhvD6MF0apyZFrrJRhdzbQdInUOj8egQye5yJZSIyje3UWmwdHJrC0umbbTKECq3183ON5WDHm/Xsdvp/lUp4xxujNv8wXN70v8B9W46f3vYe6n8rUqTuxnLYD4oFUA/+5hja/p5bzeq8Q2yW9qxuO86SELzvB8wBz5jiBZc/5eKH9A+Yt0by/Rc6n5IQiw5ESOHoXKJkmmDWyFEUvV5e5G2/K3CKP3oooae9POhJgoy4fAqn0klBibLlDUZDsbuqG2rjNfYi6bY+E1vOFXVvbsaUJJC5glM6Mh8fJYuJPHWkOV63S+IlOQsPk+9pI/OPFmSuxKVl67w8y2lfcxnVETPUhBiZrW0aRfxaVVDBEyzQp/gsniiPQso/3Nw+XV3nl7cCSUlfC8Y1VrjCN4g3FDal9LmYU0+aTMQoBA6v2kYMX+BxSW6LS4bs8+Bjmod0Kef4B0pgJUcRZwnZ1sN263lPES49QAztDDfaZamAHotyljDn3r5BVoNhyLREK1CnoWcf1OZYeFHlMvpf5qaMdwMI08pb2W1h2lQ2Gerv7CJcIvC38rivCki+bXcEL5gdq/cAXgntH+fhIiO2Z1gxbRnCrqpH4NrmEfJoMAD+3NCzur4wxlqxb8g9zImFUTSPSntAjB5t6qCvvGDsp3bzGnLmT/Xz/suOXhCWSDlf4x1BjFiPfQP0VCkOI4Wx6fr31DbioxtsEgSmUIHXj1VcXZO1zf9IgRphalemt0lpwaRA2SsuxZlTuOswuhTKnr4UJYmjNA2bB+/c4OnJN5pZG+Vh0HIaGjAlpl/XKmnPqvVBNp3L9pJ4cNE0egvwb+qPZy3uc2NgRZ5bAQ9qDSsolit5DuBb9DUDcSoLVsao0Hn45UR6naikDlv9m/rTi0XVO7h7K/zm9WPkqARm4W9iF2QLrdW/IBx4JJ+5NHezk95EESyHtLxfAKKLUc2vWIwXPmVK+q1ch2sGoJT33DHZMR7M6P+k9AI91jIz3aKxOtMpUIETb2qHEASOWe7CAkGZe4WalcE/5gu+Iy42uQxp9RA83Zl1HmSVl/tG5BOB5v8Yg+2CkpgeJBMFRQidwSpOPV4pmINo4HekhTPxEGYpJT51IpzlPjSN/EPtAU9gOkGyy59I1WelafqpiqfD9MOGcIPS95etrdwfdJP3s6WLXA8goxI+cLvR5V2qdkVRaSvyV5eNE6E2D2up1FjhNI3DBs6F6pa78BAwyHWSYjH3rI5moEUOTFIXgIeOI/+gZNng2TwgL63TmU8M3Id/8O8fVjvxU4glRMgKUTRvUcBydgtPS7YPi3lX7Il7rwXiDELsXeOxn3YjMllV9syzNog0r9KP/lFfmMLWz9ik6ntlnOYc4BIQfRi3wIOd2VV2cVGdyY5DUFMxMe4b0VfMs9wc7kD+QE9MODYbJgK2e/B3Z64bI9vTwG5JssT8Snxvk5KxzduSAs1Ga2yc6Jhc4/kX3vknSsFthiR6IFOdH5itb6ynyAqepBhzCTV5WQEqF4rx6h0iEkNa1SjL3V8uqwy/9BYIzCnIfoMkB8IBzOv6WlbvNrIqipSblhi2u0QfG3NiiuGjggAkOuxGwZHPbOEx9ChTL2M6cZFY6QJeB1PH91GAk7s019JfxK0fjC32vZXEBGZdi+H7h9rgKszuM7QTvN9ffoypYILWpqrcO6Vx3/wyPRKhJ6g88lhIhDmOQAyUG0PyKYrvl2pX0LtqblfwHJNLNJOYT58jqwHv4LL53gvgBC9unIKmBGCGZOT90gliRwkoJVYOLOSSJPGflDRkbLCvzZzy5HE4jvsrY+n9agKBGFvsoWZsxqENQJOPyvCnc/595MMvYCIeHUaWtE1eFqGCPTG8oz+S1+H3ObwzBQzjGGOaYVPZ47cGni5CShVm041wi9qDxZ2SCDnflhFNiNrRtcTjkuqgF2+3K1ltk5JD1MadWIklf2FGmsYhKVQlPJb1g0/En2taUs6Pc7mqO3DF98GmTiytQFlAJ+TK7YAipuHH0UTtTeOBM9Zz4d4tjy/L0MB0M+BmAtoe2lB/NBgQB4xwQbe7Ka0piM6nETw3UChs8nLC+fwBqvPLA1slZ6X/ilre5NLWOQmSoC6+3w5DN38fP7vGfo9hO1Ca1wUsWAtlJabklowjle2QoSOd4zAKY2pQP9cN9nvlYBE6CpV57bzT0+R3WmJLqSWCo0OqKlTQCnZJJO4iFsxmzZ8u8d3gVtqCLICl1Jx/vMaAS9S+IR3RbhSfOb1aeKx9MmbHfC98AQt1W/vW7pSmfk/sw4bT3Xa8b4TfpZb3g6Afjwh+4ymcNLW4bt4aFDRKv4nfdmgVxY05ZxnBRxzUjT+ELDZAB2a6E8M9qsZ3hhbj8dIiFoySO2mlCe2BOnpQXqufZews2bkk+7TIbq9rI3PeURExcqIp5kNTlJt5fb2jWkbNhBWfsjDvUAAxSDyEaXNizMDNHjglfdxEQTc6MBuOf/+D3pnLp2i9DqpavTY3XlZfymNMa0FrBDFgtm8fC1BtHYvHOqvBG/9yaZJoUW7rDowUPBLYrTpDqU6zQCd1NKDHBtnnw1ZBMXTlMe32aBUC+LolEuwVClFlwjhlfODOjo/6yjyF453PRfcXP2jTKYMW75Vc+ot68nEClHHd4YES4aOtDtcyEu3nxfDH/xQzbL0F1xyv2lMLg2jS4qg8Co22bODSxKEiNmIxi4EpG0hz4po83Rmm20/rT+cjYElvJ8aKZtTmfYoR4UERN8+eBhYP21fbYxycVWaSyV3ZqF/gz4ZadCFXwYgXHXWYK5pey5Uu0EFFvVR/olq1MjqhJLrRdIpWKovCrwB0/aj2v1hYXnmD20GmrWwQgxiYL/ZZjJq627j5LZ8VdTzVto/5lSDXmJlFW9zQ+DkRBeLEtGAPWUueWkFhUdZMp8gqVTbQCRJFOupm4s2PjS9McGv1zDCQuPGZUL8dKFRTfXCVFVWG4ABYh2vuBT5R4kmV4ZAtuRQnTceLx+PE+YbQfcWR2j3z8YtShfKmCs7bXSaTlRJzYxeyf5GQUBA9t07/oiVlZQ==
+DEBUG 12/22/2015 06:21:58 PM: udp://172.30.2.46:6969/announce!1450808518.801706!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:21:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:58 PM: Tracker is 37.0854189396 seconds old
+DEBUG 12/22/2015 06:21:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:21:59 PM: Tracker is 38.0869910717 seconds old
+DEBUG 12/22/2015 06:22:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808481.791265'}
+DEBUG 12/22/2015 06:22:00 PM: Tracker is 39.0885589123 seconds old
+DEBUG 12/22/2015 06:22:01 PM: received message: udp://172.30.2.46:6969/announce!1450808518.801706!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:22:01 PM: TorrentList:['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:22:01 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}]
+DEBUG 12/22/2015 06:22:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:01 PM: Tracker is 3.08044981956 seconds old
+DEBUG 12/22/2015 06:22:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:02 PM: Tracker is 4.08211493492 seconds old
+DEBUG 12/22/2015 06:22:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:03 PM: Tracker is 5.08372998238 seconds old
+DEBUG 12/22/2015 06:22:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:04 PM: Tracker is 6.0852959156 seconds old
+DEBUG 12/22/2015 06:22:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:05 PM: Tracker is 7.08688688278 seconds old
+DEBUG 12/22/2015 06:22:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:06 PM: Tracker is 8.08946084976 seconds old
+DEBUG 12/22/2015 06:22:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:07 PM: Tracker is 9.09104990959 seconds old
+DEBUG 12/22/2015 06:22:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:08 PM: Tracker is 10.0926568508 seconds old
+DEBUG 12/22/2015 06:22:09 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:09 PM: Tracker is 11.0938298702 seconds old
+DEBUG 12/22/2015 06:22:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:10 PM: Tracker is 12.0954649448 seconds old
+DEBUG 12/22/2015 06:22:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:11 PM: Tracker is 13.0983328819 seconds old
+DEBUG 12/22/2015 06:22:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:12 PM: Tracker is 14.0999498367 seconds old
+DEBUG 12/22/2015 06:22:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:13 PM: Tracker is 15.1015248299 seconds old
+DEBUG 12/22/2015 06:22:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:14 PM: Tracker is 16.1031348705 seconds old
+DEBUG 12/22/2015 06:22:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:15 PM: Tracker is 17.1047840118 seconds old
+DEBUG 12/22/2015 06:22:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:16 PM: Tracker is 18.1071519852 seconds old
+DEBUG 12/22/2015 06:22:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:17 PM: Tracker is 19.1087479591 seconds old
+DEBUG 12/22/2015 06:22:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:18 PM: Tracker is 20.1103718281 seconds old
+DEBUG 12/22/2015 06:22:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:19 PM: Tracker is 21.111976862 seconds old
+DEBUG 12/22/2015 06:22:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:20 PM: Tracker is 22.1136269569 seconds old
+DEBUG 12/22/2015 06:22:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:21 PM: Tracker is 23.1159698963 seconds old
+DEBUG 12/22/2015 06:22:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:22 PM: Tracker is 24.117595911 seconds old
+DEBUG 12/22/2015 06:22:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:23 PM: Tracker is 25.1192150116 seconds old
+DEBUG 12/22/2015 06:22:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:24 PM: Tracker is 26.1208000183 seconds old
+DEBUG 12/22/2015 06:22:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:25 PM: Tracker is 27.1223900318 seconds old
+DEBUG 12/22/2015 06:22:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:26 PM: Tracker is 28.1248500347 seconds old
+DEBUG 12/22/2015 06:22:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:27 PM: Tracker is 29.1265099049 seconds old
+DEBUG 12/22/2015 06:22:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:28 PM: Tracker is 30.128139019 seconds old
+DEBUG 12/22/2015 06:22:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:29 PM: Tracker is 31.1297550201 seconds old
+DEBUG 12/22/2015 06:22:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:30 PM: Tracker is 32.131403923 seconds old
+DEBUG 12/22/2015 06:22:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:31 PM: Tracker is 33.1339688301 seconds old
+DEBUG 12/22/2015 06:22:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:32 PM: Tracker is 34.1355719566 seconds old
+DEBUG 12/22/2015 06:22:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:33 PM: Tracker is 35.1371819973 seconds old
+DEBUG 12/22/2015 06:22:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:34 PM: Tracker is 36.1387758255 seconds old
+DEBUG 12/22/2015 06:22:35 PM: ['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:22:35 PM: Checking torrent: big-buck-bunny_trailer.torrent
+DEBUG 12/22/2015 06:22:35 PM: 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
+DEBUG 12/22/2015 06:22:35 PM: udp://172.30.2.46:6969/announce!1450808555.801165!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:22:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:35 PM: Tracker is 37.1404218674 seconds old
+DEBUG 12/22/2015 06:22:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:36 PM: Tracker is 38.142925024 seconds old
+DEBUG 12/22/2015 06:22:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808518.801706'}
+DEBUG 12/22/2015 06:22:37 PM: Tracker is 39.1445679665 seconds old
+DEBUG 12/22/2015 06:22:38 PM: received message: udp://172.30.2.46:6969/announce!1450808555.801165!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:22:38 PM: TorrentList:['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:22:38 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}]
+DEBUG 12/22/2015 06:22:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:38 PM: Tracker is 3.14667797089 seconds old
+DEBUG 12/22/2015 06:22:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:39 PM: Tracker is 4.14706397057 seconds old
+DEBUG 12/22/2015 06:22:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:40 PM: Tracker is 5.14862895012 seconds old
+DEBUG 12/22/2015 06:22:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:41 PM: Tracker is 6.15164589882 seconds old
+DEBUG 12/22/2015 06:22:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:42 PM: Tracker is 7.15328598022 seconds old
+DEBUG 12/22/2015 06:22:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:43 PM: Tracker is 8.15491580963 seconds old
+DEBUG 12/22/2015 06:22:44 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:44 PM: Tracker is 9.1565849781 seconds old
+DEBUG 12/22/2015 06:22:45 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:45 PM: Tracker is 10.1583178043 seconds old
+DEBUG 12/22/2015 06:22:46 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:46 PM: Tracker is 11.1606888771 seconds old
+DEBUG 12/22/2015 06:22:47 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:47 PM: Tracker is 12.1623079777 seconds old
+DEBUG 12/22/2015 06:22:48 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:48 PM: Tracker is 13.1639809608 seconds old
+DEBUG 12/22/2015 06:22:49 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:49 PM: Tracker is 14.1655738354 seconds old
+DEBUG 12/22/2015 06:22:50 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:50 PM: Tracker is 15.1663999557 seconds old
+DEBUG 12/22/2015 06:22:51 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:51 PM: Tracker is 16.1687779427 seconds old
+DEBUG 12/22/2015 06:22:52 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:52 PM: Tracker is 17.1704177856 seconds old
+DEBUG 12/22/2015 06:22:53 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:53 PM: Tracker is 18.1720519066 seconds old
+DEBUG 12/22/2015 06:22:54 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:54 PM: Tracker is 19.1736729145 seconds old
+DEBUG 12/22/2015 06:22:55 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:55 PM: Tracker is 20.1744120121 seconds old
+DEBUG 12/22/2015 06:22:56 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:56 PM: Tracker is 21.1770689487 seconds old
+DEBUG 12/22/2015 06:22:57 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:57 PM: Tracker is 22.1786818504 seconds old
+DEBUG 12/22/2015 06:22:58 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:58 PM: Tracker is 23.180300951 seconds old
+DEBUG 12/22/2015 06:22:59 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:22:59 PM: Tracker is 24.1819038391 seconds old
+DEBUG 12/22/2015 06:23:00 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:00 PM: Tracker is 25.1834998131 seconds old
+DEBUG 12/22/2015 06:23:01 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:01 PM: Tracker is 26.1859819889 seconds old
+DEBUG 12/22/2015 06:23:02 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:02 PM: Tracker is 27.1876318455 seconds old
+DEBUG 12/22/2015 06:23:03 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:03 PM: Tracker is 28.1893229485 seconds old
+DEBUG 12/22/2015 06:23:04 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:04 PM: Tracker is 29.1909389496 seconds old
+DEBUG 12/22/2015 06:23:05 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:05 PM: Tracker is 30.1925318241 seconds old
+DEBUG 12/22/2015 06:23:06 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:06 PM: Tracker is 31.1950628757 seconds old
+DEBUG 12/22/2015 06:23:07 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:07 PM: Tracker is 32.1966948509 seconds old
+DEBUG 12/22/2015 06:23:08 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:08 PM: Tracker is 33.1983377934 seconds old
+DEBUG 12/22/2015 06:23:10 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:10 PM: Tracker is 34.1999809742 seconds old
+DEBUG 12/22/2015 06:23:11 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:11 PM: Tracker is 35.201625824 seconds old
+DEBUG 12/22/2015 06:23:12 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:12 PM: Tracker is 36.2041139603 seconds old
+DEBUG 12/22/2015 06:23:12 PM: ['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:23:12 PM: Checking torrent: big-buck-bunny_trailer.torrent
+DEBUG 12/22/2015 06:23:12 PM: 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
+DEBUG 12/22/2015 06:23:12 PM: udp://172.30.2.46:6969/announce!1450808592.809746!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:23:13 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:13 PM: Tracker is 37.205717802 seconds old
+DEBUG 12/22/2015 06:23:14 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:14 PM: Tracker is 38.2073569298 seconds old
+DEBUG 12/22/2015 06:23:15 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808555.801165'}
+DEBUG 12/22/2015 06:23:15 PM: Tracker is 39.2090117931 seconds old
+DEBUG 12/22/2015 06:23:15 PM: received message: udp://172.30.2.46:6969/announce!1450808592.809746!big-buck-bunny_trailer.torrent!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
+
+DEBUG 12/22/2015 06:23:15 PM: TorrentList:['big-buck-bunny_trailer.torrent']
+DEBUG 12/22/2015 06:23:15 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}]
+DEBUG 12/22/2015 06:23:16 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:16 PM: Tracker is 3.20205307007 seconds old
+DEBUG 12/22/2015 06:23:17 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:17 PM: Tracker is 4.20496106148 seconds old
+DEBUG 12/22/2015 06:23:18 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:18 PM: Tracker is 5.20660686493 seconds old
+DEBUG 12/22/2015 06:23:19 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:19 PM: Tracker is 6.20827889442 seconds old
+DEBUG 12/22/2015 06:23:20 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:20 PM: Tracker is 7.20994091034 seconds old
+DEBUG 12/22/2015 06:23:21 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:21 PM: Tracker is 8.21155500412 seconds old
+DEBUG 12/22/2015 06:23:22 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:22 PM: Tracker is 9.21402907372 seconds old
+DEBUG 12/22/2015 06:23:23 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:23 PM: Tracker is 10.2156190872 seconds old
+DEBUG 12/22/2015 06:23:24 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:24 PM: Tracker is 11.2172310352 seconds old
+DEBUG 12/22/2015 06:23:25 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:25 PM: Tracker is 12.218873024 seconds old
+DEBUG 12/22/2015 06:23:26 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:26 PM: Tracker is 13.220468998 seconds old
+DEBUG 12/22/2015 06:23:27 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:27 PM: Tracker is 14.2229509354 seconds old
+DEBUG 12/22/2015 06:23:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:28 PM: Tracker is 15.2245788574 seconds old
+DEBUG 12/22/2015 06:23:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:29 PM: Tracker is 16.2262089252 seconds old
+DEBUG 12/22/2015 06:23:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:30 PM: Tracker is 17.2278439999 seconds old
+DEBUG 12/22/2015 06:23:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:31 PM: Tracker is 18.2294988632 seconds old
+DEBUG 12/22/2015 06:23:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:32 PM: Tracker is 19.2329080105 seconds old
+DEBUG 12/22/2015 06:23:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:33 PM: Tracker is 20.2345759869 seconds old
+DEBUG 12/22/2015 06:23:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:34 PM: Tracker is 21.2362749577 seconds old
+DEBUG 12/22/2015 06:23:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:35 PM: Tracker is 22.2379040718 seconds old
+DEBUG 12/22/2015 06:23:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:36 PM: Tracker is 23.2395539284 seconds old
+DEBUG 12/22/2015 06:23:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:37 PM: Tracker is 24.2420630455 seconds old
+DEBUG 12/22/2015 06:23:38 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:38 PM: Tracker is 25.2437388897 seconds old
+DEBUG 12/22/2015 06:23:39 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:39 PM: Tracker is 26.2454018593 seconds old
+DEBUG 12/22/2015 06:23:40 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:40 PM: Tracker is 27.2470290661 seconds old
+DEBUG 12/22/2015 06:23:41 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:41 PM: Tracker is 28.2486450672 seconds old
+DEBUG 12/22/2015 06:23:42 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:42 PM: Tracker is 29.2512218952 seconds old
+DEBUG 12/22/2015 06:23:43 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808592.809746'}
+DEBUG 12/22/2015 06:23:43 PM: Tracker is 30.2528688908 seconds old
+DEBUG 12/22/2015 06:26:28 PM: main message
+DEBUG 12/22/2015 06:26:28 PM: TorrentList:[]
+DEBUG 12/22/2015 06:26:28 PM: TrackerList:[{'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}]
+DEBUG 12/22/2015 06:26:28 PM: []
+DEBUG 12/22/2015 06:26:28 PM: udp://172.30.2.46:6969/announce!1450808788.963261
+
+DEBUG 12/22/2015 06:26:28 PM: Starting Tracker Expiration Monitoring
+DEBUG 12/22/2015 06:26:28 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:28 PM: Tracker is 0.00755596160889 seconds old
+DEBUG 12/22/2015 06:26:28 PM: Starting File Monitoring Thread
+DEBUG 12/22/2015 06:26:28 PM: New files detected: ['big-buck-bunny_trailer.webm']
+DEBUG 12/22/2015 06:26:28 PM: Generating torrent file for: big-buck-bunny_trailer.webm
+DEBUG 12/22/2015 06:26:28 PM: Adding torrent big-buck-bunny_trailer.torrent to BitTorrent session
+DEBUG 12/22/2015 06:26:29 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:29 PM: Tracker is 1.00911879539 seconds old
+DEBUG 12/22/2015 06:26:30 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:30 PM: Tracker is 2.01070785522 seconds old
+DEBUG 12/22/2015 06:26:31 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:31 PM: Tracker is 3.01231694221 seconds old
+DEBUG 12/22/2015 06:26:32 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:32 PM: Tracker is 4.01393294334 seconds old
+DEBUG 12/22/2015 06:26:33 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:33 PM: Tracker is 5.01546692848 seconds old
+DEBUG 12/22/2015 06:26:34 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:34 PM: Tracker is 6.01711201668 seconds old
+DEBUG 12/22/2015 06:26:35 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:35 PM: Tracker is 7.0188138485 seconds old
+DEBUG 12/22/2015 06:26:36 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:36 PM: Tracker is 8.02046394348 seconds old
+DEBUG 12/22/2015 06:26:37 PM: Processing tracker: {'url': 'udp://172.30.2.46:6969/announce', 'timestamp': '1450808788.960107'}
+DEBUG 12/22/2015 06:26:37 PM: Tracker is 9.02210688591 seconds old

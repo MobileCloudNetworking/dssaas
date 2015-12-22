@@ -17,6 +17,7 @@ class SessionManager:
         self.torrent_handle_list = []
 	conf = Config()
         self.log=logging.getLogger(conf.get('log', 'name'))
+	self.start_session()
 
     def start_session(self):
         self.session = lt.session()
@@ -43,10 +44,12 @@ class SessionManager:
     # Gets a torrent name and adds it to the session and the torrent_handle_list
     def add_torrent(self, torrent_name):
         try:
+	    self.log.debug("Adding torrent " + torrent_name + " to BitTorrent session")
             handler = self.session.add_torrent({'ti': lt.torrent_info(torrent_name), 'save_path': '.', 'seed_mode': True, 'auto_managed': True})
             self.torrent_handle_list.append(handler)
             return True
         except:
+	    self.log.debug("Adding torrent " + torrent_name + " to BitTorrent FAILED!")
             return False
 
     # Gets a torrent name and removes it from the session and the torrent_handle_list
@@ -72,3 +75,9 @@ class SessionManager:
         if target_handler is not None:
             return target_handler.status()
         return None
+
+    def get_torrent_stat_str(self, torrent_name):
+	s = self.get_torrent_stat(torrent_name)
+        state_str = ['queued', 'checking', 'downloading metadata', 'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
+	print('\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
+

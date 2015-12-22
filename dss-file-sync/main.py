@@ -20,14 +20,21 @@ if __name__ == "__main__":
     logger = Log.config_logger(conf.get('log', 'name'))
     logger.debug('main message')
 
+    #init
     file_manager = FileManager()
     tracker_manager = TrackerManager()
     session_manager = SessionManager()
     torrent_manager = TorrentManager(file_manager, session_manager, tracker_manager)
     broadcast_manager = BroadcastManager(file_manager, torrent_manager, tracker_manager)
+
+    #running threads
     broadcast_manager.sendAmazon_broadcast_message()
     broadcast_manager.receive_broadcast_message()
+    tracker_manager.expire_tracker()
+    torrent_manager.check_new_files()
 
-    for i in range(1,180):
-	print "Sleeping...\n"
-	time.sleep(1)
+    for i in range(1,5000):
+	#print "Sleeping...\n"
+	time.sleep(10)
+	for torrent_file in file_manager.list_files('./',['.torrent'])[1]:
+	    session_manager.get_torrent_stat_str(torrent_file)

@@ -14,9 +14,14 @@ from Config import *
 import time
 import threading
 
-class TrackerManager(threading.Thread):
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        threading.Thread(target=fn, args=args, kwargs=kwargs).start()
+    return wrapper
+
+
+class TrackerManager():
     def __init__(self):
-        threading.Thread.__init__(self)
 	conf = Config()
         self.log = logging.getLogger(conf.get('log', 'name'))
 	print conf.get('main','interface')
@@ -26,13 +31,14 @@ class TrackerManager(threading.Thread):
         self.tracker_list.append(self.tracker)
         self.tracker_timeout = int(conf.get('main', 'tracker_timeout'))
 
-    def run(self):
+    @threaded
+    def expire_tracker(self):
         self.log.debug("Starting Tracker Expiration Monitoring")
         # Check time stamp of trackers and make them expire
-        while 1:
+        while True:
             for tracker in self.tracker_list:
                 self.log.debug("Processing tracker: " + str(tracker))
-                diff = time.time() - time.ctime(float(tracker['timestamp']))
+                diff = time.time() - float(tracker['timestamp'])
                 self.log.debug("Tracker is " + str(diff) + " seconds old")
                 if diff > self.tracker_timeout:
                     self.log.debug("Removing tracker " + str(tracker['url']))
