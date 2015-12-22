@@ -12,7 +12,7 @@ import ConfigParser
 
 class Config:
     #init
-    def __init__(self, uri):
+    def __init__(self, uri='./conf/filesync.conf'):
         self.uri = uri
         self.conf = ConfigParser.ConfigParser()
         try:

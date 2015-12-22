@@ -8,14 +8,15 @@ __status__ = "Alpha"
 
 import libtorrent as lt
 import logging
-import Config
+from Config import *
 
 class SessionManager:
 
     def __init__(self):
         self.session = None
         self.torrent_handle_list = []
-        self.log=logging.getLogger(Config.get('log', 'name'))
+	conf = Config()
+        self.log=logging.getLogger(conf.get('log', 'name'))
 
     def start_session(self):
         self.session = lt.session()

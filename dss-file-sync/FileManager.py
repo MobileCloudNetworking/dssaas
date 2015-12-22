@@ -8,13 +8,14 @@ __status__ = "Alpha"
 
 import os
 import logging
-import Config
+from Config import *
 
 class FileManager:
 
     def __init__(self):
         self.file_list = []
-        self.log = logging.getLogger(Config.get('log', 'name'))
+	conf = Config()
+        self.log = logging.getLogger(conf.get('log', 'name'))
 
     # Lists all the file with specified extensions in specified path
     # Note: Needs to be called to snapshot the new list of files after remove or remove_all operations

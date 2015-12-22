@@ -9,18 +9,19 @@ __status__ = "Alpha"
 import libtorrent as lt
 import base64
 import logging
-import Config
+from Config import *
 import time
 import threading
 
 class TorrentManager(threading.Thread):
     def __init__(self, file_manager, session_manager, tracker_manager):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger(Config.get('log', 'name'))
+	conf = Config()
+        self.log = logging.getLogger(conf.get('log', 'name'))
         self.fm = file_manager
         self.sm = session_manager
         self.tm = tracker_manager
-        self.path = Config.get('main', 'path')
+        self.path = conf.get('main', 'path')
         self.torrent_list = self.fm.list_files('.', ['.torrent'])[1]
 
     def run(self):
@@ -68,3 +69,16 @@ class TorrentManager(threading.Thread):
             encoded_string = base64.b64encode(torrent_file.read())
         self.log.debug(str(encoded_string))
         return encoded_string
+
+    #self.tm.recreate_all_torrents()
+    def recreate_all_torrents(self):
+	for filename in self.fm.list_files(self.path, ['.webm'])[1]:
+            self.create_torrent(self.path,filename.split('.')[0] + '.torrent')
+	
+    #self.tm.save_torrent(torrent_name,torrent_content)
+    def save_torrent(self,torrent_name,torrent_content):
+        if (torrent_name not in self.get_torrent_list()):
+            with open(self.path + torrent_name, "wb") as torrentfileh:
+                torrentfileh.write(base64.b64decode(torrent_content))
+            #now I might add it to the session to start downloading
+
