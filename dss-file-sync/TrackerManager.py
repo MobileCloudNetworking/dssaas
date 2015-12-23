@@ -22,14 +22,14 @@ def threaded(fn):
 
 class TrackerManager():
     def __init__(self):
-	conf = Config()
-        self.log = logging.getLogger(conf.get('log', 'name'))
-	print conf.get('main','interface')
-	iface = str(conf.get('main','interface'))
+        self.conf = Config()
+        self.log = logging.getLogger(self.conf.get('log', 'name'))
+        print self.conf.get('main', 'interface')
+        iface = str(self.conf.get('main', 'interface'))
         self.tracker = {'url': 'udp://'+str(self.get_ip_address(iface))+':6969/announce', 'timestamp': repr(time.time())}
         self.tracker_list = []
         self.tracker_list.append(self.tracker)
-        self.tracker_timeout = int(conf.get('main', 'tracker_timeout'))
+        self.tracker_timeout = int(self.conf.get('main', 'tracker_timeout'))
 
     @threaded
     def expire_tracker(self):
@@ -43,11 +43,11 @@ class TrackerManager():
                 if diff > self.tracker_timeout:
                     self.log.debug("Removing tracker " + str(tracker['url']))
                     self.remove_tracker(tracker)
-		    #tracker will be removed in next torrent recreation so we don't recreate torrents here
+            #tracker will be removed in next torrent recreation so we don't recreate torrents here
             time.sleep(1)
         self.log.debug("Exiting Tracker Expiration Monitoring")
 
-    def get_ip_address(self,ifname):
+    def get_ip_address(self, ifname):
         s = socket(AF_INET, SOCK_DGRAM)
         return inet_ntoa(fcntl.ioctl( s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
@@ -65,11 +65,11 @@ class TrackerManager():
 
     #is_new = self.tkm.update_tracker(tracker_struct)
     def update_tracker(self, tracker_struct):
-	for tracker in self.tracker_list:
-	   if tracker['url'] == tracker_struct['url']:
-		#we had the tracker before, i just update the timestamp
-		tracker['timestamp'] = tracker_struct['timestamp']
-		return False
-	#it is new, we add it
-	self.add_tracker(tracker_struct)
-	return True
+        for tracker in self.tracker_list:
+            if tracker['url'] == tracker_struct['url']:
+                #we had the tracker before, i just update the timestamp
+                tracker['timestamp'] = tracker_struct['timestamp']
+                return False
+        #it is new, we add it
+        self.add_tracker(tracker_struct)
+        return True

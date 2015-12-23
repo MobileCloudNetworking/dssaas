@@ -21,12 +21,12 @@ def threaded(fn):
 
 class TorrentManager():
     def __init__(self, file_manager, session_manager, tracker_manager):
-	conf = Config()
-        self.log = logging.getLogger(conf.get('log', 'name'))
+        self.conf = Config()
+        self.log = logging.getLogger(self.conf.get('log', 'name'))
         self.fm = file_manager
         self.sm = session_manager
         self.tm = tracker_manager
-        self.path = conf.get('main', 'path')
+        self.path = self.conf.get('main', 'path')
         self.torrent_list = self.fm.list_files('.', ['.torrent'])[1]
 
     @threaded
@@ -47,11 +47,11 @@ class TorrentManager():
         if called_from == 'check_new_files' or called_from == 'save_torrent':
             self.sm.add_torrent(torrent_name)
         elif called_from == 'recreate_all_torrents':
-	    #self.sm.remove_torrent(torrent_name)
-	    added = False
-	    while not added:
-		time.sleep(5)
-		added = self.sm.add_torrent(torrent_name)
+            #self.sm.remove_torrent(torrent_name)
+            added = False
+            while not added:
+                time.sleep(5)
+                added = self.sm.add_torrent(torrent_name)
 
     def create_torrent(self, filename, torrentname, comment='test', path=None):
         if path is None:
@@ -66,8 +66,8 @@ class TorrentManager():
         t.set_comment(comment)
         lt.set_piece_hashes(t, path)
         torrent = t.generate()
-	#let's move this to fm class
-	self.fm.create_file(path, torrentname, lt.bencode(torrent))
+        #let's move this to fm class
+        self.fm.create_file(path, torrentname, lt.bencode(torrent))
         #f = open(path + torrentname, "wb")
         #f.write(lt.bencode(torrent))
         #f.close()
@@ -78,23 +78,23 @@ class TorrentManager():
 
     def get_torrent_content(self, torrent_name):
         #retrieve the content and encode base64
-	encoded_string = base64.b64encode(self.fm.read_file(self.path,torrent_name))
-	#self.log.debug(str(encoded_string))
+        encoded_string = base64.b64encode(self.fm.read_file(self.path,torrent_name))
+        #self.log.debug(str(encoded_string))
         return encoded_string
 
     #self.tm.recreate_all_torrents()
     def recreate_all_torrents(self):
-	for filename in self.fm.list_files(self.path, ['.webm'])[1]:
-	    #first remove from session, and from fs, then recreate and add to session
-	    self.sm.remove_torrent(filename.split('.')[0] + '.torrent')
-	    self.fm.remove_file(self.path,filename.split('.')[0] + '.torrent')
-            self.create_torrent(filename,filename.split('.')[0] + '.torrent')
+        for filename in self.fm.list_files(self.path, ['.webm'])[1]:
+            #first remove from session, and from fs, then recreate and add to session
+            self.sm.remove_torrent(filename.split('.')[0] + '.torrent')
+            self.fm.remove_file(self.path, filename.split('.')[0] + '.torrent')
+            self.create_torrent(filename, filename.split('.')[0] + '.torrent')
             self.add_torrent_to_session(filename.split('.')[0] + '.torrent', 'recreate_all_torrents')
-	
+
     #self.tm.save_torrent(torrent_name,torrent_content)
-    def save_torrent(self,torrent_name,torrent_content):
+    def save_torrent(self, torrent_name, torrent_content):
         if (torrent_name not in self.get_torrent_list()):
-            self.fm.create_file(self.path,torrent_name,base64.b64decode(torrent_content))
+            self.fm.create_file(self.path, torrent_name, base64.b64decode(torrent_content))
             self.add_torrent_to_session(torrent_name, 'save_torrent')
             #now I might add it to the session to start downloading
 
