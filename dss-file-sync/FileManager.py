@@ -9,10 +9,12 @@ __status__ = "Alpha"
 import os
 import logging
 from Config import *
+import threading
 
 class FileManager:
 
     def __init__(self):
+        self.lock = Lock()
         self.file_list = []
 	conf = Config()
         self.log = logging.getLogger(conf.get('log', 'name'))
@@ -21,7 +23,9 @@ class FileManager:
     # Note: Needs to be called to snapshot the new list of files after remove or remove_all operations
     # Sample call: list_files(path='./', extensions=['.webm','.torrents'])
     def list_files(self, path, extensions):
+	self.lock.acquire()
         self.file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
+	self.lock.release()
         if len(self.file_list) > 0:
             return True, self.file_list
         else:
@@ -31,7 +35,9 @@ class FileManager:
     # Note: When called it buffers the list of files for next call
     # Sample call: new_file_exists(path='./', extensions=['.webm','.torrents'])
     def new_file_exists(self, path, extensions):
+	self.lock.acquire()
         current_file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
+	self.lock.release()
         list_of_new_files = []
         if current_file_list != self.file_list and len(current_file_list) > len(self.file_list):
             i = 0
@@ -50,10 +56,13 @@ class FileManager:
     # Sample call: remove_file(path='./', filename='1.webm')
     def remove_file(self, path, filename):
         try:
+	    self.lock.acquire()
             os.remove(path + filename)
+	    self.lock.release()
             #self.list_files(path)
             return True
         except Exception as e:
+	    self.lock.release()
             self.log.debug("Removal Exception: " + str(e))
             return False
 
@@ -62,12 +71,15 @@ class FileManager:
     # Sample call: remove_all(path='./', extensions=['.webm','.torrents'])
     def remove_all(self, path, extensions):
         try:
+	    self.lock.acquire()
             file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
             for f in file_list:
                 os.remove(path + f)
+	    self.lock.release()
             #self.list_files(path)
             return True
         except Exception as e:
+	    self.lock.release()
             self.log.debug("Removal Exception: " + str(e))
             return False
 
@@ -75,9 +87,12 @@ class FileManager:
     # Sample call: get_size(path='./', filename='1.webm')
     def get_size(self, path, filename):
         try:
+	    self.lock.acquire()
             stat_info = os.stat(path + filename)
+	    self.lock.release()
             return True, stat_info.st_size
         except Exception as e:
+	    self.lock.release()
             self.log.debug("Get Stat Exception: " + str(e))
             return False, 0
 
@@ -85,7 +100,33 @@ class FileManager:
     # Sample call: file_exists(path='./', filename='1.webm')
     def file_exists(self, path, filename):
         try:
-            return os.path.isfile(path + filename)
+	    self.lock.acquire()
+	    exist = os.path.isfile(path + filename)
+	    self.lock.release()
+            return exist
         except Exception as e:
+	    self.lock.release()
             self.log.debug("Check File Exception: " + str(e))
             return False
+
+    def create_file(self, path, name, content):
+	try:
+	    self.lock.acquire()
+	    f = open(path + name, "wb")
+            f.write(lt.bencode(torrent))
+            f.close()
+	    self.lock.release()
+	    return True
+	except Exception as e:
+	    self.lock.release()
+            self.log.debug("Create File Exception: " + str(e))
+	    return False
+
+    def read_file(self,path,name):
+	self.lock.acquire()
+	f = open(path + name, "rb")
+        content = f.read()
+        f.close()
+	self.lock.release()
+	return content
+

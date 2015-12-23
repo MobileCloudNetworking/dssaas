@@ -66,9 +66,11 @@ class TorrentManager():
         t.set_comment(comment)
         lt.set_piece_hashes(t, path)
         torrent = t.generate()
-        f = open(path + torrentname, "wb")
-        f.write(lt.bencode(torrent))
-        f.close()
+	#let's move this to fm class
+	self.fm.create_file(path, torrentname, lt.bencode(torrent))
+        #f = open(path + torrentname, "wb")
+        #f.write(lt.bencode(torrent))
+        #f.close()
 
     def get_torrent_list(self): #latest, files in HD
         self.torrent_list = self.fm.list_files(self.path, ['.torrent'])[1]
@@ -76,10 +78,8 @@ class TorrentManager():
 
     def get_torrent_content(self, torrent_name):
         #retrieve the content and encode base64
-        encoded_string = ''
-        with open(torrent_name, "rb") as torrent_file:
-            encoded_string = base64.b64encode(torrent_file.read())
-        self.log.debug(str(encoded_string))
+	encoded_string = base64.b64encode(self.fm.read_file(self.path,torrent_name))
+	#self.log.debug(str(encoded_string))
         return encoded_string
 
     #self.tm.recreate_all_torrents()
@@ -91,8 +91,7 @@ class TorrentManager():
     #self.tm.save_torrent(torrent_name,torrent_content)
     def save_torrent(self,torrent_name,torrent_content):
         if (torrent_name not in self.get_torrent_list()):
-            with open(self.path + torrent_name, "wb") as torrentfileh:
-                torrentfileh.write(base64.b64decode(torrent_content))
+            self.fm.create_file(self.path,torrent_name,base64.b64decode(torrent_content))
             self.add_torrent_to_session(torrent_name, 'save_torrent')
             #now I might add it to the session to start downloading
 
