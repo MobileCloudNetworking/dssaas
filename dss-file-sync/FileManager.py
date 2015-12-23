@@ -14,7 +14,7 @@ import threading
 class FileManager:
 
     def __init__(self):
-        self.lock = Lock()
+        self.lock = threading.Lock()
         self.file_list = []
 	conf = Config()
         self.log = logging.getLogger(conf.get('log', 'name'))
@@ -113,7 +113,7 @@ class FileManager:
 	try:
 	    self.lock.acquire()
 	    f = open(path + name, "wb")
-            f.write(lt.bencode(torrent))
+            f.write(content)
             f.close()
 	    self.lock.release()
 	    return True
