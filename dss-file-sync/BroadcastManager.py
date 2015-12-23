@@ -76,8 +76,8 @@ class BroadcastManager():
                 newdata, addr = s.recvfrom(4096)
                 data += newdata
                 size = len(newdata)
-        self.log.debug("received message: " + str(data))
-        self.parse_broadcast_message(data)
+            self.log.debug("received message: " + str(data))
+            self.parse_broadcast_message(data)
 
 
     def parse_broadcast_message(self, message):
