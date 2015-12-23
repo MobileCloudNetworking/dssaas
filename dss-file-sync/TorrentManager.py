@@ -88,7 +88,7 @@ class TorrentManager():
 	    #first remove from session, and from fs, then recreate and add to session
 	    self.sm.remove_torrent(filename.split('.')[0] + '.torrent')
 	    self.fm.remove_file(self.path,filename.split('.')[0] + '.torrent')
-            self.create_torrent(self.path,filename.split('.')[0] + '.torrent')
+            self.create_torrent(filename,filename.split('.')[0] + '.torrent')
             self.add_torrent_to_session(filename.split('.')[0] + '.torrent', 'recreate_all_torrents')
 	
     #self.tm.save_torrent(torrent_name,torrent_content)
