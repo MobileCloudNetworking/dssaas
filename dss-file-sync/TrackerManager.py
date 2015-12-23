@@ -43,7 +43,7 @@ class TrackerManager():
                 if diff > self.tracker_timeout:
                     self.log.debug("Removing tracker " + str(tracker['url']))
                     self.remove_tracker(tracker)
-            #tracker will be removed in next torrent recreation so we don't recreate torrents here
+                    #tracker will be removed in next torrent recreation so we don't recreate torrents here
             time.sleep(1)
         self.log.debug("Exiting Tracker Expiration Monitoring")
 
