@@ -71,11 +71,11 @@ class BroadcastManager():
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(4096) # buffer size is 4096 bytes
-        size = len(data)
-        while (size == 4096):
-            newdata, addr = s.recvfrom(4096)
-            data += newdata
-            size = len(newdata)
+            size = len(data)
+            while (size == 4096):
+                newdata, addr = s.recvfrom(4096)
+                data += newdata
+                size = len(newdata)
         self.log.debug("received message: " + str(data))
         self.parse_broadcast_message(data)
 
