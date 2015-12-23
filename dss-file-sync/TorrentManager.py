@@ -48,7 +48,10 @@ class TorrentManager():
             self.sm.add_torrent(torrent_name)
         elif called_from == 'recreate_all_torrents':
 	    self.sm.remove_torrent(torrent_name)
-	    self.sm.add_torrent(torrent_name)
+	    added = False
+	    while not added:
+		time.sleep(5)
+		added = self.sm.add_torrent(torrent_name)
 
     def create_torrent(self, filename, torrentname, comment='test', path=None):
         if path is None:
