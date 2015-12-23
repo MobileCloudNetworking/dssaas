@@ -47,7 +47,7 @@ class TorrentManager():
         if called_from == 'check_new_files' or called_from == 'save_torrent':
             self.sm.add_torrent(torrent_name)
         elif called_from == 'recreate_all_torrents':
-	    self.sm.remove_torrent(torrent_name)
+	    #self.sm.remove_torrent(torrent_name)
 	    added = False
 	    while not added:
 		time.sleep(5)
@@ -85,6 +85,9 @@ class TorrentManager():
     #self.tm.recreate_all_torrents()
     def recreate_all_torrents(self):
 	for filename in self.fm.list_files(self.path, ['.webm'])[1]:
+	    #first remove from session, and from fs, then recreate and add to session
+	    self.sm.remove_torrent(filename.split('.')[0] + '.torrent')
+	    self.fm.remove_file(self.path,filename.split('.')[0] + '.torrent')
             self.create_torrent(self.path,filename.split('.')[0] + '.torrent')
             self.add_torrent_to_session(filename.split('.')[0] + '.torrent', 'recreate_all_torrents')
 	
