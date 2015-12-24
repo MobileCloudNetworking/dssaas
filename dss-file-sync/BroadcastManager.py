@@ -29,6 +29,7 @@ class BroadcastManager():
         self.fm = file_manager
         self.conf = Config()
         self.path = self.conf.get('main', 'path')
+        self.rec_buff_size = 4096
         #check
         self.log = logging.getLogger(self.conf.get('log', 'name'))
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
@@ -70,10 +71,10 @@ class BroadcastManager():
         s = socket(AF_INET,SOCK_DGRAM) # UDP
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
-            data, addr = s.recvfrom(4096) # buffer size is 4096 bytes
+            data, addr = s.recvfrom(self.rec_buff_size) # buffer size is 4096 bytes
             size = len(data)
-            while (size == 4096):
-                newdata, addr = s.recvfrom(4096)
+            while (size == self.rec_buff_size):
+                newdata, addr = s.recvfrom(self.rec_buff_size)
                 data += newdata
                 size = len(newdata)
             self.log.debug("received message: " + str(data))
