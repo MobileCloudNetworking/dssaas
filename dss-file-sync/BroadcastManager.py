@@ -12,7 +12,7 @@ import base64
 import logging
 from Config import *
 import threading
-
+from operator import itemgetter
 
 def threaded(fn):
     def wrapper(*args, **kwargs):
@@ -77,12 +77,6 @@ class BroadcastManager():
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(self.rec_buff_size) # buffer size is 4096 bytes
-            #size = len(data)
-            #while (size == self.rec_buff_size):
-            #    newdata, addr = s.recvfrom(self.rec_buff_size)
-            #    data += newdata
-            #    size = len(newdata)
-            #self.log.debug("received message: " + str(data))
 
             # Decouple message sections
             message_id, packet_seq_num, packet_data = self.parse_packet(addr, data)
@@ -93,14 +87,26 @@ class BroadcastManager():
                 self.push_to_packets_dict(message_id, packet_seq_num, packet_data, time.time())
 
                 # Check the packet dict if we are done with this sequence of packets
-                packet_ready, message_data = self.packet_sequence_complete(message_id)
+                is_complete, message_data = self.is_stream_complete(message_id)
 
                 # All sequence received, parse the message
-                if(packet_ready):
+                if(is_complete):
                     self.log.debug("Message with ID " + message_id + " ready, parsing it ...")
+                    self.log.debug("Message data: " + str(message_data))
                     self.parse_broadcast_message(message_data)
             else:
                 self.log.debug("Invalid packet received")
+
+    @threaded
+    # Checks the time out for all pushed messages and removes them all in case they're expired
+    def remove_expired_streams(self):
+        while True:
+            if len(self.all_packets_dict) > 0:
+                current_time = time.time()
+                expired_ones = [message for message in self.all_packets_dict if current_time >= message[timeout]]
+                for message in expired_ones:
+                        self.all_packets_dict.remove(message)
+        time.sleep(self.message_timeout)
 
     # Gets a packet and returns message identifier, packet sequence number and its data
     def parse_packet(self, addr, data):
@@ -140,7 +146,32 @@ class BroadcastManager():
 
     # Gets the identifier of a message and check if all the related packets are received
     # If the message is complete returns True plus the message and removes it from packets dictionary
-    def packet_sequence_complete(self, message_id):
+    def is_stream_complete(self, message_id):
+        message_block = None
+        packet_sequence = None
+        # Find the corresponding dictionary entity in packets_dict
+        for message in self.all_packets_dict:
+            if message['id'] == message_id:
+                message_block = message
+                # Fetching packet sequence for the given message id sorted by sequence number
+                packet_sequence = sorted(message['packets'], key=itemgetter('seq_num'))
+                break
+
+        # If message identifier is found
+        if message_block is not None:
+            self.log.debug("Sorted packet sequence for message id " + message_id + " is: " + str(packet_sequence))
+            # If the last packet in packet list is the final packet
+            # And the number of packets in the list is equal to the sequence number of final package
+            # We can wrap up this stream and remove this message from buffer
+            if packet_sequence[-1]['is_final'] == True and int(packet_sequence[-1]['seq_num']) == len(packet_sequence):
+                self.all_packets_dict.remove(message_block)
+                message_data = ''
+                for packet in packet_sequence:
+                    # Concatenating all the data blocks
+                    # Note that each data block has a "\n" at the end and the final one has "\n\n" which will be stripped by parse_broadcast function later
+                    message_data += packet['data']
+                return True, message_data
+
         return False, None
 
     def parse_broadcast_message(self, message):
