@@ -37,9 +37,9 @@ class TrackerManager():
         # Check time stamp of trackers and make them expire
         while True:
             for tracker in self.tracker_list:
-                self.log.debug("Processing tracker: " + str(tracker))
+                #self.log.debug("Processing tracker: " + str(tracker))
                 diff = time.time() - float(tracker['timestamp'])
-                self.log.debug("Tracker is " + str(diff) + " seconds old")
+                #self.log.debug("Tracker is " + str(diff) + " seconds old")
                 if diff > self.tracker_timeout:
                     self.log.debug("Removing tracker " + str(tracker['url']))
                     self.remove_tracker(tracker)

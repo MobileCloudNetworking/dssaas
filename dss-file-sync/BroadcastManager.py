@@ -29,11 +29,11 @@ class BroadcastManager():
         self.fm = file_manager
         self.conf = Config()
         self.path = self.conf.get('main', 'path')
-        self.rec_buff_size = int(self.conf.get('main', 'udp_payload_size'))
+        self.payload_size = int(self.conf.get('main', 'udp_payload_size'))
         #check
         self.log = logging.getLogger(self.conf.get('log', 'name'))
-        self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
-        self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
+        #self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
+        #self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
 
         # A list of dictionaries that contains message ID, a list of corresponding packets for that ID and an expiration time
         # Example: [{'id':'RANDOME_MESSAGE_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
@@ -51,7 +51,7 @@ class BroadcastManager():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             data += '\n'
-            self.log.debug(data)
+            #self.log.debug(data)
             #building the udp packets and sending them separately
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
@@ -61,16 +61,16 @@ class BroadcastManager():
                 #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(stream_id) + len(str(seq)) + 2
                 remaining = len(data) - data_index
-                self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
+                #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
-                if (self.rec_buff_size-packet_header_size-1) < remaining:
+                if (self.payload_size - packet_header_size - 1) < remaining:
                     #still more than 1 packet to be sent
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
-                    data_index+=self.rec_buff_size-packet_header_size-1
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index + self.payload_size - packet_header_size - 1] + "\n"
+                    data_index += self.payload_size - packet_header_size - 1
                 else:
-                    packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
-                self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
+                #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
             time.sleep(30)
@@ -86,9 +86,9 @@ class BroadcastManager():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             data += '\n'
-            self.log.debug(data)
+            #self.log.debug(data)
             #building the udp packets and sending them separately
-            stream_id = str(int(random.random()*10000 - 1))
+            stream_id = str(int(random.random() * 10000 - 1))
             seq = 1
             data_index = 0
             packet = ''
@@ -96,17 +96,17 @@ class BroadcastManager():
                 #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(stream_id) + len(str(seq)) + 2
                 remaining = len(data) - data_index
-                self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
+                #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
-                if (self.rec_buff_size-packet_header_size-1) < remaining:
+                if (self.payload_size - packet_header_size - 1) < remaining:
                     #still more than 1 packet to be sent
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
-                    data_index+=self.rec_buff_size-packet_header_size-1
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index + self.payload_size - packet_header_size - 1] + "\n"
+                    data_index += self.payload_size - packet_header_size - 1
                 else:
-                    packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
-                self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
-                for i in range(4,100):
+                #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
+                for i in range(4, 100):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
             time.sleep(30)
@@ -116,7 +116,7 @@ class BroadcastManager():
         s = socket(AF_INET,SOCK_DGRAM) # UDP
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
-            data, addr = s.recvfrom(self.rec_buff_size) # buffer size is 4096 bytes
+            data, addr = s.recvfrom(4096)# Maximum allowed size is 4096 bytes
 
             # Decouple message sections
             message_id, packet_seq_num, packet_data = self.parse_packet(addr, data)
@@ -131,8 +131,8 @@ class BroadcastManager():
 
                 # All sequences are received, parse the message
                 if(is_complete):
-                    self.log.debug("Message with ID " + message_id + " ready, parsing it ...")
-                    self.log.debug("Message data: " + str(message_data))
+                    self.log.debug("Message with ID " + message_id + " is ready, parsing it ...")
+                    #self.log.debug("Message data: " + str(message_data))
                     self.parse_broadcast_message(message_data)
             else:
                 self.log.debug("Invalid packet received")
@@ -158,7 +158,7 @@ class BroadcastManager():
             sequence = data_parts[1]
             data = '!'.join(str(p) for p in data_parts[2:])
             if data[-1] != "\n":
-                self.log.debug("EOL notfound, descarding packet due to invalid format")
+                self.log.debug("EOL not found, descarding packet due to invalid format")
                 return None, None, None
             else:
                 return message_id, int(sequence), data
@@ -204,7 +204,7 @@ class BroadcastManager():
 
         # If message identifier is found
         if message_block is not None:
-            self.log.debug("Sorted packet sequence for message id " + message_id + " is: " + str(packet_sequence))
+            #self.log.debug("Sorted packet sequence for message id " + message_id + " is: " + str(packet_sequence))
             # If the last packet in packet list is the final packet
             # And the number of packets in the list is equal to the sequence number of final package
             # We can wrap up this stream and remove this message from buffer
@@ -222,8 +222,8 @@ class BroadcastManager():
     def parse_broadcast_message(self, message):
         #udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
         msg_list = message.replace('\n', '').split('!')
-        self.log.debug("Stripped message data: " + str(msg_list))
-        tracker_struct = {'url':msg_list[0], 'timestamp':msg_list[1]}
+        #self.log.debug("Stripped message data: " + str(msg_list))
+        tracker_struct = {'url': msg_list[0], 'timestamp': msg_list[1]}
         is_new = self.tkm.update_tracker(tracker_struct)
         if is_new:
             self.tm.recreate_all_torrents()
@@ -231,7 +231,7 @@ class BroadcastManager():
             #check if I do have the torrent file
             torrent_name =  msg_list[index]
             torrent_content = msg_list[index + 1]
-            self.tm.save_torrent(torrent_name,torrent_content)
+            self.tm.save_torrent(torrent_name, torrent_content)
         #check
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
         self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))

@@ -46,9 +46,9 @@ class SessionManager:
         try:
             self.log.debug("Adding torrent " + torrent_name + " to BitTorrent session")
             handler = self.session.add_torrent({'ti': lt.torrent_info(torrent_name), 'save_path': './'})
-            self.log.debug('Torrent handler created: ' + str(handler.name()))
+            #self.log.debug('Torrent handler created: ' + str(handler.name()))
             self.torrent_handle_list.append(handler)
-            self.log.debug('Torrent handler list is: ' + str(self.torrent_handle_list))
+            #self.log.debug('Torrent handler list is: ' + str(self.torrent_handle_list))
             return True
         except:
             self.log.debug("Adding torrent " + torrent_name + " to BitTorrent FAILED!")
