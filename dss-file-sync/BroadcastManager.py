@@ -158,7 +158,7 @@ class BroadcastManager():
             data_parts = data.split('!')
             message_id = data_parts[0]
             sequence = data_parts[1]
-            data = data_parts[2]
+            data = '!'.join(str(p) for p in data_parts[2:])
             return message_id, sequence, data
         except Exception as e:
             self.log.warning("Exception while parsing packet data: " + str(e))
@@ -166,7 +166,6 @@ class BroadcastManager():
 
     # Checks if the parameter packet_data is a final packet in a message sequence
     def is_final(self, packet_data):
-        self.log.debug('CHECKING PACKET: ' + str(packet_data.replace('\n','*EOL*')))
         return "\n\n" in packet_data
 
     # Gets message identifier, packet sequence number and its data, then pushes it into packets dictionary
@@ -221,7 +220,7 @@ class BroadcastManager():
     def parse_broadcast_message(self, message):
         #udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
         msg_list = message.replace('\n', '').split('!')
-        self.log.debug("Stripped message data: " + msg_list)
+        self.log.debug("Stripped message data: " + str(msg_list))
         tracker_struct = {'url':msg_list[0], 'timestamp':msg_list[1]}
         is_new = self.tkm.update_tracker(tracker_struct)
         if is_new:
