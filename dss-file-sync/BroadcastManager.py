@@ -35,6 +35,11 @@ class BroadcastManager():
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
         self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
 
+        # A list of dictionaries that contains message ID, a list of corresponding packets for that ID and an expiration time
+        # Example: [{'id':'RANDOME_PACKET_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
+        self.all_packets_dict = []
+        self.message_timeout = 60# Seconds
+
     @threaded
     def send_broadcast_message(self):
         while True:
@@ -72,14 +77,68 @@ class BroadcastManager():
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(self.rec_buff_size) # buffer size is 4096 bytes
-            size = len(data)
-            while (size == self.rec_buff_size):
-                newdata, addr = s.recvfrom(self.rec_buff_size)
-                data += newdata
-                size = len(newdata)
-            self.log.debug("received message: " + str(data))
-            self.parse_broadcast_message(data)
+            #size = len(data)
+            #while (size == self.rec_buff_size):
+            #    newdata, addr = s.recvfrom(self.rec_buff_size)
+            #    data += newdata
+            #    size = len(newdata)
+            #self.log.debug("received message: " + str(data))
 
+            # Decouple message sections
+            message_id, packet_seq_num, packet_data = self.parse_packet(addr, data)
+
+            # Proceed with pushing the message if decouple successful
+            if message_id is not None:
+                # Push to packet dict
+                self.push_to_packets_dict(message_id, packet_seq_num, packet_data, time.time())
+
+                # Check the packet dict if we are done with this sequence of packets
+                packet_ready, message_data = self.packet_sequence_complete(message_id)
+
+                # All sequence received, parse the message
+                if(packet_ready):
+                    self.log.debug("Message with ID " + message_id + " ready, parsing it ...")
+                    self.parse_broadcast_message(message_data)
+            else:
+                self.log.debug("Invalid packet received")
+
+    # Gets a packet and returns message identifier, packet sequence number and its data
+    def parse_packet(self, addr, data):
+        # Expected packet structure
+        try:
+            data_parts = data.split('!')
+            message_id = data_parts[0]
+            sequence = data_parts[1]
+            data = data_parts[2]
+            return message_id, sequence, data
+        except Exception as e:
+            self.log.warning("Exception while parsing packet data: " + str(e))
+            return None, None, None
+
+    # Checks if the parameter packet_data is a final packet in a message sequence
+    def is_final(self, packet_data):
+        return "\n\n" in packet_data
+
+    # Gets message identifier, packet sequence number and its data, then pushes it into packets dictionary
+    def push_to_packets_dict(self, message_id, sequence, data, time):
+        msg_id = message_id
+        msg_arrival_time = time
+        new_packet = {'seq_num': sequence, 'data': data, 'is_final': self.is_final(data)}
+
+        msg_id_exists = False
+        for item in self.all_packets_dict:
+            if item['id'] == msg_id:
+                item['packets'].append(new_packet)
+                msg_id_exists = True
+
+        if msg_id_exists is not True:
+            new_msg_entity = {'id': msg_id, 'packets': [new_packet], 'timeout': msg_arrival_time + self.message_timeout}
+            self.all_packets_dict.append(new_msg_entity)
+
+    # Gets the identifier of a message and check if all the related packets are received
+    # If the message is complete returns True plus the message and removes it from packets dictionary
+    def packet_sequence_complete(self, message_id):
+        return False, None
 
     def parse_broadcast_message(self, message):
         #udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
