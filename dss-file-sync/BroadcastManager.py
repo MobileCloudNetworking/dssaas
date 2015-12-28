@@ -8,7 +8,6 @@ __status__ = "Alpha"
 
 from socket import *
 import time
-import base64
 import logging
 from Config import *
 import threading
@@ -57,9 +56,9 @@ class BroadcastManager():
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
-	    packet = ''
+            packet = ''
             while data_index < len(data):
-                #5 first chars for seq, 3 chars for seq
+                #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(packet)
                 remaining = len(data) - data_index # remaining unsplitted data buffer size
                 #available size for payload is upd_size - header - ending char(1 char)
@@ -91,9 +90,9 @@ class BroadcastManager():
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
-	    packet = ''
+            packet = ''
             while data_index < len(data):
-                #5 first chars for seq, 3 chars for seq
+                #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(packet)
                 remaining = len(data) - data_index
                 #available size for payload is upd_size - header - ending char(1 char)
@@ -104,7 +103,7 @@ class BroadcastManager():
                 else:
                     packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
-		self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
+                self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 for i in range(4,254):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
