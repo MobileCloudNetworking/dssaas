@@ -30,7 +30,7 @@ class BroadcastManager():
         self.fm = file_manager
         self.conf = Config()
         self.path = self.conf.get('main', 'path')
-        self.rec_buff_size = 4096
+        self.rec_buff_size = int(self.conf.get('main', 'udp_payload_size'))
         #check
         self.log = logging.getLogger(self.conf.get('log', 'name'))
         self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
@@ -39,7 +39,7 @@ class BroadcastManager():
         # A list of dictionaries that contains message ID, a list of corresponding packets for that ID and an expiration time
         # Example: [{'id':'RANDOME_MESSAGE_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
         self.all_packets_dict = []
-        self.message_timeout = 60# Seconds
+        self.message_timeout = 60 # Seconds
 
     @threaded
     def send_broadcast_message(self):
@@ -57,6 +57,7 @@ class BroadcastManager():
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
+	    packet = ''
             while data_index < len(data):
                 #5 first chars for seq, 3 chars for seq
                 packet_header_size = len(packet)
@@ -67,7 +68,7 @@ class BroadcastManager():
                     packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
                     data_index+=self.rec_buff_size-packet_header_size-1
                 else:
-                    packet += data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
@@ -90,6 +91,7 @@ class BroadcastManager():
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
+	    packet = ''
             while data_index < len(data):
                 #5 first chars for seq, 3 chars for seq
                 packet_header_size = len(packet)
@@ -100,8 +102,9 @@ class BroadcastManager():
                     packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
                     data_index+=self.rec_buff_size-packet_header_size-1
                 else:
-                    packet += data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
+		self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 for i in range(4,254):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
@@ -140,10 +143,10 @@ class BroadcastManager():
         while True:
             if len(self.all_packets_dict) > 0:
                 current_time = time.time()
-                expired_ones = [message for message in self.all_packets_dict if current_time >= message[timeout]]
+                expired_ones = [message for message in self.all_packets_dict if current_time >= message['timeout']]
                 for message in expired_ones:
                         self.all_packets_dict.remove(message)
-        time.sleep(self.message_timeout)
+            time.sleep(self.message_timeout)
 
     # Gets a packet and returns message identifier, packet sequence number and its data
     def parse_packet(self, addr, data):
