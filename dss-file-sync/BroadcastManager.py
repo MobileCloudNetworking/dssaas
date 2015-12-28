@@ -36,7 +36,7 @@ class BroadcastManager():
         self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
 
         # A list of dictionaries that contains message ID, a list of corresponding packets for that ID and an expiration time
-        # Example: [{'id':'RANDOME_PACKET_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
+        # Example: [{'id':'RANDOME_MESSAGE_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
         self.all_packets_dict = []
         self.message_timeout = 60# Seconds
 
@@ -125,12 +125,15 @@ class BroadcastManager():
         msg_arrival_time = time
         new_packet = {'seq_num': sequence, 'data': data, 'is_final': self.is_final(data)}
 
+        # Check if we arleady have gotten a packet related to this message
+        # if yes we just add new packet to the packet list
         msg_id_exists = False
         for item in self.all_packets_dict:
             if item['id'] == msg_id:
                 item['packets'].append(new_packet)
                 msg_id_exists = True
 
+        # This is the first packet we are getting for this message, so we init a new dict item for this message in all_packets_dict
         if msg_id_exists is not True:
             new_msg_entity = {'id': msg_id, 'packets': [new_packet], 'timeout': msg_arrival_time + self.message_timeout}
             self.all_packets_dict.append(new_msg_entity)
