@@ -38,7 +38,7 @@ class BroadcastManager():
         # A list of dictionaries that contains message ID, a list of corresponding packets for that ID and an expiration time
         # Example: [{'id':'RANDOME_MESSAGE_ID', 'packets':[{'seq_num':'Integer', 'data':'String', 'is_final':'Boolean'}, packet2, packet3, ...], 'timeout':'Current time + self.message_timeout'}]
         self.all_packets_dict = []
-        self.message_timeout = 60 # Seconds
+        self.message_timeout = 600# Seconds
 
     @threaded
     def send_broadcast_message(self):
@@ -73,7 +73,6 @@ class BroadcastManager():
                 self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
-                time.sleep(0.5)
             time.sleep(30)
 
     @threaded
@@ -107,10 +106,9 @@ class BroadcastManager():
                     packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
                 self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
-                for i in range(4,254):
+                for i in range(4,100):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
-                time.sleep(0.5)
             time.sleep(30)
 
     @threaded
@@ -159,7 +157,11 @@ class BroadcastManager():
             message_id = data_parts[0]
             sequence = data_parts[1]
             data = '!'.join(str(p) for p in data_parts[2:])
-            return message_id, int(sequence), data
+            if data[-1] != "\n":
+                self.log.debug("EOL notfound, descarding packet due to invalid format")
+                return None, None, None
+            else:
+                return message_id, int(sequence), data
         except Exception as e:
             self.log.warning("Exception while parsing packet data: " + str(e))
             return None, None, None
