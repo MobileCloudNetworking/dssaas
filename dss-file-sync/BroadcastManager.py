@@ -59,16 +59,18 @@ class BroadcastManager():
             packet = ''
             while data_index < len(data):
                 #5 first chars for ID, 3 chars for seq
-                packet_header_size = len(packet)
-                remaining = len(data) - data_index # remaining unsplitted data buffer size
+                packet_header_size = len(stream_id) + len(str(seq)) + 2
+                remaining = len(data) - data_index
+                self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
                 if (self.rec_buff_size-packet_header_size-1) < remaining:
                     #still more than 1 packet to be sent
                     packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
                     data_index+=self.rec_buff_size-packet_header_size-1
                 else:
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    packet = stream_id + '!' + str(seq) + '!' +  data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
                     data_index = len(data)
+                self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
                 time.sleep(0.5)
@@ -93,8 +95,9 @@ class BroadcastManager():
             packet = ''
             while data_index < len(data):
                 #5 first chars for ID, 3 chars for seq
-                packet_header_size = len(packet)
+                packet_header_size = len(stream_id) + len(str(seq)) + 2
                 remaining = len(data) - data_index
+                self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
                 if (self.rec_buff_size-packet_header_size-1) < remaining:
                     #still more than 1 packet to be sent
