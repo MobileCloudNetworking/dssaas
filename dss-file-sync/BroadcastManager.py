@@ -166,6 +166,7 @@ class BroadcastManager():
 
     # Checks if the parameter packet_data is a final packet in a message sequence
     def is_final(self, packet_data):
+        self.log.debug('CHECKING PACKET: ' + str(packet_data.replace('\n','*EOL*')))
         return "\n\n" in packet_data
 
     # Gets message identifier, packet sequence number and its data, then pushes it into packets dictionary
