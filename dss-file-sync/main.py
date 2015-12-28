@@ -29,6 +29,7 @@ if __name__ == "__main__":
 
     #running threads
     broadcast_manager.sendAmazon_broadcast_message()
+    #broadcast_manager.send_broadcast_message()
     broadcast_manager.receive_broadcast_message()
     broadcast_manager.remove_expired_streams()
     tracker_manager.expire_tracker()
