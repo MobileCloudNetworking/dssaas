@@ -13,6 +13,7 @@ import logging
 from Config import *
 import threading
 from operator import itemgetter
+import random
 
 def threaded(fn):
     def wrapper(*args, **kwargs):
@@ -52,24 +53,60 @@ class BroadcastManager():
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             data += '\n'
             self.log.debug(data)
-            s.sendto(data, (self.broadcast_ip, self.broadcast_port))
-            time.sleep(10)
+            #building the udp packets and sending them separately
+            stream_id = str(int(random.random()*10000 - 1))
+            seq = 1
+            data_index = 0
+            while data_index < len(data):
+                #5 first chars for seq, 3 chars for seq
+                packet_header_size = len(packet)
+                remaining = len(data) - data_index # remaining unsplitted data buffer size
+                #available size for payload is upd_size - header - ending char(1 char)
+                if (self.rec_buff_size-packet_header_size-1) < remaining:
+                    #still more than 1 packet to be sent
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
+                    data_index+=self.rec_buff_size-packet_header_size-1
+                else:
+                    packet += data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    data_index = len(data)
+                s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
+                seq += 1
+                time.sleep(0.5)
+            time.sleep(30)
 
     @threaded
     def sendAmazon_broadcast_message(self):
         while True:
             s = socket(AF_INET, SOCK_DGRAM)
+            s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
             s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time())
-            self.log.debug(str(self.tm.get_torrent_list()))
             for torrent in self.tm.get_torrent_list():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             data += '\n'
             self.log.debug(data)
-            for i in range(4,254):
-                s.sendto(data, ('172.30.2.' + str(i), self.broadcast_port))
-            time.sleep(10)
+            #building the udp packets and sending them separately
+            stream_id = str(int(random.random()*10000 - 1))
+            seq = 1
+            data_index = 0
+            while data_index < len(data):
+                #5 first chars for seq, 3 chars for seq
+                packet_header_size = len(packet)
+                remaining = len(data) - data_index
+                #available size for payload is upd_size - header - ending char(1 char)
+                if (self.rec_buff_size-packet_header_size-1) < remaining:
+                    #still more than 1 packet to be sent
+                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index+self.rec_buff_size-packet_header_size-1]+"\n"
+                    data_index+=self.rec_buff_size-packet_header_size-1
+                else:
+                    packet += data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
+                    data_index = len(data)
+                for i in range(4,254):
+                    s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
+                seq += 1
+                time.sleep(0.5)
+            time.sleep(30)
 
     @threaded
     def receive_broadcast_message(self):
