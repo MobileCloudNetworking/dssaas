@@ -82,5 +82,5 @@ class SessionManager:
         s = self.get_torrent_stat(file_name)
         if s is not None:
             state_str = ['queued', 'checking', 'downloading metadata', 'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
-            self.log.debug('\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
+            self.log.debug('\rFile %s %.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % (file_name, s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
 
