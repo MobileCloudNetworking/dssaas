@@ -159,7 +159,7 @@ class BroadcastManager():
             message_id = data_parts[0]
             sequence = data_parts[1]
             data = '!'.join(str(p) for p in data_parts[2:])
-            return message_id, sequence, data
+            return message_id, int(sequence), data
         except Exception as e:
             self.log.warning("Exception while parsing packet data: " + str(e))
             return None, None, None
