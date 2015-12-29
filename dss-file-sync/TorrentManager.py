@@ -56,7 +56,6 @@ class TorrentManager():
         if called_from == 'check_new_files' or called_from == 'save_torrent':
             self.sm.add_torrent(torrent_name)
         elif called_from == 'recreate_all_torrents':
-            #self.sm.remove_torrent(torrent_name)
             added = False
             while not added:
                 time.sleep(5)

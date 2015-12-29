@@ -227,8 +227,8 @@ class BroadcastManager():
         #self.log.debug("Stripped message data: " + str(msg_list))
 
         # Manage deleted files block
-        deleted_list = msg_list[2].split(',')
-        if len(deleted_list) > 0:
+        if len(msg_list[2]) > 0:
+            deleted_list = msg_list[2].split(',')
             for deleted_file in deleted_list:
                 self.tm.delete_torrent(torrent_name=deleted_file)
         # Manage deleted files block end
