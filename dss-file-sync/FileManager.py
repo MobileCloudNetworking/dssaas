@@ -24,12 +24,14 @@ class FileManager:
     # Sample call: list_files(path='./', extensions=['.webm','.torrents'])
     def list_files(self, path, extensions):
         self.lock.acquire()
-        self.file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
+        tmp_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
         self.lock.release()
+        #if update_mem:
+        #    self.file_list = tmp_list
         if len(self.file_list) > 0:
-            return True, self.file_list
+            return True, tmp_list
         else:
-            return False, self.file_list
+            return False, tmp_list
 
     # Lists the newly added files with specified extensions in specified path
     # Note: When called it buffers the list of files for next call

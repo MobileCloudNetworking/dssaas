@@ -19,6 +19,7 @@ if __name__ == "__main__":
     conf = Config()
     logger = Log.config_logger(conf.get('log', 'name'))
     logger.debug('main message')
+    path = conf.get('main', 'path')
 
     #init
     file_manager = FileManager()
@@ -36,8 +37,8 @@ if __name__ == "__main__":
     torrent_manager.check_files_status()
     torrent_manager.cleanup_deleted_files()
 
-    for i in range(1,5000):
+    for i in range(1, 5000):
 	#print "Sleeping...\n"
 	time.sleep(1)
-	for torrent_file in file_manager.list_files('./',['.torrent'])[1]:
-	    session_manager.get_torrent_stat_str(torrent_file.split('.')[0]+'.webm')
+	for torrent_file in file_manager.list_files(path, ['.torrent'])[1]:
+	    session_manager.get_torrent_stat_str(torrent_file.split('.')[0] + '.webm')
