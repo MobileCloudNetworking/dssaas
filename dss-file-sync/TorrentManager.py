@@ -117,7 +117,7 @@ class TorrentManager():
 
     #self.tm.save_torrent(torrent_name,torrent_content)
     def save_torrent(self, torrent_name, torrent_content):
-        if (torrent_name not in self.get_torrent_list()):
+        if (torrent_name not in self.get_torrent_list() and not self.already_removed(torrent_name)):
             self.fm.create_file(self.path, torrent_name, base64.b64decode(torrent_content))
             self.add_torrent_to_session(torrent_name, 'save_torrent')
             #now I might add it to the session to start downloading
