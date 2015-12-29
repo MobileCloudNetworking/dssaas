@@ -35,7 +35,7 @@ class TorrentManager():
         self.log.debug("Starting File Monitoring Thread")
         while True:
             result, file_list = self.fm.new_file_exists(self.path, ['.webm'])
-            self.log.debug("Checking for new files: " + str(file_list))
+            self.log.debug("Checking for new files: RESULT IS " + str(result) + "and LIST IS " + str(file_list))
             if result:
                 self.log.debug("New files detected: " + str(file_list))
                 for file_name in file_list:
@@ -44,6 +44,7 @@ class TorrentManager():
                     self.add_torrent_to_session(file_name.split('.')[0] + '.torrent', 'check_new_files')
             time.sleep(1)
             removed_result, removed_file_list = self.fm.removed_file_exists(self.path, ['.webm'])
+            self.log.debug("Checking for new files: RESULT IS " + str(removed_result) + "and LIST IS " + str(removed_file_list))
             if removed_result:
                 self.log.debug("Removed files detected: " + str(removed_file_list))
                 for file_name in removed_file_list:
