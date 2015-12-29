@@ -124,8 +124,16 @@ class TorrentManager():
             self.add_torrent_to_session(torrent_name, 'save_torrent')
             #now I might add it to the session to start downloading
 
+    def already_removed(self, torrent_name):
+        for filename in self.fm.list_files(self.path, ['.removed'])[1]:
+            decoupled_name = filename.split('.')
+            if torrent_name == decoupled_name[0] + '.torrent':
+                return True
+        return False
+
     def delete_torrent(self, torrent_name):
-        self.sm.remove_torrent(torrent_name)
-        self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.' + str(int(time.time())) + '.removed')
-        self.fm.remove_file(self.path, torrent_name.split('.')[0] + '.webm')
+        if not self.already_removed(torrent_name):
+            self.sm.remove_torrent(torrent_name)
+            self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.' + str(int(time.time())) + '.removed')
+            self.fm.remove_file(self.path, torrent_name.split('.')[0] + '.webm')
 

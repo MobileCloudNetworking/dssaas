@@ -52,7 +52,7 @@ class BroadcastManager():
             data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time()) + '!'
             for torrent in self.tm.get_removed_torrent_list():
                 self.log.debug('Checking removed torrent: ' + str(torrent))
-                data += str(torrent) + ','
+                data += str(torrent.split('.')[0] + '.torrent') + ','
             for torrent in self.tm.get_torrent_list():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
