@@ -37,38 +37,27 @@ class FileManager:
     # Note: When called it buffers the list of files for next call
     # Sample call: new_file_exists(path='./', extensions=['.webm','.torrents'])
     def new_file_exists(self, path, extensions):
+        list_of_new_files = []
         self.lock.acquire()
         current_file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
         self.lock.release()
-        list_of_new_files = []
-        if current_file_list != self.file_list and len(current_file_list) > len(self.file_list):
-            i = 0
-            while i < len(current_file_list):
-                if current_file_list[i] not in self.file_list:
-                    list_of_new_files.append(current_file_list[i])
-                i += 1
-            self.file_list = current_file_list
-            return True, list_of_new_files
-        else:
-            self.file_list = current_file_list
-            return False, list_of_new_files
+        for file in current_file_list:
+            if file not in self.file_list:
+                list_of_new_files.append(file)
+                self.file_list.append(file)
+        return len(list_of_new_files) > 0, list_of_new_files
+
 
     def removed_file_exists(self, path, extensions):
+        list_of_del_files = []
         self.lock.acquire()
         current_file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
         self.lock.release()
-        list_of_removed_files = []
-        if current_file_list != self.file_list and len(current_file_list) < len(self.file_list):
-            i = 0
-            while i < len(self.file_list):
-                if self.file_list[i] not in current_file_list:
-                    list_of_removed_files.append(self.file_list[i])
-                i += 1
-            self.file_list = current_file_list
-            return True, list_of_removed_files
-        else:
-            self.file_list = current_file_list
-            return False, list_of_removed_files
+        for file in self.file_list:
+            if file not in current_file_list:
+                list_of_del_files.append(file)
+                self.file_list.remove(file)
+        return len(list_of_del_files) > 0, list_of_del_files
 
     # Removes the specified file in given path
     # Note: call list_files function to update the file list snapshot after each delete call
