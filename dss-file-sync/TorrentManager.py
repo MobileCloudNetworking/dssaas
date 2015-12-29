@@ -28,7 +28,7 @@ class TorrentManager():
         self.tm = tracker_manager
         self.path = self.conf.get('main', 'path')
         self.torrent_list = self.fm.list_files('.', ['.torrent'])[1]
-        self.removed_torrents_timeout = self.conf.get('main', 'removed_torrents_timeout')
+        self.removed_torrents_timeout = int(self.conf.get('main', 'removed_torrents_timeout'))
 
     @threaded
     def check_files_status(self):
