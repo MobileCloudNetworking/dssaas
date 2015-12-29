@@ -33,7 +33,7 @@ if __name__ == "__main__":
     broadcast_manager.receive_broadcast_message()
     broadcast_manager.remove_expired_streams()
     tracker_manager.expire_tracker()
-    torrent_manager.check_new_files()
+    torrent_manager.check_files_status()
     torrent_manager.cleanup_deleted_files()
 
     for i in range(1,5000):
