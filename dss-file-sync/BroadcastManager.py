@@ -62,7 +62,7 @@ class BroadcastManager():
             md5_handler.update(cdata)
             signature = md5_handler.digest()
             b64signature = base64.b64encode(signature)
-            self.log.debug('Data compressed base signature is ' + b64signature )	
+            self.log.debug('Data compressed base signature is ' + b64signature)
             #data += '\n'
             #self.log.debug(data)
             #building the udp packets and sending them separately
@@ -72,7 +72,7 @@ class BroadcastManager():
             packet = ''
             while data_index < len(cdata):
                 #Header is fixed = 6 for id, 4 for seq, 4 for len and 1 for is_final
-                packet_header_size = 6+4+4+1
+                packet_header_size = 6 + 4 + 4 + 1
                 remaining = len(cdata) - data_index
                 #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
@@ -178,7 +178,7 @@ class BroadcastManager():
             length = data[10:14]
             is_final = data[14:15]
             content = data[15:]
-	    self.log.debug('MESSAGE RECEIVED: ID= '+message_id+' seq= ' +sequence+ ' length=' +length+ ' is_final=' +str(is_final)+ ' real_content_lengt= ' + str(len(content)))
+            self.log.debug('MESSAGE RECEIVED: ID= ' + message_id + ' seq= ' + sequence + ' length= ' + length + ' is_final= ' + str(is_final) + ' real_content_lengt= ' + str(len(content)))
             if len(content) != int(length):
                 self.log.debug("Discarding packet due to invalid format")
                 return None, None, None, None
@@ -244,7 +244,7 @@ class BroadcastManager():
         md5_handler.update(message)
         signature = md5_handler.digest()
         b64signature = base64.b64encode(signature)
-        self.log.debug('Data compressed base signature is ' + b64signature )
+        self.log.debug('Data compressed base signature is ' + b64signature)
 
 
         msg_list = (zlib.decompress(message)).replace('\n', '').split('!')

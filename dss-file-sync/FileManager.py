@@ -24,7 +24,7 @@ class FileManager:
     # Sample call: list_files(path='./', extensions=['.webm','.torrents'])
     def list_files(self, path, extensions):
         self.lock.acquire()
-        self.file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
+        self.file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
         self.lock.release()
         if len(self.file_list) > 0:
             return True, self.file_list
@@ -36,7 +36,7 @@ class FileManager:
     # Sample call: new_file_exists(path='./', extensions=['.webm','.torrents'])
     def new_file_exists(self, path, extensions):
         self.lock.acquire()
-        current_file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
+        current_file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
         self.lock.release()
         list_of_new_files = []
         if current_file_list != self.file_list and len(current_file_list) > len(self.file_list):
@@ -50,6 +50,23 @@ class FileManager:
         else:
             self.file_list = current_file_list
             return False, list_of_new_files
+
+    def removed_file_exists(self, path, extensions):
+        self.lock.acquire()
+        current_file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
+        self.lock.release()
+        list_of_removed_files = []
+        if current_file_list != self.file_list and len(current_file_list) < len(self.file_list):
+            i = 0
+            while i < len(self.file_list):
+                if self.file_list[i] not in current_file_list:
+                    list_of_removed_files.append(self.file_list[i])
+                i += 1
+            self.file_list = current_file_list
+            return True, list_of_removed_files
+        else:
+            self.file_list = current_file_list
+            return False, list_of_removed_files
 
     # Removes the specified file in given path
     # Note: call list_files function to update the file list snapshot after each delete call
@@ -85,7 +102,7 @@ class FileManager:
     def remove_all(self, path, extensions):
         try:
             self.lock.acquire()
-            file_list = [ f for f in os.listdir(path) if f.endswith(tuple(extensions)) ]
+            file_list = [f for f in os.listdir(path) if f.endswith(tuple(extensions))]
             for f in file_list:
                 os.remove(path + f)
             self.lock.release()

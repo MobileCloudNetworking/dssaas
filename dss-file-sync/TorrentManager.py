@@ -41,7 +41,20 @@ class TorrentManager():
                     self.create_torrent(file_name, file_name.split('.')[0] + '.torrent')
                     self.add_torrent_to_session(file_name.split('.')[0] + '.torrent', 'check_new_files')
             time.sleep(1)
-        self.log.debug("Exiting File Monitoring Thread")
+        self.log.debug("Exiting File Monitoring Thread")\
+
+    @threaded
+    def check_removed_files(self):
+        self.log.debug("Starting Removed File Monitoring Thread")
+        while True:
+            result, file_list = self.fm.removed_file_exists(self.path, ['.webm'])
+            if result:
+                self.log.debug("Removed files detected: " + str(file_list))
+                for file_name in file_list:
+                    self.log.debug("Deleting torrent file of : " + str(file_name))
+                    self.delete_torrent(file_name, file_name.split('.')[0] + '.torrent')
+            time.sleep(1)
+        self.log.debug("Exiting Removed File Monitoring Thread")
 
     @threaded
     def cleanup_deleted_files(self):
