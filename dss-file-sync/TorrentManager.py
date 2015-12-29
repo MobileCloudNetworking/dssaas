@@ -57,8 +57,8 @@ class TorrentManager():
         while True:
             removed_torrent_list = self.fm.list_files(self.path, ['.removed'])[1]
             for removed_file in removed_torrent_list:
-                current_time = time.time()
-                file_removed_at = float(removed_file.split('.')[1])
+                current_time = int(time.time())
+                file_removed_at = int(removed_file.split('.')[1])
                 if current_time - file_removed_at >= self.removed_torrents_timeout:
                     self.fm.remove_file(self.path, removed_file)
             self.log.debug("Performed clean up")
@@ -125,6 +125,6 @@ class TorrentManager():
 
     def delete_torrent(self, torrent_name):
         self.sm.remove_torrent(torrent_name)
-        self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.' + time.time() + '.removed')
+        self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.' + str(int(time.time())) + '.removed')
         self.fm.remove_file(self.path, torrent_name.split('.')[0] + '.webm')
 
