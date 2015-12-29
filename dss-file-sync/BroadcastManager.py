@@ -14,6 +14,8 @@ import threading
 from operator import itemgetter
 import random
 import zlib
+import md5
+import base64
 
 def threaded(fn):
     def wrapper(*args, **kwargs):
@@ -24,7 +26,7 @@ class BroadcastManager():
     #TODO: Sending thread, recieving thread
     def __init__(self, file_manager, torrent_manager,tracker_manager):
         self.broadcast_port = 6977
-        self.broadcast_ip = '255.255.255.255'
+        self.broadcast_ip = '192.168.20.255'
         self.tm = torrent_manager
         self.tkm = tracker_manager
         self.fm = file_manager
@@ -55,6 +57,12 @@ class BroadcastManager():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             cdata = zlib.compress(data)
+            self.log.debug('Data size is ' + str(len(data))+ ' and data compressed size is ' +str(len(cdata)))
+            md5_handler = md5.new()
+            md5_handler.update(cdata)
+            signature = md5_handler.digest()
+            b64signature = base64.b64encode(signature)
+            self.log.debug('Data compressed base signature is ' + b64signature )	
             #data += '\n'
             #self.log.debug(data)
             #building the udp packets and sending them separately
@@ -63,18 +71,18 @@ class BroadcastManager():
             data_index = 0
             packet = ''
             while data_index < len(cdata):
-                #5 first chars for ID, 3 chars for seq
-                packet_header_size = len(stream_id) + len(str(seq)) + 2
+                #Header is fixed = 6 for id, 4 for seq, 4 for len and 1 for is_final
+                packet_header_size = 6+4+4+1
                 remaining = len(cdata) - data_index
                 #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
-                if (self.payload_size - packet_header_size - 1) < remaining:
+                if (self.payload_size - packet_header_size) < remaining:
                     #still more than 1 packet to be sent
-                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
-                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size - 1]
-                    data_index += self.payload_size - packet_header_size - 1
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size).zfill(4) \
+                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size]
+                    data_index += self.payload_size - packet_header_size
                 else:
-                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(len(cdata[data_index:])).zfill(4) \
                              + '1' + cdata[data_index:]
                     data_index = len(cdata)
                 #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
@@ -165,16 +173,17 @@ class BroadcastManager():
         # Expected packet structure
         # MESSAGE_ID!PACKET_SEQUENCE!REST_OF_PACKET_DATA
         try:
-            message_id = data[:5]
-            sequence = data[6:9]
-            length = data[10:13]
-            is_final = data[14]
+            message_id = data[:6]
+            sequence = data[6:10]
+            length = data[10:14]
+            is_final = data[14:15]
             content = data[15:]
-            if len(content) != length:
-                self.log.debug("EOL not found, descarding packet due to invalid format")
+	    self.log.debug('MESSAGE RECEIVED: ID= '+message_id+' seq= ' +sequence+ ' length=' +length+ ' is_final=' +str(is_final)+ ' real_content_lengt= ' + str(len(content)))
+            if len(content) != int(length):
+                self.log.debug("Discarding packet due to invalid format")
                 return None, None, None, None
             else:
-                return message_id, int(sequence), content, bool(is_final)
+                return message_id, int(sequence), content, bool(int(is_final))
         except Exception as e:
             self.log.warning("Exception while parsing packet data: " + str(e))
             return None, None, None, None
@@ -230,7 +239,15 @@ class BroadcastManager():
 
     def parse_broadcast_message(self, message):
         # udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
-        msg_list = (zlib.uncompress(message)).replace('\n', '').split('!')
+        self.log.debug('Data compressed size is ' + str(len(message)))
+        md5_handler = md5.new()
+        md5_handler.update(message)
+        signature = md5_handler.digest()
+        b64signature = base64.b64encode(signature)
+        self.log.debug('Data compressed base signature is ' + b64signature )
+
+
+        msg_list = (zlib.decompress(message)).replace('\n', '').split('!')
         #self.log.debug("Stripped message data: " + str(msg_list))
 
         # Manage deleted files block

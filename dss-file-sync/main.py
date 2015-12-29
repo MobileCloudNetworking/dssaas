@@ -28,8 +28,8 @@ if __name__ == "__main__":
     broadcast_manager = BroadcastManager(file_manager, torrent_manager, tracker_manager)
 
     #running threads
-    broadcast_manager.sendAmazon_broadcast_message()
-    #broadcast_manager.send_broadcast_message()
+    #broadcast_manager.sendAmazon_broadcast_message()
+    broadcast_manager.send_broadcast_message()
     broadcast_manager.receive_broadcast_message()
     broadcast_manager.remove_expired_streams()
     tracker_manager.expire_tracker()
