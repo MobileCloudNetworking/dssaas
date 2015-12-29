@@ -84,6 +84,10 @@ class TorrentManager():
         self.torrent_list = self.fm.list_files(self.path, ['.torrent'])[1]
         return self.torrent_list
 
+    def get_removed_torrent_list(self): #latest, files in HD
+        self.removed_torrent_list = self.fm.list_files(self.path, ['.removed'])[1]
+        return self.removed_torrent_list
+
     def get_torrent_content(self, torrent_name):
         #retrieve the content and encode base64
         encoded_string = base64.b64encode(self.fm.read_file(self.path,torrent_name))

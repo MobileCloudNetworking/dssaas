@@ -1,5 +1,3 @@
-import zlib
-
 __author__ = "Santiago Ruiz", "Mohammad Valipoor"
 __copyright__ = "Copyright 2015, SoftTelecom"
 __credits__ = ["Santiago Ruiz", "Mohammad Valipoor"]
@@ -15,6 +13,7 @@ from Config import *
 import threading
 from operator import itemgetter
 import random
+import zlib
 
 def threaded(fn):
     def wrapper(*args, **kwargs):
@@ -48,30 +47,36 @@ class BroadcastManager():
             s = socket(AF_INET, SOCK_DGRAM)
             s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
             s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-            data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time())
+            data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time()) + '!'
+            for torrent in self.tm.get_removed_torrent_list():
+                self.log.debug('Checking removed torrent: ' + str(torrent))
+                data += str(torrent) + ','
             for torrent in self.tm.get_torrent_list():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
-            data += '\n'
+            cdata = zlib.compress(data)
+            #data += '\n'
             #self.log.debug(data)
             #building the udp packets and sending them separately
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
             packet = ''
-            while data_index < len(data):
+            while data_index < len(cdata):
                 #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(stream_id) + len(str(seq)) + 2
-                remaining = len(data) - data_index
+                remaining = len(cdata) - data_index
                 #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
                 if (self.payload_size - packet_header_size - 1) < remaining:
                     #still more than 1 packet to be sent
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index + self.payload_size - packet_header_size - 1] + "\n"
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size - 1]
                     data_index += self.payload_size - packet_header_size - 1
                 else:
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
-                    data_index = len(data)
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                             + '1' + cdata[data_index:]
+                    data_index = len(cdata)
                 #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
@@ -83,31 +88,36 @@ class BroadcastManager():
             s = socket(AF_INET, SOCK_DGRAM)
             s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
             s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-            data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time())
+            data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time()) + '!'
+            for torrent in self.tm.get_removed_torrent_list():
+                self.log.debug('Checking removed torrent: ' + str(torrent))
+                data += str(torrent) + ','
             for torrent in self.tm.get_torrent_list():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
-            data += '\n'
+            cdata = zlib.compress(data)
+            #data += '\n'
             #self.log.debug(data)
             #building the udp packets and sending them separately
-            stream_id = str(int(random.random() * 10000 - 1))
+            stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
             packet = ''
-            while data_index < len(data):
+            while data_index < len(cdata):
                 #5 first chars for ID, 3 chars for seq
                 packet_header_size = len(stream_id) + len(str(seq)) + 2
-                remaining = len(data) - data_index
+                remaining = len(cdata) - data_index
                 #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
                 #available size for payload is upd_size - header - ending char(1 char)
                 if (self.payload_size - packet_header_size - 1) < remaining:
                     #still more than 1 packet to be sent
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:data_index + self.payload_size - packet_header_size - 1] + "\n"
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size - 1]
                     data_index += self.payload_size - packet_header_size - 1
                 else:
-                    packet = stream_id + '!' + str(seq) + '!' + data[data_index:] + '\n' #data string already finish with a \n so this one doubles it
-                    data_index = len(data)
-                #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                             + '1' + cdata[data_index:]
+                    data_index = len(cdata)
                 for i in range(4, 100):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
@@ -121,12 +131,12 @@ class BroadcastManager():
             data, addr = s.recvfrom(4096)# Maximum allowed size is 4096 bytes
 
             # Decouple message sections
-            message_id, packet_seq_num, packet_data = self.parse_packet(addr, data)
+            message_id, packet_seq_num, packet_data, final_flag = self.parse_packet(addr, data)
 
             # Proceed with pushing the message if decouple successful
             if message_id is not None:
                 # Push to packet dict
-                self.push_to_packets_dict(message_id, packet_seq_num, packet_data, time.time())
+                self.push_to_packets_dict(message_id, packet_seq_num, packet_data, final_flag, time.time())
 
                 # Check the packet dict if we are done with this sequence of packets
                 is_complete, message_data = self.is_stream_complete(message_id)
@@ -155,28 +165,25 @@ class BroadcastManager():
         # Expected packet structure
         # MESSAGE_ID!PACKET_SEQUENCE!REST_OF_PACKET_DATA
         try:
-            data_parts = data.split('!')
-            message_id = data_parts[0]
-            sequence = data_parts[1]
-            data = '!'.join(str(p) for p in data_parts[2:])
-            if data[-1] != "\n":
+            message_id = data[:5]
+            sequence = data[6:9]
+            length = data[10:13]
+            is_final = data[14]
+            content = data[15:]
+            if len(content) != length:
                 self.log.debug("EOL not found, descarding packet due to invalid format")
-                return None, None, None
+                return None, None, None, None
             else:
-                return message_id, int(sequence), data
+                return message_id, int(sequence), content, bool(is_final)
         except Exception as e:
             self.log.warning("Exception while parsing packet data: " + str(e))
-            return None, None, None
-
-    # Checks if the parameter packet_data is a final packet in a message sequence
-    def is_final(self, packet_data):
-        return "\n\n" in packet_data
+            return None, None, None, None
 
     # Gets message identifier, packet sequence number and its data, then pushes it into packets dictionary
-    def push_to_packets_dict(self, message_id, sequence, data, time):
+    def push_to_packets_dict(self, message_id, sequence, data, final_flag, time):
         msg_id = message_id
         msg_arrival_time = time
-        new_packet = {'seq_num': sequence, 'data': data, 'is_final': self.is_final(data)}
+        new_packet = {'seq_num': sequence, 'data': data, 'is_final': final_flag}
 
         # Check if we arleady have gotten a packet related to this message
         # if yes we just add new packet to the packet list
