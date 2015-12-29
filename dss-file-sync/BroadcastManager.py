@@ -225,15 +225,16 @@ class BroadcastManager():
         # udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
         msg_list = (zlib.uncompress(message)).replace('\n', '').split('!')
         #self.log.debug("Stripped message data: " + str(msg_list))
-        tracker_struct = {'url': msg_list[0], 'timestamp': msg_list[1]}
 
         # Manage deleted files block
         deleted_list = msg_list[2].split(',')
         if len(deleted_list) > 0:
-            pass
+            for deleted_file in deleted_list:
+                self.tm.delete_torrent(torrent_name=deleted_file)
         # Manage deleted files block end
 
         # Manage tracker list block
+        tracker_struct = {'url': msg_list[0], 'timestamp': msg_list[1]}
         is_new = self.tkm.update_tracker(tracker_struct)
         if is_new:
             self.tm.recreate_all_torrents()

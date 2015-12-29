@@ -34,6 +34,7 @@ if __name__ == "__main__":
     broadcast_manager.remove_expired_streams()
     tracker_manager.expire_tracker()
     torrent_manager.check_new_files()
+    torrent_manager.cleanup_deleted_files()
 
     for i in range(1,5000):
 	#print "Sleeping...\n"

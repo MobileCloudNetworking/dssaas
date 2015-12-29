@@ -32,8 +32,8 @@ class TorrentManager():
     @threaded
     def check_new_files(self):
         self.log.debug("Starting File Monitoring Thread")
-        while 1:
-            result, file_list = self.fm.new_file_exists(self.path,['.webm'])
+        while True:
+            result, file_list = self.fm.new_file_exists(self.path, ['.webm'])
             if result:
                 self.log.debug("New files detected: " + str(file_list))
                 for file_name in file_list:
@@ -42,6 +42,15 @@ class TorrentManager():
                     self.add_torrent_to_session(file_name.split('.')[0] + '.torrent', 'check_new_files')
             time.sleep(1)
         self.log.debug("Exiting File Monitoring Thread")
+
+    @threaded
+    def cleanup_deleted_files(self):
+        self.log.debug("Starting Deleted Files Monitoring Thread")
+        while True:
+            res = self.fm.remove_all(self.path, ['.removed'])
+            self.log.debug("Performed " + str(res) + " clean up")
+            time.sleep(120)
+        self.log.debug("Exiting Deleted Files Monitoring Thread")
 
     def add_torrent_to_session(self, torrent_name, called_from):
         if called_from == 'check_new_files' or called_from == 'save_torrent':
@@ -97,4 +106,9 @@ class TorrentManager():
             self.fm.create_file(self.path, torrent_name, base64.b64decode(torrent_content))
             self.add_torrent_to_session(torrent_name, 'save_torrent')
             #now I might add it to the session to start downloading
+
+    def delete_torrent(self, torrent_name):
+        self.sm.remove_torrent(torrent_name)
+        self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.removed')
+        self.fm.remove_file(self.path, torrent_name.split('.')[0] + '.webm')
 
