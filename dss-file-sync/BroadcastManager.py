@@ -252,7 +252,7 @@ class BroadcastManager():
 
         # Manage deleted files block
         if len(msg_list[2]) > 0:
-            deleted_list = msg_list[2].split(',')
+            deleted_list = msg_list[2].split(',').pop()
             self.log.debug("Got the list of deleted torrents from broadcast message:" + str(deleted_list))
             for deleted_file in deleted_list:
                 self.tm.delete_torrent(torrent_name=deleted_file)
