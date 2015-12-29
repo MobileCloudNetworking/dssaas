@@ -66,6 +66,19 @@ class FileManager:
             self.log.debug("Removal Exception: " + str(e))
             return False
 
+    # Renames the specified file in given path to the new given name
+    # Sample call: rename_file(path='./', current_name='1.webm', new_name='2.bak')
+    def rename_file(self, path, current_name, new_name):
+        try:
+            self.lock.acquire()
+            os.rename(path + current_name, path + new_name)
+            self.lock.release()
+            return True
+        except Exception as e:
+            self.lock.release()
+            self.log.debug("Rename Exception: " + str(e))
+            return False
+
     # Removes all files with specified extensions in given path
     # Note: call list_files function to update the file list snapshot after each delete call
     # Sample call: remove_all(path='./', extensions=['.webm','.torrents'])

@@ -1,3 +1,5 @@
+import zlib
+
 __author__ = "Santiago Ruiz", "Mohammad Valipoor"
 __copyright__ = "Copyright 2015, SoftTelecom"
 __credits__ = ["Santiago Ruiz", "Mohammad Valipoor"]
@@ -220,19 +222,32 @@ class BroadcastManager():
         return False, None
 
     def parse_broadcast_message(self, message):
-        #udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
-        msg_list = message.replace('\n', '').split('!')
+        # udp://172.30.2.46:6969/announce!1450430624.7613!mytorrent.torrent!ZDg6YW5ub3VuY2UyOTp1ZHA6Ly9sb2NhbGhvc3Q6Njk2OS9hbm5vdW5jZTc6Y29tbWVudDQ6VGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDI4NzIxNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lODp0ZXN0LnR4dDEyOnBpZWNlIGxlbmd0aGkxNjM4NGU2OnBpZWNlczgwOv2TLO5kpmZ7SZq+v6i5Z01VNmm3IxcyPZRmLZeuJ7Gl+ZC0C9egeh99D/42XYE55Q0zaSgCrP+BIY1T7qr/muq34oDUxWetqRw89wWpSlcdZWU=!my.torrent!ZDg6YW5ub3VuY2UxMToxNzIuMzAuMi40Njc6Y29tbWVudDQ6dGVzdDEwOmNyZWF0ZWQgYnkyMDpsaWJ0b3JyZW50IDAuMTYuMTMuMDEzOmNyZWF0aW9uIGRhdGVpMTQ1MDQzMDYyNGU0OmluZm9kNjpsZW5ndGhpNTgxOTZlNDpuYW1lNzpteS5maWxlMTI6cGllY2UgbGVuZ3RoaTE2Mzg0ZTY6cGllY2VzODA6/ZMs7mSmZntJmr6/qLlnTVU2abcjFzI9lGYtl64nsaX5kLQL16B6H30P/jZdgTnlDTNpKAKs/4EhjVPuqv+a6rfigNTFZ62pHDz3BalKVx1lZQ==
+        msg_list = (zlib.uncompress(message)).replace('\n', '').split('!')
         #self.log.debug("Stripped message data: " + str(msg_list))
         tracker_struct = {'url': msg_list[0], 'timestamp': msg_list[1]}
+
+        # Manage deleted files block
+        deleted_list = msg_list[2].split(',')
+        if len(deleted_list) > 0:
+            pass
+        # Manage deleted files block end
+
+        # Manage tracker list block
         is_new = self.tkm.update_tracker(tracker_struct)
         if is_new:
             self.tm.recreate_all_torrents()
-        for index in range (2, len(msg_list), 2):
+        # Manage tracker list block end
+
+        # Manage torrents content block
+        for index in range (3, len(msg_list), 2):
             #check if I do have the torrent file
             torrent_name =  msg_list[index]
             torrent_content = msg_list[index + 1]
             self.tm.save_torrent(torrent_name, torrent_content)
+        # Manage torrents content block end
+
         #check
-        self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
-        self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
+        #self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
+        #self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
 
