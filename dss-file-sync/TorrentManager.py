@@ -59,7 +59,8 @@ class TorrentManager():
             for removed_file in removed_torrent_list:
                 current_time = int(time.time())
                 file_removed_at = int(removed_file.split('.')[1])
-                if current_time - file_removed_at >= self.removed_torrents_timeout:
+                self.log.debug("File " + removed_file + " is " + current_time - file_removed_at + " seconds old." )
+                if (current_time - file_removed_at) >= self.removed_torrents_timeout:
                     self.fm.remove_file(self.path, removed_file)
             self.log.debug("Performed clean up")
             time.sleep(60)
