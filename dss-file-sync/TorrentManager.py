@@ -132,8 +132,11 @@ class TorrentManager():
         return False
 
     def delete_torrent(self, torrent_name):
+        self.log.debug("Trying to delete: " + torrent_name)
         if not self.already_removed(torrent_name):
             self.sm.remove_torrent(torrent_name)
             self.fm.rename_file(self.path, torrent_name, torrent_name.split('.')[0] + '.' + str(int(time.time())) + '.removed')
             self.fm.remove_file(self.path, torrent_name.split('.')[0] + '.webm')
+        else:
+            self.log.debug("File " + torrent_name + " is already deleted")
 
