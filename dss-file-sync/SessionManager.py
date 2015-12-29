@@ -61,6 +61,7 @@ class SessionManager:
     #   Keep trying till you get True as return value from add_torrent
     def remove_torrent(self, torrent_name):
         if self.session is not None:
+            self.log.debug("Torrent file to be removed from session is: " + torrent_name)
             target_handler = self.find_torrent(torrent_name.split('.')[0] + '.webm')
             self.session.remove_torrent(target_handler)
             self.torrent_handle_list.remove(target_handler)
