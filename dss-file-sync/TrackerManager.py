@@ -25,7 +25,7 @@ class TrackerManager():
         self.terminated = False
         self.conf = Config()
         self.log = logging.getLogger(self.conf.get('log', 'name'))
-        print self.conf.get('main', 'interface')
+        #print self.conf.get('main', 'interface')
         iface = str(self.conf.get('main', 'interface'))
         self.tracker = {'url': 'udp://'+str(self.get_ip_address(iface))+':6969/announce', 'timestamp': repr(time.time())}
         self.tracker_list = []
