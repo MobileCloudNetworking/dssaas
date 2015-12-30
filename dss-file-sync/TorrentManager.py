@@ -67,7 +67,10 @@ class TorrentManager():
 
     def add_all_existing_torrents(self):
         for torrent in self.torrent_list:
-            self.add_torrent_to_session(torrent, 'torrent_init')
+            if self.fm.file_exists(self.path, torrent.split('.')[0] + '.webm'):
+                self.add_torrent_to_session(torrent, 'torrent_init')
+            else:
+                self.fm.remove_file(self.path, torrent)
 
     def add_torrent_to_session(self, torrent_name, called_from):
         if called_from == 'check_new_files' or called_from == 'save_torrent' or called_from == 'torrent_init':
