@@ -32,11 +32,11 @@ def main_func():
     broadcast_manager = BroadcastManager(file_manager, torrent_manager, tracker_manager)
 
     def clean_up(signal, frame):
-        print "Exiting threads gracefully ...\n"
+        print "Exiting threads gracefully ..."
         broadcast_manager.terminated = True
         torrent_manager.terminated = True
         tracker_manager.terminated = True
-        print "Bye.\n"
+        print "Bye."
         sys.exit()
 
     #running threads
