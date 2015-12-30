@@ -25,6 +25,7 @@ def threaded(fn):
 class BroadcastManager():
     #TODO: Sending thread, recieving thread
     def __init__(self, file_manager, torrent_manager,tracker_manager):
+        self.terminated = False
         self.broadcast_port = 6977
         self.broadcast_ip = '192.168.20.255'
         self.tm = torrent_manager
@@ -33,7 +34,6 @@ class BroadcastManager():
         self.conf = Config()
         self.path = self.conf.get('main', 'path')
         self.payload_size = int(self.conf.get('main', 'udp_payload_size'))
-        #check
         self.log = logging.getLogger(self.conf.get('log', 'name'))
         #self.log.debug('TorrentList:' + str(self.tm.get_torrent_list()))
         #self.log.debug('TrackerList:' + str(self.tkm.get_tracker_list()))
@@ -57,27 +57,22 @@ class BroadcastManager():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             cdata = zlib.compress(data)
-            self.log.debug('Data size is ' + str(len(data))+ ' and data compressed size is ' +str(len(cdata)))
+            self.log.debug('Data size is ' + str(len(data))+ ' and data compressed size is ' + str(len(cdata)))
             md5_handler = md5.new()
             md5_handler.update(cdata)
             signature = md5_handler.digest()
             b64signature = base64.b64encode(signature)
             self.log.debug('Data compressed base signature is ' + b64signature)
-            #data += '\n'
-            #self.log.debug(data)
-            #building the udp packets and sending them separately
+            # Building the udp packets and sending them separately
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
-            packet = ''
             while data_index < len(cdata):
-                #Header is fixed = 6 for id, 4 for seq, 4 for len and 1 for is_final
+                # Header is fixed = 6 for id, 4 for seq, 4 for len and 1 for is_final
                 packet_header_size = 6 + 4 + 4 + 1
                 remaining = len(cdata) - data_index
-                #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
-                #available size for payload is upd_size - header - ending char(1 char)
                 if (self.payload_size - packet_header_size) < remaining:
-                    #still more than 1 packet to be sent
+                    # Still more than 1 packet to be sent
                     packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size).zfill(4) \
                              + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size]
                     data_index += self.payload_size - packet_header_size
@@ -85,10 +80,12 @@ class BroadcastManager():
                     packet = stream_id.zfill(6) + str(seq).zfill(4) + str(len(cdata[data_index:])).zfill(4) \
                              + '1' + cdata[data_index:]
                     data_index = len(cdata)
-                #self.log.debug('SENDING MESSAGE: ' + str(packet.replace('\n','*EOL*')))
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
-            time.sleep(30)
+            for i in range(1, 30):
+                time.sleep(1)
+                if self.terminated:
+                    return
 
     @threaded
     def sendAmazon_broadcast_message(self):
@@ -99,41 +96,45 @@ class BroadcastManager():
             data = str(self.tkm.get_self_tracker()['url']) + '!' + repr(time.time()) + '!'
             for torrent in self.tm.get_removed_torrent_list():
                 self.log.debug('Checking removed torrent: ' + str(torrent))
-                data += str(torrent) + ','
+                data += str(torrent.split('.')[0] + '.torrent') + ','
             for torrent in self.tm.get_torrent_list():
                 self.log.debug('Checking torrent: ' + str(torrent))
                 data += '!' + str(torrent) + '!' + str(self.tm.get_torrent_content(torrent))
             cdata = zlib.compress(data)
-            #data += '\n'
-            #self.log.debug(data)
-            #building the udp packets and sending them separately
+            self.log.debug('Data size is ' + str(len(data))+ ' and data compressed size is ' +str(len(cdata)))
+            md5_handler = md5.new()
+            md5_handler.update(cdata)
+            signature = md5_handler.digest()
+            b64signature = base64.b64encode(signature)
+            self.log.debug('Data compressed base signature is ' + b64signature)
+            # Building the udp packets and sending them separately
             stream_id = str(int(random.random()*10000 - 1))
             seq = 1
             data_index = 0
-            packet = ''
             while data_index < len(cdata):
-                #5 first chars for ID, 3 chars for seq
-                packet_header_size = len(stream_id) + len(str(seq)) + 2
+                # Header is fixed = 6 for id, 4 for seq, 4 for len and 1 for is_final
+                packet_header_size = 6 + 4 + 4 + 1
                 remaining = len(cdata) - data_index
-                #self.log.debug('SENDING MESSAGE: Packet header size = ' + str(packet_header_size) + ' and remaining = ' + str(remaining))
-                #available size for payload is upd_size - header - ending char(1 char)
-                if (self.payload_size - packet_header_size - 1) < remaining:
-                    #still more than 1 packet to be sent
-                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
-                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size - 1]
-                    data_index += self.payload_size - packet_header_size - 1
+                if (self.payload_size - packet_header_size) < remaining:
+                    # Still more than 1 packet to be sent
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size).zfill(4) \
+                             + '0' + cdata[data_index:data_index + self.payload_size - packet_header_size]
+                    data_index += self.payload_size - packet_header_size
                 else:
-                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(self.payload_size - packet_header_size - 1).zfill(4) \
+                    packet = stream_id.zfill(6) + str(seq).zfill(4) + str(len(cdata[data_index:])).zfill(4) \
                              + '1' + cdata[data_index:]
                     data_index = len(cdata)
                 for i in range(4, 100):
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
-            time.sleep(30)
+            for i in range(1, 30):
+                time.sleep(1)
+                if self.terminated:
+                    return
 
     @threaded
     def receive_broadcast_message(self):
-        s = socket(AF_INET,SOCK_DGRAM) # UDP
+        s = socket(AF_INET, SOCK_DGRAM)# UDP
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(4096)# Maximum allowed size is 4096 bytes
@@ -166,7 +167,10 @@ class BroadcastManager():
                 expired_ones = [message for message in self.all_packets_dict if current_time >= message['timeout']]
                 for message in expired_ones:
                         self.all_packets_dict.remove(message)
-            time.sleep(self.message_timeout)
+            for i in range(1, self.message_timeout):
+                time.sleep(1)
+                if self.terminated:
+                    return
 
     # Gets a packet and returns message identifier, packet sequence number and its data
     def parse_packet(self, addr, data):

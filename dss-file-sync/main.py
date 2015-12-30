@@ -13,7 +13,14 @@ from Config import *
 from SessionManager import *
 from TorrentManager import *
 from TrackerManager import *
+import atexit
 import time
+
+def clean_up(broadcast_manager, torrent_manager):
+    print "Exiting threads gracefully ...\n"
+    broadcast_manager.terminated = True
+    torrent_manager.terminated = True
+    print "Bye.\n"
 
 if __name__ == "__main__":
     conf = Config()
@@ -37,8 +44,12 @@ if __name__ == "__main__":
     torrent_manager.check_files_status()
     torrent_manager.cleanup_deleted_files()
 
+    atexit.register(clean_up(broadcast_manager, torrent_manager))
+
     for i in range(1, 5000):
-	#print "Sleeping...\n"
-	time.sleep(1)
-	for torrent_file in file_manager.list_files(path, ['.torrent'])[1]:
-	    session_manager.get_torrent_stat_str(torrent_file.split('.')[0] + '.webm')
+        #print "Sleeping...\n"
+        time.sleep(1)
+        for torrent_file in file_manager.list_files(path, ['.torrent'])[1]:
+            session_manager.get_torrent_stat_str(torrent_file.split('.')[0] + '.webm')
+
+    clean_up(broadcast_manager, torrent_manager)

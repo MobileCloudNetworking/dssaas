@@ -21,6 +21,7 @@ def threaded(fn):
 
 class TorrentManager():
     def __init__(self, file_manager, session_manager, tracker_manager):
+        self.terminated = False
         self.conf = Config()
         self.log = logging.getLogger(self.conf.get('log', 'name'))
         self.fm = file_manager
@@ -48,6 +49,8 @@ class TorrentManager():
                     self.log.debug("Deleting torrent file of : " + str(file_name))
                     self.delete_torrent(file_name.split('.')[0] + '.torrent')
             time.sleep(1)
+            if self.terminated:
+                return
         self.log.debug("Exiting File Monitoring Thread")
 
     @threaded
@@ -62,7 +65,10 @@ class TorrentManager():
                 if (current_time - file_removed_at) >= self.removed_torrents_timeout:
                     self.fm.remove_file(self.path, removed_file)
             self.log.debug("Performed clean up")
-            time.sleep(60)
+            for i in range(1, 60):
+                time.sleep(1)
+                if self.terminated:
+                    return
         self.log.debug("Exiting Deleted Files Monitoring Thread")
 
     def remove_all_existing_torrents(self):
