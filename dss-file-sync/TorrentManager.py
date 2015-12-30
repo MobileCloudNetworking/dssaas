@@ -27,8 +27,9 @@ class TorrentManager():
         self.sm = session_manager
         self.tm = tracker_manager
         self.path = self.conf.get('main', 'path')
-        self.torrent_list = self.fm.list_files('.', ['.torrent'])[1]
+        self.torrent_list = self.fm.list_files(self.path, ['.torrent'])[1]
         self.removed_torrents_timeout = int(self.conf.get('main', 'removed_torrents_timeout'))
+        self.add_all_existing_torrents()
 
     @threaded
     def check_files_status(self):
@@ -64,8 +65,12 @@ class TorrentManager():
             time.sleep(60)
         self.log.debug("Exiting Deleted Files Monitoring Thread")
 
+    def add_all_existing_torrents(self):
+        for torrent in self.torrent_list:
+            self.add_torrent_to_session(torrent, 'torrent_init')
+
     def add_torrent_to_session(self, torrent_name, called_from):
-        if called_from == 'check_new_files' or called_from == 'save_torrent':
+        if called_from == 'check_new_files' or called_from == 'save_torrent' or called_from == 'torrent_init':
             self.sm.add_torrent(torrent_name)
         elif called_from == 'recreate_all_torrents':
             added = False
