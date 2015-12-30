@@ -35,8 +35,9 @@ def main_func():
         print "Exiting threads gracefully ...\n"
         broadcast_manager.terminated = True
         torrent_manager.terminated = True
+        tracker_manager.terminated = True
         print "Bye.\n"
-        sys.exit(0)
+        sys.exit()
 
     #running threads
     #broadcast_manager.sendAmazon_broadcast_message()

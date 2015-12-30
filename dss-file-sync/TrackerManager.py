@@ -22,6 +22,7 @@ def threaded(fn):
 
 class TrackerManager():
     def __init__(self):
+        self.terminated = False
         self.conf = Config()
         self.log = logging.getLogger(self.conf.get('log', 'name'))
         print self.conf.get('main', 'interface')
@@ -45,6 +46,8 @@ class TrackerManager():
                     self.remove_tracker(tracker)
                     #tracker will be removed in next torrent recreation so we don't recreate torrents here
             time.sleep(1)
+            if self.terminated:
+                return
         self.log.debug("Exiting Tracker Expiration Monitoring")
 
     def get_ip_address(self, ifname):
