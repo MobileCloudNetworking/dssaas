@@ -51,8 +51,9 @@ class SessionManager:
             self.torrent_handle_list.append(handler)
             #self.log.debug('Torrent handler list is: ' + str(self.torrent_handle_list))
             return True
-        except:
+        except Exception as e:
             self.log.debug("Adding torrent " + torrent_name + " to BitTorrent FAILED!")
+            self.log.debug("Trace " + str(e))
             return False
 
     # Gets a torrent name and removes it from the session and the torrent_handle_list
