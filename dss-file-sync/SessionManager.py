@@ -17,7 +17,7 @@ class SessionManager:
         self.torrent_handle_list = []
         self.conf = Config()
         self.log = logging.getLogger(self.conf.get('log', 'name'))
-        self.path = logging.getLogger(self.conf.get('main', 'path'))
+        self.path = self.conf.get('main', 'path')
         self.start_session()
 
     def start_session(self):
