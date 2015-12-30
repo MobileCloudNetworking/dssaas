@@ -84,6 +84,7 @@ class BroadcastManager():
                 seq += 1
             for i in range(1, 30):
                 if self.terminated:
+                    s.sendto("exit", ('127.0.0.1', self.broadcast_port))
                     return
                 time.sleep(1)
 
@@ -129,6 +130,7 @@ class BroadcastManager():
                 seq += 1
             for i in range(1, 30):
                 if self.terminated:
+                    s.sendto("exit", ('127.0.0.1', self.broadcast_port))
                     return
                 time.sleep(1)
 
@@ -138,6 +140,8 @@ class BroadcastManager():
         s.bind(('0.0.0.0', self.broadcast_port))
         while True:
             data, addr = s.recvfrom(4096)# Maximum allowed size is 4096 bytes
+            if self.terminated:
+                return
 
             # Decouple message sections
             message_id, packet_seq_num, packet_data, final_flag = self.parse_packet(addr, data)
