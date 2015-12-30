@@ -48,9 +48,9 @@ class TorrentManager():
                 for file_name in removed_file_list:
                     self.log.debug("Deleting torrent file of : " + str(file_name))
                     self.delete_torrent(file_name.split('.')[0] + '.torrent')
-            time.sleep(1)
             if self.terminated:
                 return
+            time.sleep(1)
         self.log.debug("Exiting File Monitoring Thread")
 
     @threaded
@@ -66,9 +66,9 @@ class TorrentManager():
                     self.fm.remove_file(self.path, removed_file)
             self.log.debug("Performed clean up")
             for i in range(1, 60):
-                time.sleep(1)
                 if self.terminated:
                     return
+                time.sleep(1)
         self.log.debug("Exiting Deleted Files Monitoring Thread")
 
     def remove_all_existing_torrents(self):

@@ -45,9 +45,9 @@ class TrackerManager():
                     self.log.debug("Removing tracker " + str(tracker['url']))
                     self.remove_tracker(tracker)
                     #tracker will be removed in next torrent recreation so we don't recreate torrents here
-            time.sleep(1)
             if self.terminated:
                 return
+            time.sleep(1)
         self.log.debug("Exiting Tracker Expiration Monitoring")
 
     def get_ip_address(self, ifname):

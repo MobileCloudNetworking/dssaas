@@ -83,9 +83,9 @@ class BroadcastManager():
                 s.sendto(packet, (self.broadcast_ip, self.broadcast_port))
                 seq += 1
             for i in range(1, 30):
-                time.sleep(1)
                 if self.terminated:
                     return
+                time.sleep(1)
 
     @threaded
     def sendAmazon_broadcast_message(self):
@@ -128,9 +128,9 @@ class BroadcastManager():
                     s.sendto(packet, ('172.30.2.' + str(i), self.broadcast_port))
                 seq += 1
             for i in range(1, 30):
-                time.sleep(1)
                 if self.terminated:
                     return
+                time.sleep(1)
 
     @threaded
     def receive_broadcast_message(self):
@@ -168,9 +168,9 @@ class BroadcastManager():
                 for message in expired_ones:
                         self.all_packets_dict.remove(message)
             for i in range(1, self.message_timeout):
-                time.sleep(1)
                 if self.terminated:
                     return
+                time.sleep(1)
 
     # Gets a packet and returns message identifier, packet sequence number and its data
     def parse_packet(self, addr, data):
