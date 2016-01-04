@@ -3,6 +3,8 @@
 '''''''''
 import string
 import random
+import time
+
 
 class TemplateGenerator:
     """
@@ -21,8 +23,8 @@ class TemplateGenerator:
         #self.key_name = "ubern-key"
         self.key_name = "mcn-key"
         self.dns_enable = 'false'
-        self.dss_cms_image_name = 'DSS-IMG-cln'
-        self.dss_mcr_image_name = 'DSS-IMG-cln'
+        self.dss_cms_image_name = 'DSS-IMG-filesync'
+        self.dss_mcr_image_name = 'DSS-IMG-filesync'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
@@ -35,33 +37,38 @@ class TemplateGenerator:
         self.flavor_list = ['m1.tiny','m1.small','m1.medium','m1.large','m1.xlarge']
         
         self.numberOfCmsInstances = 1
+        self.numberOfMcrInstances = 1
         self.cmsCounter = 1
-        
-        self.baseCmsResourceName = ""
-        self.lbNameRandom = ""
+        self.mcrCounter = 1
 
         self.cmsHostToRemove = None
     
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
     
-    def getCmsBaseName(self):
-        return "cms" + str(self.cmsCounter) + "_server"
-    
+    def getBaseName(self, instance_type):
+        if instance_type is "cms":
+            return "cms" + str(self.cmsCounter) + "_server_" + str(int(time.time())), "cms" + str(self.cmsCounter) + "_server"
+        elif instance_type is "mcr":
+            return "mcr" + str(self.mcrCounter) + "_server_" + str(int(time.time())), "mcr" + str(self.mcrCounter) + "_server"
+        else:
+            return None
+
     def getBaseCmsTemplate(self):
-        self.baseCmsResourceName = self.getCmsBaseName()
+        hostname, device_name = self.getBaseName(instance_type='cms')
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         CMS / FRONTEND RESOURCES                                 #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += '  ' + self.baseCmsResourceName + ':' + "\n"
+        template += '  ' + device_name + ':' + "\n"
         template += '    Type: OS::Nova::Server' + "\n"
         template += '    Properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
+        template += '      name: ' + hostname + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_cms_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : ' + self.baseCmsResourceName + '_port }' + "\n"
+        template += '        - port: { Ref : ' + device_name + '_port }' + "\n"
         template += '      user_data: |' + "\n"
         template += '        #!/bin/bash' + "\n"
         template += '        cd /home/ubuntu/' + "\n"
@@ -72,7 +79,7 @@ class TemplateGenerator:
         template += "        tar -xvzf agent_ex.tar.gz" + "\n"
         template += "        python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ &" + "\n"
         template += "\n"             
-        template += "  " + self.baseCmsResourceName + "_port:" + "\n"             
+        template += "  " + device_name + "_port:" + "\n"
         template += "    Type: OS::Neutron::Port" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
@@ -80,28 +87,29 @@ class TemplateGenerator:
         template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
-        template += "  " + self.baseCmsResourceName + "_floating_ip:" + "\n"             
+        template += "  " + device_name + "_floating_ip:" + "\n"
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
-        template += '      port_id: { Ref : ' + self.baseCmsResourceName + '_port }' + "\n"
+        template += '      port_id: { Ref : ' + device_name + '_port }' + "\n"
 
         return template             
     
     def getBaseMcrTemplate(self):
-        self.baseCmsResourceName = self.getCmsBaseName()
+        hostname, device_name = self.getBaseName(instance_type='mcr')
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         MCR / FRONTEND RESOURCES                                 #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += '  mcr_server:' + "\n"
+        template += '  ' + device_name + ':' + "\n"
         template += '    Type: OS::Nova::Server' + "\n"
         template += '    Properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
+        template += '      name: ' + hostname + "\n"
         template += '      flavor: ' + self.flavor_list[self.mcr_flavor_idx] + "\n"
         template += '      image: ' + self.dss_mcr_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : mcr_server_port }' + "\n"
+        template += '        - port: { Ref : ' + device_name + '_port }' + "\n"
         template += '      user_data: |' + "\n"
         template += '        #!/bin/bash' + "\n"
         template += '        cd /home/ubuntu/' + "\n"
@@ -112,7 +120,7 @@ class TemplateGenerator:
         template += "        tar -xvzf agent_ex.tar.gz" + "\n"
         template += "        python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ &" + "\n"
         template += "\n"             
-        template += "  mcr_server_port:" + "\n"             
+        template += "  " + device_name + "_port:" + "\n"
         template += "    Type: OS::Neutron::Port" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      network_id: "' + self.private_network_id + '"' + "\n"             
@@ -120,45 +128,53 @@ class TemplateGenerator:
         template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
         template += "\n"             
-        template += "  mcr_server_floating_ip:" + "\n"             
+        template += "  " + device_name + "_floating_ip:" + "\n"
         template += "    Type: OS::Neutron::FloatingIP" + "\n"             
         template += "    Properties:" + "\n"             
         template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
-        template += '      port_id: { Ref : mcr_server_port }' + "\n"
+        template += '      port_id: { Ref : ' + device_name + '_port }' + "\n"
         
         return template
     
     def getOutput(self):
-        self.baseCmsResourceName = self.getCmsBaseName()
         template = "Outputs:" + "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += '  mcn.dss.cms' + str(self.cmsCounter) + '.endpoint:' + "\n"
             template += '    Description: Floating IP address of DSS CMS in public network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.getCmsBaseName() + "_floating_ip, floating_ip_address] }" + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.getBaseName('cms')[1] + "_floating_ip, floating_ip_address] }" + "\n"
             template += "\n"
-            
-        template += '  mcn.dss.mcr.endpoint:' + "\n"
-        template += '    Description: Floating IP address of DSS MCR in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_server_floating_ip, floating_ip_address ] }" + "\n"
-        template += "\n"
+
+        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
+            template += '  mcn.dss.mcr' + str(self.mcrCounter) + '.endpoint:' + "\n"
+            template += '    Description: Floating IP address of DSS MCR in public network' + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.getBaseName('mcr')[1] + "_floating_ip, floating_ip_address] }" + "\n"
+            template += "\n"
+
         template += '  mcn.dss.db.endpoint:' + "\n"
         template += '    Description: IP address of DSS DB in private network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ dbaas_server, first_address ] }" + "\n"
         template += "\n"
-        template += '  mcn.dss.lb.endpoint:' + "\n"
-        template += '    Description: Floating IP address of DSS load balancer in public network' + "\n"
+        template += '  mcn.dss.cms.lb.endpoint:' + "\n"
+        template += '    Description: Floating IP address of DSS (CMS) load balancer in public network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
         template += "\n"
-        template += '  mcn.dss.mcr.hostname:' + "\n"
-        template += '    Description: open stack instance name' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_server, name ] }" + "\n"
+        template += '  mcn.dss.mcr.lb.endpoint:' + "\n"
+        template += '    Description: Floating IP address of DSS (MCR) load balancer in public network' + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
+        template += "\n"
         
         for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
             template += "\n"
             template += '  mcn.dss.cms' + str(self.cmsCounter) + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.getCmsBaseName() + ", name ] }" + "\n"
+            template += "    Value: { 'Fn::GetAtt': [ " + self.getBaseName('cms')[1] + ", name ] }" + "\n"
+
+        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
+            template += "\n"
+            template += '  mcn.dss.mcr' + str(self.mcrCounter) + '.hostname:' + "\n"
+            template += '    Description: open stack instance name' + "\n"
+            template += "    Value: { 'Fn::GetAtt': [ " + self.getBaseName('mcr')[1] + ", name ] }" + "\n"
 
         template += '  mcn.endpoint.dssaas:' + "\n"
         template += '    Description: DSS service endpoint' + "\n"
@@ -187,6 +203,7 @@ class TemplateGenerator:
         template += '    Type: OS::Nova::Server' + "\n"
         template += '    Properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
+        template += '      name: dss_dbaas_server' + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_db_image_name + "\n"
         template += '      networks:' + "\n"
@@ -218,8 +235,15 @@ class TemplateGenerator:
             template += self.getBaseCmsTemplate()
             template += "\n"
         
-        self.cmsCounter = 1    
-        template += self.getBaseMcrTemplate()
+        self.cmsCounter = 1
+
+        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
+            template += "\n"
+            template += self.getBaseMcrTemplate()
+            template += "\n"
+
+        self.mcrCounter = 1
+
         template += "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         LB / FRONTEND RESOURCES                                  #' + "\n"
@@ -239,11 +263,11 @@ class TemplateGenerator:
         template += '    Type: OS::Neutron::Pool' + "\n"            
         template += '    Properties:' + "\n"            
         template += '      lb_method: ROUND_ROBIN' + "\n"            
-        template += '      name: mypool' + "\n"            
+        template += '      name: cmspool' + "\n"
         template += '      protocol: HTTP' + "\n"            
         template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"            
         template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"            
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": myvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"            
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": cmsvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
         template += "\n"
         
         self.lbNameRandom = self.randomNameGenerator(6)
@@ -254,12 +278,12 @@ class TemplateGenerator:
         template += '      members: [ '
         
         self.cmsCounter = 1
-        template += '{ Ref: ' + self.getCmsBaseName() +' }' 
+        template += '{ Ref: ' + self.getBaseName(instance_type='cms')[1] +' }'
         for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
-            template += ', { Ref: ' + self.getCmsBaseName() +' }'
+            template += ', { Ref: ' + self.getBaseName(instance_type='cms')[1] +' }'
 
         self.cmsCounter = self.numberOfCmsInstances + 1
-        self.cmsHostToRemove = self.getCmsBaseName()
+        self.cmsHostToRemove = self.getBaseName(instance_type='cms')[1]
 
         template += ' ]' + "\n"           
         template += '      pool_id: { Ref: cms_lb_pool }' + "\n"           
@@ -270,6 +294,56 @@ class TemplateGenerator:
         template += '    Properties:' + "\n"           
         template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed          
         template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"           
+        template += "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += '#                         LB / MCR RESOURCES                                       #' + "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += "\n"
+        template += '  mcr_healthmonitor:' + "\n"
+        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      delay : 10' + "\n"
+        template += '      max_retries : 3' + "\n"
+        template += '      timeout : 10' + "\n"
+        template += '      type : HTTP' + "\n"
+        template += '      url_path : /DSSMCRAPI/' + "\n"
+        template += '      expected_codes : 200-399'
+        template += "\n"
+        template += '  mcr_lb_pool:' + "\n"
+        template += '    Type: OS::Neutron::Pool' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      lb_method: ROUND_ROBIN' + "\n"
+        template += '      name: mcrpool' + "\n"
+        template += '      protocol: HTTP' + "\n"
+        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      monitors : [{ Ref: mcr_healthmonitor }]' + "\n"
+        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": mcrvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+        template += "\n"
+
+        self.lbNameRandom = self.randomNameGenerator(6)
+
+        template += '  ' + self.lbNameRandom  + '_loadbalancer:' + "\n"
+        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      members: [ '
+
+        self.mcrCounter = 1
+        template += '{ Ref: ' + self.getBaseName(instance_type='mcr')[1] +' }'
+        for self.mcrCounter in range(2, self.numberOfMcrInstances + 1):
+            template += ', { Ref: ' + self.getBaseName(instance_type='mcr')[1] +' }'
+
+        self.mcrCounter = self.numberOfMcrInstances + 1
+        self.mcrHostToRemove = self.getBaseName(instance_type='mcr')[1]
+
+        template += ' ]' + "\n"
+        template += '      pool_id: { Ref: mcr_lb_pool }' + "\n"
+        template += '      protocol_port: 80' + "\n"
+        template += "\n"
+        template += '  mcr_lb_floatingip:' + "\n"
+        template += '    Type: OS::Neutron::FloatingIP' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
+        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ mcr_lb_pool, vip ] } ] }" + "\n"
         template += "\n"
         template += self.getOutput()
         
