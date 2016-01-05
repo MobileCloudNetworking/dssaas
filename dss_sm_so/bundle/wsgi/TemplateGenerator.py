@@ -173,16 +173,16 @@ class TemplateGenerator:
         template += "\n"
         
         for i in range(0, len(self.cms_instances)):
-            template += "\n"
             template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
             template += "    Value: { 'Fn::GetAtt': [ " + self.cms_instances[i]["device_name"] + ", name ] }" + "\n"
+            template += "\n"
 
         for i in range(0, len(self.mcr_instances)):
-            template += "\n"
             template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
             template += "    Value: { 'Fn::GetAtt': [ " + self.mcr_instances[i]["device_name"] + ", name ] }" + "\n"
+            template += "\n"
 
         template += '  mcn.endpoint.dssaas:' + "\n"
         template += '    Description: DSS service endpoint' + "\n"
@@ -278,7 +278,7 @@ class TemplateGenerator:
             self.cms_lb_name = self.randomNameGenerator(6)
         self.new_cms_lb_needed = False
          
-        template += '  ' + self.cms_lb_name  + '_loadbalancer:' + "\n"
+        template += '  ' + self.cms_lb_name + '_loadbalancer:' + "\n"
         template += '    Type: OS::Neutron::LoadBalancer' + "\n"           
         template += '    Properties:' + "\n"           
         template += '      members: [ '
@@ -326,7 +326,7 @@ class TemplateGenerator:
             self.mcr_lb_name = self.randomNameGenerator(6)
         self.new_mcr_lb_needed = False
 
-        template += '  ' + self.mcr_lb_name  + '_loadbalancer:' + "\n"
+        template += '  ' + self.mcr_lb_name + '_loadbalancer:' + "\n"
         template += '    Type: OS::Neutron::LoadBalancer' + "\n"
         template += '    Properties:' + "\n"
         template += '      members: [ '

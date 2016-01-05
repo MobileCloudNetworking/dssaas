@@ -40,10 +40,6 @@ def config_logger(log_level=logging.DEBUG, mode='normal'):
 LOG = config_logger()
 GLOG = config_logger(mode='graylog')
 
-# To be replaced with python logging
-def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
-    LOG.debug(swComponent + ' ' +  msgTo)
-
 class ServiceOrchestratorExecution(service_orchestrator.Execution):
     """
     Sample SO execution part.
@@ -74,7 +70,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.update_end = 0
 
         # make sure we can talk to deployer...
-        writeLogFile(self.swComponent,'Make sure we can talk to deployer...', '', '')
+        LOG.debug(self.swComponent + ' ' + 'Make sure we can talk to deployer...')
         LOG.debug("About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name))
         self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name, region=self.region_name)
         LOG.debug("Got the deployer")
@@ -86,7 +82,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         LOG.debug('Executing design logic')
         self.resolver.design()
 
-    def deploy(self,entity):
+    def deploy(self, entity):
         """
         deploy SICs.
         """
@@ -136,19 +132,19 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         #
         if updated.attributes:
             LOG.debug('DSS SO update - attributes')
-            writeLogFile(self.swComponent,'Got DSS SO attributes in update', '', '')
+            LOG.debug(self.swComponent + ' ' + 'Got DSS SO attributes in update')
             #print attributes
             if 'mcn.endpoint.maas' in updated.attributes:
                 self.monitoring_endpoint = updated.attributes['mcn.endpoint.maas']
-                writeLogFile(self.swComponent,'MaaS EP is: ' + self.monitoring_endpoint, '', '')
+                LOG.debug(self.swComponent + ' ' + 'MaaS EP is: ' + self.monitoring_endpoint)
             if 'mcn.endpoint.forwarder' in updated.attributes:
                 self.dns_forwarder = updated.attributes['mcn.endpoint.forwarder']
-                writeLogFile(self.swComponent,'DNS forwarder EP is: ' + self.dns_forwarder, '', '')
+                LOG.debug(self.swComponent + ' ' + 'DNS forwarder EP is: ' + self.dns_forwarder)
             if 'mcn.endpoint.api' in updated.attributes:
                 self.dns_api = updated.attributes['mcn.endpoint.api']
                 self.dnsManager = DnsaasClientAction(self.dns_api, token=self.token)
                 LOG.debug(str(self.dnsManager))
-                writeLogFile(self.swComponent,'DNS EP is: ' + self.dns_api, '', '')
+                LOG.debug(self.swComponent + ' ' + 'DNS EP is: ' + self.dns_api)
 
     def state(self):
         """
@@ -170,7 +166,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                         while (result < 0):
                             time.sleep(1)
                             result, instances = self.getServerIPs()
-                            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(instances) ,'','')
+                            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(instances))
 
                         for item in instances:
                             if item == "mcn.dss.cms.lb.endpoint":
@@ -252,19 +248,19 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.decisionArray = {}
         self.hostsWithIssues = []
         self.playerCount = 0
-        self.decisionMapMCR = [{"More than 90% hard disk usage on {HOST.NAME}":0},
-                               {"Less than 30% hard disk usage on {HOST.NAME}":0}]
+        self.decisionMapMCR = [{"More than 90% hard disk usage on {HOST.NAME}": 0},
+                               {"Less than 30% hard disk usage on {HOST.NAME}": 0}]
                                #{"Number of active players on {HOST.NAME}":0}]
 
-        self.decisionMapCMS = [{"More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":0},
-                               {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":0}]
+        self.decisionMapCMS = [{"More than 30% cpu utilization for more than 1 minute on {HOST.NAME}": 0},
+                               {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}": 0}]
 
         # Creating a configuring object ( REST client for SO::SIC interface )
-        self.configure = SOConfigure(self.so_e,self,self.event)
+        self.configure = SOConfigure(self.so_e, self, self.event)
 
         # Scaling guard time
-        self.cmsScaleInThreshold = 450 #in seconds
-        self.mcrScaleDownThreshold = 450 #in seconds
+        self.cmsScaleInThreshold = 450#in seconds
+        self.mcrScaleDownThreshold = 450#in seconds
 
         # Number of players needed for each scale out/in
         self.playerCountLimit = 5.0
@@ -298,7 +294,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         # Decision loop
         while(1):
             instanceListInCaseOfScaleIn = None
-            writeLogFile(self.swComponent,"Start of decision loop ...",'','')
+            LOG.debug(self.swComponent + ' ' + "Start of decision loop ...")
             time.sleep(3)
             cmsCount = self.so_e.getNumberOfCmsInstances()
             mcrCount = self.so_e.getNumberOfMcrInstances()
@@ -307,7 +303,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 item[item.keys()[0]] = 0
             for item in self.decisionMapMCR:
                 item[item.keys()[0]] = 0
-            writeLogFile(self.swComponent,"DecisionMap reset successful",'','')
+            LOG.debug(self.swComponent + ' ' + "DecisionMap reset successful")
 
             # Update decision map
             for item in self.hostsWithIssues:
@@ -317,21 +313,21 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                             self.updateDecisionMap("cms", self.decisionArray[row][1])
                         else:
                             self.updateDecisionMap("mcr", self.decisionArray[row][1])
-            writeLogFile(self.swComponent,str(self.decisionMapCMS),'','')
-            writeLogFile(self.swComponent,str(self.decisionMapMCR),'','')
-            writeLogFile(self.swComponent,"DecisionMap update successful",'','')
+            LOG.debug(self.swComponent + ' ' + str(self.decisionMapCMS))
+            LOG.debug(self.swComponent + ' ' + str(self.decisionMapMCR))
+            LOG.debug(self.swComponent + ' ' + "DecisionMap update successful")
 
             # Take scaling decisions according to updated map and sending corresponding command to the Execution part
             scaleTriggered = False
             cmsScaleOutTriggered = False
             cmsScaleInTriggered = False
-            writeLogFile(self.swComponent,"Checking CMS status",'','')
+            LOG.debug(self.swComponent + ' ' + "Checking CMS status")
             for item in self.decisionMapCMS:
                 if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
-                    writeLogFile(self.swComponent,"More than 30% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
+                    LOG.debug(self.swComponent + ' ' + "More than 30% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)")
                 elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":
-                    writeLogFile(self.swComponent,"Less than 10% cpu utilization for more than 10 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)",'','')
-                writeLogFile(self.swComponent,"Total CMS machine(s) count is: " + str(cmsCount),'','')
+                    LOG.debug(self.swComponent + ' ' + "Less than 10% cpu utilization for more than 10 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)")
+                LOG.debug(self.swComponent + ' ' + "Total CMS machine(s) count is: " + str(cmsCount))
                 if item[item.keys()[0]] == cmsCount:
                     # CMS scale out
                     if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
@@ -342,7 +338,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
             #Calculate the player scaling situation
             numOfCmsNeeded = int((float(self.playerCount)/self.playerCountLimit) + 1)
-            writeLogFile(self.swComponent,"Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount),'','')
+            LOG.debug(self.swComponent + ' ' + "Number of CMS needed is: " + str(numOfCmsNeeded) + " and we have: " + str(cmsCount))
             #CMS scale out because more than specific number of players
             if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
                 self.lastCmsScale = time.time()
@@ -351,16 +347,16 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 if cmsScaleOutTriggered is not True:
                     cmsScaleOutTriggered = True
                 scaleTriggered = True
-                writeLogFile(self.swComponent,"IN CMS scaleOut",'','')
+                LOG.debug(self.swComponent + ' ' + "IN CMS scaleOut")
 
             if self.lastCmsScale == 0:
                 diff = 0
             else:
                 diff = int(time.time() - self.lastCmsScale)
-            writeLogFile(self.swComponent,"Number of scale outs performed: " + str(self.numberOfCmsScaleOutsPerformed),'','')
-            writeLogFile(self.swComponent,"Last CMS scale action happened " + str(diff) + " second(s) ago",'','')
-            writeLogFile(self.swComponent,"Threshold for CMS scale in is: " + str(self.cmsScaleInThreshold) + " second(s)",'','')
-            writeLogFile(self.swComponent,"CMS cpu metric scale in triggered: " + str(cmsScaleInTriggered),'','')
+            LOG.debug(self.swComponent + ' ' + "Number of scale outs performed: " + str(self.numberOfCmsScaleOutsPerformed))
+            LOG.debug(self.swComponent + ' ' + "Last CMS scale action happened " + str(diff) + " second(s) ago")
+            LOG.debug(self.swComponent + ' ' + "Threshold for CMS scale in is: " + str(self.cmsScaleInThreshold) + " second(s)")
+            LOG.debug(self.swComponent + ' ' + "CMS cpu metric scale in triggered: " + str(cmsScaleInTriggered))
             if diff > self.cmsScaleInThreshold or self.lastCmsScale == 0:
                 #CMS scale out because less than specific number of players
                 if  numOfCmsNeeded < cmsCount and self.numberOfCmsScaleOutsPerformed > 0 and cmsScaleInTriggered:
@@ -368,7 +364,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     self.so_e.templateManager.scaleIn("cms")
                     self.numberOfCmsScaleOutsPerformed -= 1
                     scaleTriggered = True
-                    writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
+                    LOG.debug(self.swComponent + ' ' + "IN CMS scaleIn")
                     # Get a backup of the server name list
                     result = -1
                     while (result < 0):
@@ -376,7 +372,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         result, instanceListInCaseOfScaleIn = self.so_e.getServerNamesList()
 
             for item in self.decisionMapMCR:
-                writeLogFile(self.swComponent,"Checking MCR status",'','')
+                LOG.debug(self.swComponent + ' ' + "Checking MCR status")
                 if self.lastMcrScale == 0:
                     diff = 0
                 else:
@@ -385,27 +381,27 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     # MCR scale up
                     # It is commented because it's not working for current heat version )
                     if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":
-                        writeLogFile(self.swComponent,"More than 90% hard disk usage on MCR machine",'','')
+                        LOG.debug(self.swComponent + ' ' + "More than 90% hard disk usage on MCR machine")
                         self.lastMcrScale = time.time()
                         #self.so_e.templateManager.templateToScaleUp()
                         self.numberOfScaleUpsPerformed += 1
                         #scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN MCR scaleUp",'','')
+                        LOG.debug(self.swComponent + ' ' + "IN MCR scaleUp")
                     # MCR scale down
                     elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
-                        writeLogFile(self.swComponent,"Less than 30% hard disk usage on MCR machine",'','')
-                        writeLogFile(self.swComponent,"Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed),'','')
-                        writeLogFile(self.swComponent,"Last MCR scale action happened " + str(diff) + " second(s) ago",'','')
-                        writeLogFile(self.swComponent,"Threshold for MCR scale down is: " + str(self.mcrScaleDownThreshold) + " second(s)",'','')
+                        LOG.debug(self.swComponent + ' ' + "Less than 30% hard disk usage on MCR machine")
+                        LOG.debug(self.swComponent + ' ' + "Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed))
+                        LOG.debug(self.swComponent + ' ' + "Last MCR scale action happened " + str(diff) + " second(s) ago")
+                        LOG.debug(self.swComponent + ' ' + "Threshold for MCR scale down is: " + str(self.mcrScaleDownThreshold) + " second(s)")
                         self.lastMcrScale = time.time()
                         #self.so_e.templateManager.templateToScaleDown()
                         self.numberOfScaleUpsPerformed -= 1
                         #scaleTriggered = True
-                        writeLogFile(self.swComponent,"IN MCR scaleDown",'','')
+                        LOG.debug(self.swComponent + ' ' + "IN MCR scaleDown")
 
             # Call SO execution if scaling required
-            writeLogFile(self.swComponent,str(scaleTriggered),'','')
-            if scaleTriggered == True:
+            LOG.debug(self.swComponent + ' ' + str(scaleTriggered))
+            if scaleTriggered:
                 self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
 
@@ -416,7 +412,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 #        if self.so_e.templateManager.cmsHostToRemove in item:
                 #            zHostToDelete = item
 
-                writeLogFile(self.swComponent,"Performing stack update",'','')
+                LOG.debug(self.swComponent + ' ' + "Performing stack update")
                 #Scale has started
                 scale_type = None
                 if cmsScaleInTriggered is True:
@@ -436,7 +432,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 GLOG.debug(tmpJSON)
                 self.so_e.update_start = datetime.datetime.now()
                 self.so_e.update_stack()
-                writeLogFile(self.swComponent,"Update in progress ...",'','')
+                LOG.debug(self.swComponent + ' ' + "Update in progress ...")
 
                 #Removing the deleted host from zabbix server
                 #if zHostToDelete is not None:
@@ -455,7 +451,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             result, listOfAllServers = self.so_e.getServerIPs()
 
         #Scale has finished
-        writeLogFile(self.swComponent,"Update Type: " + scale_type,'','')
+        LOG.debug(self.swComponent + ' ' + "Update Type: " + scale_type)
         self.so_e.update_end = datetime.datetime.now()
         diff = self.so_e.update_end - self.so_e.update_start
         infoDict = {
@@ -469,8 +465,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     }
         tmpJSON = json.dumps(infoDict)
         GLOG.debug(tmpJSON)
-        writeLogFile(self.swComponent,"Update successful",'','')
-        writeLogFile(self.swComponent,"Check config stat of instances",'','')
+        LOG.debug(self.swComponent + ' ' + "Update successful")
+        LOG.debug(self.swComponent + ' ' + "Check config stat of instances")
         checkList = {}
         for item in listOfAllServers:
             if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
@@ -488,27 +484,27 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                             'Content-Type': 'application/json; charset=UTF-8'
                         }
                         target = 'http://' + item + ':8051/v1.0/configstat'
-                        writeLogFile(self.swComponent,target,'','')
+                        LOG.debug(self.swComponent + ' ' + target)
                         try:
                             h = http.Http()
                             h.timeout = self.timeout
-                            writeLogFile(self.swComponent,"Sending config request to " + item + ":",'','')
+                            LOG.debug(self.swComponent + ' ' + "Sending config request to " + item + ":")
                             response, content = h.request(target, 'GET', None, headers)
-                            writeLogFile(self.swComponent,"Config stat is: " + str(content),'','')
+                            LOG.debug(self.swComponent + ' ' + "Config stat is: " + str(content))
                         except Exception as e:
-                            writeLogFile(self.swComponent,"Handled config request exception " + str(e),'','')
+                            LOG.debug(self.swComponent + ' ' + "Handled config request exception " + str(e))
                             continue
                         response_status = int(response.get("status"))
                         instanceInfo = json.loads(content)
                         if "False" not in instanceInfo.values():
-                            writeLogFile(self.swComponent,item + " already configured",'','')
+                            LOG.debug(self.swComponent + ' ' + item + " already configured")
                             checkList[item] = "Configured"
                         else:
-                            writeLogFile(self.swComponent,'Configuring ' + item ,'','')
-                            writeLogFile(self.swComponent,'Configuring in progress ...' ,'','')
+                            LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
+                            LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
                             self.configure.provisionInstance(item, listOfAllServers)
                             self.configure.configInstance(item)
-                            writeLogFile(self.swComponent,'instance ' + item + ' configured successfully','','')   
+                            LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
                             self.configure.deploymentPause()
                             response_status = 0
                             while (response_status < 200 or response_status >= 400):
@@ -518,14 +514,14 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                     'Content-Type': 'application/json; charset=UTF-8'
                                 }
                                 target = 'http://' + item + ':8051/v1.0/hostname'
-                                writeLogFile(self.swComponent,target,'','')
+                                LOG.debug(self.swComponent + ' ' + target)
                                 try:
                                     h = http.Http()
                                     h.timeout = self.timeout
-                                    writeLogFile(self.swComponent,"Sending hostname request to " + item + ":",'','')
+                                    LOG.debug(self.swComponent + ' ' + "Sending hostname request to " + item + ":")
                                     response, content = h.request(target, 'GET', None, headers)
                                 except Exception as e:
-                                    writeLogFile(self.swComponent,"Handled hostname request exception " + str(e),'','')
+                                    LOG.debug(self.swComponent + ' ' + "Handled hostname request exception " + str(e))
                                     continue
                                 response_status = int(response.get("status"))
                                 self.configure.SICMonConfig(content)
@@ -549,7 +545,7 @@ class SOConfigure(threading.Thread):
         self.event = ready_event
         self.swComponent = 'SO-SIC-Config'
         threading.Thread.__init__(self)
-        writeLogFile(self.swComponent,"SOConfigure executed ................",'','')
+        LOG.debug(self.swComponent + ' ' + "SOConfigure executed ................")
 
         self.so_e = so_e
         self.so_d = so_d
@@ -578,7 +574,7 @@ class SOConfigure(threading.Thread):
         #------------------------------------------------------------------------------#
 
         if self.so_e.templateManager.dns_enable == 'true':
-            writeLogFile(self.swComponent,"Waiting for DNS config info ...",'','')
+            LOG.debug(self.swComponent + ' ' + "Waiting for DNS config info ...")
             while self.dependencyStat["DNS"] != "ready":
                 if self.so_e.dns_api != None and self.so_e.dns_forwarder != None:
                     self.dns_forwarder = self.so_e.dns_forwarder
@@ -592,17 +588,17 @@ class SOConfigure(threading.Thread):
             self.dns_forwarder = '4.2.2.4'
             self.dependencyStat["DNS"] = "ready"
             LOG.debug("DNSaaS disabled, using " + self.dns_forwarder + " as DNS server")
-        writeLogFile(self.swComponent,"DNSaaS dependency stat changed to READY",'','')
+        LOG.debug(self.swComponent + ' ' + "DNSaaS dependency stat changed to READY")
 
-        writeLogFile(self.swComponent,"Waiting for Monitoring config info ...",'','')
+        LOG.debug(self.swComponent + ' ' + "Waiting for Monitoring config info ...")
         while self.dependencyStat["MON"] != "ready":
             if self.so_e.monitoring_endpoint != None:
                 #Now that all DSS SICs finished application deployment we can start monitoring
                 self.monitoring_endpoint = self.so_e.monitoring_endpoint
-                writeLogFile(self.swComponent,"MON EP: " + self.monitoring_endpoint,'','')
+                LOG.debug(self.swComponent + ' ' + "MON EP: " + self.monitoring_endpoint)
                 self.dependencyStat["MON"] = "ready"
             time.sleep(3)
-        writeLogFile(self.swComponent,"MONaaS dependency stat changed to READY",'','')
+        LOG.debug(self.swComponent + ' ' + "MONaaS dependency stat changed to READY")
 
         #Pushing local configurations to DSS SICs
         self.performLocalConfig()
@@ -613,10 +609,10 @@ class SOConfigure(threading.Thread):
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it
 
-        self.monitor = SOMonitor(self.so_e,self.so_d,self.monitoring_endpoint,0,'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php','admin','zabbix')
+        self.monitor = SOMonitor(self.so_e, self.so_d, self.monitoring_endpoint, 0, 'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php', 'admin', 'zabbix')
         self.performMonConfig()
 
-        #writeLogFile(self.swComponent,"Start monitoring service ...",'','')
+        #LOG.debug(self.swComponent + ' ' + "Start monitoring service ...")
         self.monitor.start()
         # once logic executes, deploy phase is done
         self.event.set()
@@ -626,7 +622,7 @@ class SOConfigure(threading.Thread):
         while (result < 0):
             time.sleep(1)
             result, self.instances = self.so_e.getServerIPs()
-            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
 
         #WAIT FOR FINISHING THE DEPLOYMENT
         for item in self.instances:
@@ -643,23 +639,23 @@ class SOConfigure(threading.Thread):
                     try:
                         h = http.Http()
                         h.timeout = self.timeout
-                        writeLogFile(self.swComponent,"Sending deployment status request to:" + target  ,'','')
+                        LOG.debug(self.swComponent + ' ' + "Sending deployment status request to:" + target)
                         response, content = h.request(target, 'GET', None, headers)
                     except Exception as e:
-                        writeLogFile(self.swComponent,"Handled deployment status request exception." + str(e) ,'','')
+                        LOG.debug(self.swComponent + ' ' + "Handled deployment status request exception." + str(e))
                         continue
                     response_status = int(response.get("status"))
-                    writeLogFile(self.swComponent,"response status is:" + str(response_status)  ,'','')
+                    LOG.debug(self.swComponent + ' ' + "response status is:" + str(response_status))
 
     def performDNSConfig(self):
         result = -1
         while (result < 0):
             time.sleep(1)
             result, self.instances = self.so_e.getServerIPs()
-            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
 
         #configure instances
-        writeLogFile(self.swComponent,"Entering the loop to push dns domain names for each instance ...",'','')
+        LOG.debug(self.swComponent + ' ' + "Entering the loop to push dns domain names for each instance ...")
 
         lbDomainExists = self.so_e.dnsManager.get_domain(self.dssCmsDomainName, self.so_e.token)
         if lbDomainExists.get('code', None) is not None and lbDomainExists['code'] == 404:
@@ -667,11 +663,11 @@ class SOConfigure(threading.Thread):
             while (result != 1):
                 time.sleep(1)
                 result = self.so_e.dnsManager.create_domain(self.dssCmsDomainName, "info@dss-test.es", 3600, self.so_e.token)
-                writeLogFile(self.swComponent,result.__repr__(), '', '')
-                writeLogFile(self.swComponent,'DNS domain creation attempt' , '', '')
-            writeLogFile(self.swComponent,'DNS domain created' , '', '')
+                LOG.debug(self.swComponent + ' ' + result.__repr__())
+                LOG.debug(self.swComponent + ' ' + 'DNS domain creation attempt')
+            LOG.debug(self.swComponent + ' ' + 'DNS domain created')
         else:
-            writeLogFile(self.swComponent,'DNS domain already exists' + lbDomainExists.__repr__(), '', '')
+            LOG.debug(self.swComponent + ' ' + 'DNS domain already exists' + lbDomainExists.__repr__())
 
         for item in self.instances:
             if item == "mcn.dss.cms.lb.endpoint":
@@ -681,11 +677,11 @@ class SOConfigure(threading.Thread):
                     while (result != 1):
                         time.sleep(1)
                         result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
-                        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                        writeLogFile(self.swComponent,'DNS record creation attempt for: ' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
+                        LOG.debug(self.swComponent + ' ' + result.__repr__())
+                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for: ' + str(self.instances[item]))
+                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(self.instances[item]))
                 else:
-                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
+                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__())
             elif item == "mcn.dss.mcr.lb.endpoint":
                 mcrRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', token=self.so_e.token)
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
@@ -693,70 +689,70 @@ class SOConfigure(threading.Thread):
                     while (result != 1):
                         time.sleep(1)
                         result = self.so_e.dnsManager.create_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
-                        writeLogFile(self.swComponent,result.__repr__(), '', '')
-                        writeLogFile(self.swComponent,'DNS record creation attempt for:' + str(self.instances[item]) , '', '')
-                    writeLogFile(self.swComponent,'DNS record created for: ' + str(self.instances[item]) , '', '')
+                        LOG.debug(self.swComponent + ' ' + result.__repr__())
+                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for:' + str(self.instances[item]))
+                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(self.instances[item]))
                 else:
-                    writeLogFile(self.swComponent,'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__(), '', '')
+                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__())
 
-        writeLogFile(self.swComponent,"Exiting the loop to push dns domain names for all instances",'','')
+        LOG.debug(self.swComponent + ' ' + "Exiting the loop to push dns domain names for all instances")
 
     def performLocalConfig(self):
         result = -1
         while (result < 0):
             time.sleep(1)
             result, self.instances = self.so_e.getServerIPs()
-            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(self.instances) ,'','')
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
 
         result = -1
         while (result < 0):
             time.sleep(1)
             result, serverList = self.so_e.getServerNamesList()
-            writeLogFile(self.swComponent,"In while: " + str(result) + " , " + str(serverList) ,'','')
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(serverList))
 
         #configure instances
-        writeLogFile(self.swComponent,"Entering the loop to provision each instance ...",'','')
+        LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
         for item in self.instances:
             if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 self.provisionInstance(self.instances[item], self.instances)
 
-        writeLogFile(self.swComponent,"Entering the loop to create JSON config file for each instance ...",'','')
+        LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
         for item in self.instances:
             if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
                 self.configInstance(self.instances[item])
 
-        writeLogFile(self.swComponent,"Exiting the loop for JSON config file creation for all instances",'','')
+        LOG.debug(self.swComponent + ' ' + "Exiting the loop for JSON config file creation for all instances")
 
     # Executes the two shell scripts in the SIC which takes care of war deployment
     def provisionInstance(self, target_ip, all_ips):
         #AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         token = resp["token"]
-        writeLogFile(self.swComponent,"Auth response is:" + str(resp), '', '')
+        LOG.debug(self.swComponent + ' ' + "Auth response is:" + str(resp))
         #AGENT STARTS PROVISIONING OF VM
         #CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.lb.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.cms.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        writeLogFile(self.swComponent,"Provision response is:" + str(resp)  ,'','')
+        LOG.debug(self.swComponent + ' ' + "Provision response is:" + str(resp))
 
     # Calls to the SIC agent to complete the provisioning
     def configInstance(self, target_ip):
         #AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         token = resp["token"]
-        writeLogFile(self.swComponent,"Auth response is:" + str(resp)  ,'','')
+        LOG.debug(self.swComponent + ' ' + "Auth response is:" + str(resp))
         #AGENT PUSH DNS EP
         #DNS endpoint will be used later by CMS application to generate the player configuration script
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
-        writeLogFile(self.swComponent,"DNS response is:" + str(resp), '', '')
+        LOG.debug(self.swComponent + ' ' + "DNS response is:" + str(resp))
         #AGENT PUSH MON EP & CONFIG
         #MON endpoint is not really being used at the moment
         #DB info is being sent to be used by the getcdr script in zabbix custom item definitions
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/MON', 'POST', '{"user":"SO","token":"' + token + '","monendpoint":"' + self.monitoring_endpoint + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        writeLogFile(self.swComponent,"MON response is:" + str(resp), '', '')
+        LOG.debug(self.swComponent + ' ' + "MON response is:" + str(resp))
         #AGENT PUSH RCB CONFIG
         #DB info is used to create an event for generating cdr data in DB
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        writeLogFile(self.swComponent,"RCB response is:" + str(resp), '', '')
+        LOG.debug(self.swComponent + ' ' + "RCB response is:" + str(resp))
 
     def sendRequestToSICAgent(self, api_url, req_type, json_data):
         response_status = 0
@@ -772,13 +768,13 @@ class SOConfigure(threading.Thread):
                     h.timeout = 60
                 else:
                     h.timeout = self.timeout
-                writeLogFile(self.swComponent,"Sending request to:" + api_url  ,'','')
+                LOG.debug(self.swComponent + ' ' + "Sending request to:" + api_url)
                 response, content = h.request(api_url, req_type, json_data, headers)
             except Exception as e:
-                writeLogFile(self.swComponent,"Handled " + api_url + " exception." + str(e) ,'','')
+                LOG.debug(self.swComponent + ' ' + "Handled " + api_url + " exception." + str(e))
                 continue
             response_status = int(response.get("status"))
-            writeLogFile(self.swComponent,"response status is:" + str(response_status) + " Content: " + str(content) ,'','')
+            LOG.debug(self.swComponent + ' ' + "response status is:" + str(response_status) + " Content: " + str(content))
             if (response_status < 200 or response_status >= 400):
                 continue
             content_dict = json.loads(content)
@@ -797,8 +793,8 @@ class SOConfigure(threading.Thread):
         self.monitor.mode = "checktriggers"
 
     def SICMonConfig(self,targetHostName):
-        writeLogFile(self.swComponent,time.strftime("%H:%M:%S"),'','')
-        writeLogFile(self.swComponent,targetHostName,'','')
+        LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
+        LOG.debug(self.swComponent + ' ' + targetHostName)
         zabbixName = targetHostName.replace("_","-")
 
         if "mcr" in zabbixName:
@@ -844,7 +840,7 @@ class SOConfigure(threading.Thread):
                 # 4 - Specifies data type "String" and 60 Specifies this item will be checked every 60 seconds
                 res = self.monitor.configItem("DSS players request count", zabbixName, "DSS.Player.Reqcount", 4, 60)
 
-        writeLogFile(self.swComponent,'All triggers and items added succesfully for host: ' + targetHostName,'','')
+        LOG.debug(self.swComponent + ' ' + 'All triggers and items added succesfully for host: ' + targetHostName)
 
 class ServiceOrchestrator(object):
     """

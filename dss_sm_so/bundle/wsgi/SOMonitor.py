@@ -22,16 +22,6 @@ def config_logger(log_level=logging.DEBUG):
     return logger
 
 LOG = config_logger()
-
-# To be replaced with python logging
-def writeLogFile(swComponent ,msgTo, statusReceived, jsonReceived):
-    LOG.debug(swComponent + ' ' + msgTo)
-    '''
-    with os.fdopen(os.open(os.path.join(HERE, 'LOG_ERROR_FILE.csv'), os.O_WRONLY | os.O_CREAT, 0600), 'a') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow([str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),' ['+swComponent+'] ',msgTo, statusReceived, jsonReceived ])
-        csvfile.close()
-    '''
         
 class SOMonitor(threading.Thread):
     '''
@@ -54,7 +44,7 @@ class SOMonitor(threading.Thread):
         self.so_d = decisionModule
         
         self.mode = "addtriggers"
-        writeLogFile(self.swComponent,"SOMonitor initiated ................",'','')
+        LOG.debug(self.swComponent + ' ' + "SOMonitor initiated ................")
         
     def run(self):
         i = 0
@@ -72,24 +62,24 @@ class SOMonitor(threading.Thread):
                     i = 0
                 else:
                     i += 1
-                writeLogFile(self.swComponent,time.strftime("%H:%M:%S") ,'','')
+                LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
                 self.so_d.hostsWithIssues = []
                 for item in serverList:
-                    writeLogFile(self.swComponent,item ,'','')
+                    LOG.debug(self.swComponent + ' ' + item)
                     if len(item) > 1:
                         if 'mcr' in item:
                             self.so_d.playerCount = self.getMetric(item.replace("_","-"),"DSS.Players.CNT")
-                            writeLogFile(self.swComponent,"Number of active players: " + str(self.so_d.playerCount),'','')
+                            LOG.debug(self.swComponent + ' ' + "Number of active players: " + str(self.so_d.playerCount))
 
                         res = self.getProblematicTriggers(item.replace("_","-"))
                         try:
                             for trigger in res:
                                 self.so_d.hostsWithIssues.append(trigger)
                         except:
-                            writeLogFile(self.swComponent,'Be careful! Your trigger stats are messed up!' ,'','')
+                            LOG.debug(self.swComponent + ' ' + 'Be careful! Your trigger stats are messed up!')
                             continue;
-                        writeLogFile(self.swComponent,str(res) ,'','')
-                writeLogFile(self.swComponent,str(self.so_d.hostsWithIssues) ,'','')
+                        LOG.debug(self.swComponent + ' ' + str(res))
+                LOG.debug(self.swComponent + ' ' + str(self.so_d.hostsWithIssues))
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
                 time.sleep(5)
@@ -104,7 +94,7 @@ class SOMonitor(threading.Thread):
                 if result != -1:
                     self.so_d.decisionArray.update({str(result):[str(zabbixName), str(triggerName)]})
                     self.addedServers[zabbixName + ":" + triggerName] = result 
-                    writeLogFile(self.swComponent,"Trigger added and id is : " + result ,'','')
+                    LOG.debug(self.swComponent + ' ' + "Trigger added and id is : " + result)
             return 1
         return 0
     
@@ -117,7 +107,7 @@ class SOMonitor(threading.Thread):
                 result = self.addItemToMaas(zabbixName, "General", itemName, iKey, valueType, delay)
                 if result != -1:
                     self.addedServers[zabbixName + ":" + itemName] = result 
-                    writeLogFile(self.swComponent,"Item successfully added",'','')
+                    LOG.debug(self.swComponent + ' ' + "Item successfully added")
             return 1
         return 0
         
@@ -147,7 +137,7 @@ class SOMonitor(threading.Thread):
             status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
             if "result" in content:
                 return content["result"]["triggerids"][0]
-        writeLogFile(self.swComponent,'Error adding trigger to host:' + hostName, status, content)     
+        LOG.debug(self.swComponent + ' ' + 'Error adding trigger to host:' + hostName)
         return -1
     
     # Implements zabbix interface o add a trigger
@@ -185,7 +175,7 @@ class SOMonitor(threading.Thread):
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if "result" in content:
                     return 1
-        writeLogFile(self.swComponent,'Error adding item to host:' + hostName, status, content)     
+        LOG.debug(self.swComponent + ' ' + 'Error adding item to host:' + hostName)
         return -1
     
     # Iterates through triggers and returns a list of the ones with PROBLEM status 
@@ -223,7 +213,7 @@ class SOMonitor(threading.Thread):
                 else:
                     return status
             else:
-                writeLogFile(self.swComponent,'MaaS Trigger Id', status, content)
+                LOG.debug(self.swComponent + ' ' + 'MaaS Trigger Id')
                 return 'None'
             
     def itemExists(self, hostName, itemKey):
@@ -252,7 +242,7 @@ class SOMonitor(threading.Thread):
                         }
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if len(content["result"]) > 0:
-                    writeLogFile(self.swComponent,'Item already exists on host:' + hostName, status, content)
+                    LOG.debug(self.swComponent + ' ' + 'Item already exists on host:' + hostName)
                     return 1
         #'Item is not added to the host yet     
         return -1
@@ -300,10 +290,10 @@ class SOMonitor(threading.Thread):
                         }
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if len(content["result"]["hostids"]) > 0:
-                    writeLogFile(self.swComponent,'Host successfully deleted:' + hostName, status, content)
+                    LOG.debug(self.swComponent + ' ' + 'Host successfully deleted:' + hostName)
                     return 1
                 else:
-                    writeLogFile(self.swComponent,'Host ' + hostName + ' not found', status, content)
+                    LOG.debug(self.swComponent + ' ' + 'Host ' + hostName + ' not found')
         #Probably host doesn't exist or deletion failed
         return -1
 
@@ -352,7 +342,7 @@ class SOMonitor(threading.Thread):
                 if application['name'] == applicationName:
                     return application['applicationid']
         else:
-            writeLogFile(self.swComponent,'MaaS Application Id', status, content)
+            LOG.debug(self.swComponent + ' ' + 'MaaS Application Id')
             return None
         
     def __getHostId(self, hostName):
@@ -380,7 +370,7 @@ class SOMonitor(threading.Thread):
             else:
                 return None
         else:
-            writeLogFile(self.swComponent,'MaaS Host Id', status, content)
+            LOG.debug(self.swComponent + ' ' + 'MaaS Host Id')
             return None
 
     def __getAuthId(self):
@@ -396,5 +386,5 @@ class SOMonitor(threading.Thread):
         if status == '200':
             return content['result']
         else:
-            writeLogFile(self.swComponent,'MaaS Authentication', status, content)
+            LOG.debug(self.swComponent + ' ' + 'MaaS Authentication')
             return None
