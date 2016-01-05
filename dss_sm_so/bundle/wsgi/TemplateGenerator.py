@@ -31,31 +31,40 @@ class TemplateGenerator:
         self.dbpass = 'registro00'
         self.dbuser = 'root'
         
-        self.mcr_flavor_idx = 1
-        self.minimum_flavor_idx = 1
-        self.maximum_flavor_idx = 4
-        self.flavor_list = ['m1.tiny','m1.small','m1.medium','m1.large','m1.xlarge']
-        
-        self.numberOfCmsInstances = 1
-        self.numberOfMcrInstances = 1
-        self.cmsCounter = 1
-        self.mcrCounter = 1
+        self.cms_scaleout_limit = 4
+        self.mcr_scaleout_limit = 4
 
-        self.cmsHostToRemove = None
-    
+        # Content format: [{"device_name":"cms1_server", "host_name":"cms1_server_1451992360"}, ...]
+        self.cms_instances = []
+        self.mcr_instances = []
+
+        self.initial_cms_count = 2
+        self.initial_mcr_count = 2
+
+        self.numberOfCmsInstances = 0
+        self.numberOfMcrInstances = 0
+
+        self.new_cms_lb_needed = False
+        self.new_mcr_lb_needed = False
+        self.cms_lb_name = None
+        self.mcr_lb_name = None
+
+        self.scaleOut("cms", self.initial_cms_count)
+        self.scaleOut("mcr", self.initial_mcr_count)
+
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
-    
-    def getBaseName(self, instance_type):
-        if instance_type is "cms":
-            return "cms" + str(self.cmsCounter) + "_server_" + str(int(time.time())), "cms" + str(self.cmsCounter) + "_server"
-        elif instance_type is "mcr":
-            return "mcr" + str(self.mcrCounter) + "_server_" + str(int(time.time())), "mcr" + str(self.mcrCounter) + "_server"
-        else:
-            return None
 
-    def getBaseCmsTemplate(self):
-        hostname, device_name = self.getBaseName(instance_type='cms')
+    def getBaseName(self, instance_type):
+        hostname = None
+        devicename = None
+        if instance_type is "cms":
+            hostname = devicename = "cms" + str(self.numberOfCmsInstances) + "_server_" + str(int(time.time()))
+        elif instance_type is "mcr":
+            hostname = devicename = "mcr" + str(self.numberOfMcrInstances) + "_server_" + str(int(time.time()))
+        return hostname, devicename
+
+    def getBaseCmsTemplate(self, hostname, device_name):
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         CMS / FRONTEND RESOURCES                                 #' + "\n"
@@ -95,8 +104,7 @@ class TemplateGenerator:
 
         return template             
     
-    def getBaseMcrTemplate(self):
-        hostname, device_name = self.getBaseName(instance_type='mcr')
+    def getBaseMcrTemplate(self, hostname, device_name):
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         MCR / FRONTEND RESOURCES                                 #' + "\n"
@@ -106,7 +114,7 @@ class TemplateGenerator:
         template += '    Properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      name: ' + hostname + "\n"
-        template += '      flavor: ' + self.flavor_list[self.mcr_flavor_idx] + "\n"
+        template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_mcr_image_name + "\n"
         template += '      networks:' + "\n"
         template += '        - port: { Ref : ' + device_name + '_port }' + "\n"
@@ -139,16 +147,16 @@ class TemplateGenerator:
     def getOutput(self):
         template = "Outputs:" + "\n"
         
-        for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
-            template += '  mcn.dss.cms' + str(self.cmsCounter) + '.endpoint:' + "\n"
+        for i in range(0, len(self.cms_instances)):
+            template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.endpoint:' + "\n"
             template += '    Description: Floating IP address of DSS CMS in public network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.getBaseName('cms')[1] + "_floating_ip, floating_ip_address] }" + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
             template += "\n"
 
-        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
-            template += '  mcn.dss.mcr' + str(self.mcrCounter) + '.endpoint:' + "\n"
+        for i in range(0, len(self.mcr_instances)):
+            template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.endpoint:' + "\n"
             template += '    Description: Floating IP address of DSS MCR in public network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.getBaseName('mcr')[1] + "_floating_ip, floating_ip_address] }" + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
             template += "\n"
 
         template += '  mcn.dss.db.endpoint:' + "\n"
@@ -164,17 +172,17 @@ class TemplateGenerator:
         template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
         template += "\n"
         
-        for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
+        for i in range(0, len(self.cms_instances)):
             template += "\n"
-            template += '  mcn.dss.cms' + str(self.cmsCounter) + '.hostname:' + "\n"
+            template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.getBaseName('cms')[1] + ", name ] }" + "\n"
+            template += "    Value: { 'Fn::GetAtt': [ " + self.cms_instances[i]["device_name"] + ", name ] }" + "\n"
 
-        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
+        for i in range(0, len(self.mcr_instances)):
             template += "\n"
-            template += '  mcn.dss.mcr' + str(self.mcrCounter) + '.hostname:' + "\n"
+            template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.hostname:' + "\n"
             template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.getBaseName('mcr')[1] + ", name ] }" + "\n"
+            template += "    Value: { 'Fn::GetAtt': [ " + self.mcr_instances[i]["device_name"] + ", name ] }" + "\n"
 
         template += '  mcn.endpoint.dssaas:' + "\n"
         template += '    Description: DSS service endpoint' + "\n"
@@ -230,19 +238,15 @@ class TemplateGenerator:
         template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
         
-        for self.cmsCounter in range(1, self.numberOfCmsInstances + 1):
+        for item in self.cms_instances:
             template += "\n"
-            template += self.getBaseCmsTemplate()
-            template += "\n"
-        
-        self.cmsCounter = 1
-
-        for self.mcrCounter in range(1, self.numberOfMcrInstances + 1):
-            template += "\n"
-            template += self.getBaseMcrTemplate()
+            template += self.getBaseCmsTemplate(item["host_name"], item["device_name"])
             template += "\n"
 
-        self.mcrCounter = 1
+        for item in self.mcr_instances:
+            template += "\n"
+            template += self.getBaseMcrTemplate(item["host_name"], item["device_name"])
+            template += "\n"
 
         template += "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
@@ -269,21 +273,19 @@ class TemplateGenerator:
         template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"            
         template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": cmsvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
         template += "\n"
-        
-        self.lbNameRandom = self.randomNameGenerator(6)
+
+        if self.new_cms_lb_needed:
+            self.cms_lb_name = self.randomNameGenerator(6)
+        self.new_cms_lb_needed = False
          
-        template += '  ' + self.lbNameRandom  + '_loadbalancer:' + "\n"           
+        template += '  ' + self.cms_lb_name  + '_loadbalancer:' + "\n"
         template += '    Type: OS::Neutron::LoadBalancer' + "\n"           
         template += '    Properties:' + "\n"           
         template += '      members: [ '
         
-        self.cmsCounter = 1
-        template += '{ Ref: ' + self.getBaseName(instance_type='cms')[1] +' }'
-        for self.cmsCounter in range(2, self.numberOfCmsInstances + 1):
-            template += ', { Ref: ' + self.getBaseName(instance_type='cms')[1] +' }'
-
-        self.cmsCounter = self.numberOfCmsInstances + 1
-        self.cmsHostToRemove = self.getBaseName(instance_type='cms')[1]
+        template += '{ Ref: ' + self.cms_instances[0]["device_name"] +' }'
+        for i in range(1, len(self.cms_instances)):
+            template += ', { Ref: ' + self.cms_instances[i]["device_name"] +' }'
 
         template += ' ]' + "\n"           
         template += '      pool_id: { Ref: cms_lb_pool }' + "\n"           
@@ -320,20 +322,18 @@ class TemplateGenerator:
         template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": mcrvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
         template += "\n"
 
-        self.lbNameRandom = self.randomNameGenerator(6)
+        if self.new_mcr_lb_needed:
+            self.mcr_lb_name = self.randomNameGenerator(6)
+        self.new_mcr_lb_needed = False
 
-        template += '  ' + self.lbNameRandom  + '_loadbalancer:' + "\n"
+        template += '  ' + self.mcr_lb_name  + '_loadbalancer:' + "\n"
         template += '    Type: OS::Neutron::LoadBalancer' + "\n"
         template += '    Properties:' + "\n"
         template += '      members: [ '
 
-        self.mcrCounter = 1
-        template += '{ Ref: ' + self.getBaseName(instance_type='mcr')[1] +' }'
-        for self.mcrCounter in range(2, self.numberOfMcrInstances + 1):
-            template += ', { Ref: ' + self.getBaseName(instance_type='mcr')[1] +' }'
-
-        self.mcrCounter = self.numberOfMcrInstances + 1
-        self.mcrHostToRemove = self.getBaseName(instance_type='mcr')[1]
+        template += '{ Ref: ' + self.mcr_instances[0]["device_name"] +' }'
+        for i in range(1, len(self.mcr_instances)):
+            template += ', { Ref: ' + self.mcr_instances[i]["device_name"] +' }'
 
         template += ' ]' + "\n"
         template += '      pool_id: { Ref: mcr_lb_pool }' + "\n"
@@ -354,26 +354,80 @@ class TemplateGenerator:
         '''
         
         return template
-    
-    def templateToScaleUp(self):
-        if self.mcr_flavor_idx < self.maximum_flavor_idx:
-            self.mcr_flavor_idx += 1
-        return self.getTemplate()
-    
-    def templateToScaleDown(self):
-        if self.mcr_flavor_idx - 1 >= self.minimum_flavor_idx:
-            self.mcr_flavor_idx -= 1
-        return self.getTemplate()
-    
-    def templateToScaleOut(self):
-        self.numberOfCmsInstances += 1
-        return self.getTemplate()
-    
-    def templateToScaleIn(self):
-        if self.numberOfCmsInstances > 1:
-            self.numberOfCmsInstances -= 1
-        return self.getTemplate()
+
+    def scaleOut(self, instance_type, count=1):
+        if instance_type is "cms":
+            for i in range(0, count):
+                if self.numberOfCmsInstances < self.cms_scaleout_limit:
+                    self.numberOfCmsInstances += 1
+                    hostname, device_name = self.getBaseName(instance_type=instance_type)
+                    self.cms_instances.append({"device_name": device_name, "host_name": hostname})
+                    self.new_cms_lb_needed = True
+                else:
+                    print "CMS scale out limit reached."
+                    break
+        else:
+            for i in range(0, count):
+                if self.numberOfMcrInstances < self.mcr_scaleout_limit:
+                    self.numberOfMcrInstances += 1
+                    hostname, device_name = self.getBaseName(instance_type=instance_type)
+                    self.mcr_instances.append({"device_name": device_name, "host_name": hostname})
+                    self.new_mcr_lb_needed = True
+                else:
+                    print "MCR scale out limit reached."
+                    break
+
+    # TODO: Check if you can write it simpler
+    # TODO: If needed add multiple host removal feature
+    def removeInstance(self, hostname, instance_type):
+        host_to_remove = None
+        if instance_type is "cms":
+            if len(self.cms_instances) > 1:
+                for item in self.cms_instances:
+                    if item["host_name"] == hostname:
+                        host_to_remove = item
+                self.cms_instances.remove(host_to_remove)
+                self.new_cms_lb_needed = True
+                self.numberOfCmsInstances -= 1
+            else:
+                print "Can not remove all CMS instances, scale out first."
+        else:
+            if len(self.mcr_instances) > 1:
+                for item in self.mcr_instances:
+                    if item["host_name"] == hostname:
+                        host_to_remove = item
+                self.mcr_instances.remove(host_to_remove)
+                self.new_mcr_lb_needed = True
+                self.numberOfMcrInstances -= 1
+            else:
+                print "Can not remove all MCR instances, scale out first."
+
+    def scaleIn(self, instance_type, count=1):
+        if instance_type is "cms":
+            for i in range(0, count):
+                if len(self.cms_instances) > 1:
+                    self.cms_instances.pop()
+                    self.new_cms_lb_needed = True
+                    self.numberOfCmsInstances -= 1
+                else:
+                    print "Can not remove all CMS instances."
+                    break
+        else:
+            for i in range(0, count):
+                if len(self.mcr_instances) > 1:
+                    self.mcr_instances.pop()
+                    self.new_mcr_lb_needed = True
+                    self.numberOfMcrInstances -= 1
+                else:
+                    print "Can not remove all MCR instances."
+                    break
 
 if __name__ == '__main__':
     mytemp = TemplateGenerator()
+    print mytemp.getTemplate()
+    print "#########################################################################"
+    mytemp.scaleIn("cms")
+    print mytemp.getTemplate()
+    print "#########################################################################"
+    mytemp.scaleOut("cms", 3)
     print mytemp.getTemplate()

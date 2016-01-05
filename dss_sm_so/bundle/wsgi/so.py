@@ -346,7 +346,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             #CMS scale out because more than specific number of players
             if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
                 self.lastCmsScale = time.time()
-                self.so_e.templateManager.templateToScaleOut()
+                self.so_e.templateManager.scaleOut("cms")
                 self.numberOfCmsScaleOutsPerformed += 1
                 if cmsScaleOutTriggered is not True:
                     cmsScaleOutTriggered = True
@@ -365,7 +365,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 #CMS scale out because less than specific number of players
                 if  numOfCmsNeeded < cmsCount and self.numberOfCmsScaleOutsPerformed > 0 and cmsScaleInTriggered:
                     self.lastCmsScale = time.time()
-                    self.so_e.templateManager.templateToScaleIn()
+                    self.so_e.templateManager.scaleIn("cms")
                     self.numberOfCmsScaleOutsPerformed -= 1
                     scaleTriggered = True
                     writeLogFile(self.swComponent,"IN CMS scaleIn",'','')
@@ -410,11 +410,11 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
 
                 # find the deleted host from the server list backup
-                zHostToDelete = None
-                if instanceListInCaseOfScaleIn is not None:
-                    for item in instanceListInCaseOfScaleIn:
-                        if self.so_e.templateManager.cmsHostToRemove in item:
-                            zHostToDelete = item
+                #zHostToDelete = None
+                #if instanceListInCaseOfScaleIn is not None:
+                #    for item in instanceListInCaseOfScaleIn:
+                #        if self.so_e.templateManager.cmsHostToRemove in item:
+                #            zHostToDelete = item
 
                 writeLogFile(self.swComponent,"Performing stack update",'','')
                 #Scale has started
