@@ -50,4 +50,5 @@ service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart
 service streaming restart
+service filesync restart
 exit 0
