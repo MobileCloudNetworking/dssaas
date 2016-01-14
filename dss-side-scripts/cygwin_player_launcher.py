@@ -33,10 +33,10 @@ dss_cms_display_domain = "cms.dssaas.mcn.com"
 dss_player_id = ""
 try:
     dss_player_id = sys.argv[3]# Param 3
-    print "Player id set to: " + icn_endpoint
+    print "Player id set to: " + dss_player_id
 except:
     dss_player_id = "1"
-    print "Player id set to: " + icn_endpoint
+    print "Player id set to: " + dss_player_id
 
 path_to_chrome_exe = home_dir + "/GoogleChrome/Chrome.exe"
 
