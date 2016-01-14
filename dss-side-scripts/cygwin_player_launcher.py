@@ -7,6 +7,7 @@ if (total < 2):
     print ("Usage: python cygwin_player_launcher.py <ICN_ENDPOINT> [MACHINE_USERNAME default: ccnx] [PLAYER_ID default: 1]")
     sys.exit(1)
 
+icn_endpoint = ""
 try:
     icn_endpoint = sys.argv[1]# Param 1
     print "ICN endpoint set to: " + icn_endpoint
@@ -28,7 +29,6 @@ http_dir = '/var/www/'
 dss_cms_dashboard_domain = "dashboard.dssaas.mcn.com"
 dss_cms_port = "8080"
 dss_cms_display_domain = "cms.dssaas.mcn.com"
-icn_endpoint = ""
 
 dss_player_id = ""
 try:
