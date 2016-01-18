@@ -74,8 +74,8 @@ print "return code: " + str(ret_code)
 time.sleep(3)
 
 # Run get content python script
-print "Running command: python " + home_dir + "/icn_getcontents.py http://" + dss_cms_ip + ":" + dss_cms_port + "/WebAppDSS/display/listContents?id=" + dss_player_id + " " + icn_endpoint + " " + username + " &> /dev/null &"
-ret_code = os.system("python " + home_dir + "/icn_getcontents.py http://" + dss_cms_ip + ":" + dss_cms_port + "/WebAppDSS/display/listContents?id=" + dss_player_id + " " + icn_endpoint + " " + username + " &> /dev/null &")
+print "Running command: python " + home_dir + "/icn_getcontents.py http://" + dss_cms_dashboard_domain + ":" + dss_cms_port + "/WebAppDSS/display/listContents?id=" + dss_player_id + " " + icn_endpoint + " " + username + " &> /dev/null &"
+ret_code = os.system("python " + home_dir + "/icn_getcontents.py http://" + dss_cms_dashboard_domain + ":" + dss_cms_port + "/WebAppDSS/display/listContents?id=" + dss_player_id + " " + icn_endpoint + " " + username + " &> /dev/null &")
 print "return code: " + str(ret_code)
 # get content script is running
 

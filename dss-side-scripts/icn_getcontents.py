@@ -70,7 +70,7 @@ class IcnContentManager:
             #Using C client
             f_handler = open('/home/' + player_username + '/' + filename, "w")
             #+ http_server_path + filename
-            LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8' + 'ccnx:' + prefix + '/' + filename + ' > ' + '/home/' + player_username + '/' + filename)
+            LOG.debug("Running command: " + '/home/' + player_username + '/ccnxdir/bin/ccncat -p8 ' + 'ccnx:' + prefix + '/' + filename + ' > ' + '/home/' + player_username + '/' + filename)
             ret_code = call(['/home/' + player_username + '/ccnxdir/bin/ccncat', '-p8', 'ccnx:' + prefix + '/' + filename], stdout=f_handler)
             LOG.debug("Running command: mv " + '/home/' + player_username + '/' + filename + ' ' + http_server_path + filename)
             mv_ret_code = call(['mv', '/home/' + player_username + '/' + filename, http_server_path + filename])
