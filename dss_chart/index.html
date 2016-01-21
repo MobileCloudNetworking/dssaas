@@ -23,23 +23,28 @@ ${demo.css}
                 });
         
                 attachChart();
-                
+
                 setInterval(function () {
                     fileJsonData = readJson(inputURL);
                     chart = $('#container').highcharts();
+                    slength = chart.series.length;
+                    //chart.redraw();
                     //removeAllSeries(chart);
                     for (var key in fileJsonData){
-                        for (var targetData in $('#container').highcharts().series){
-                            if(tagetData["name"] == key){
-                                addNewPoints(fileJsonData, targetData, key, "inbound");
-                                addNewPoints(fileJsonData, targetData, key, "outbound");
+                        for (var i = 0; i < slength; i++) {
+                            if (chart.series[i]["name"].indexOf(key) >= 0) {
+                                for (var j = 0; j < fileJsonData[key]["times"].length; j++) {
+                                    console.log(new Date("2016-01-20T" + fileJsonData[key]["times"][j]));
+                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true);
+                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true);
+                                }
                             }
                         }
                     }
                     //chart.redraw();
                 }, 5000);
             });
-            
+
             function attachChart(){
                 $('#container').highcharts({
                     chart: {
@@ -67,13 +72,13 @@ ${demo.css}
                             color: '#808080'
                         }]
                     },
-                    tooltip: {
+                    /*tooltip: {
                         formatter: function () {
                             return '<b>' + this.series.name + '</b><br/>' +
                                 Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
                                 Highcharts.numberFormat(this.y, 3);
                         }
-                    },
+                    },*/
                     legend: {
                         layout: 'vertical',
                         align: 'right',
@@ -83,10 +88,10 @@ ${demo.css}
                     exporting: {
                         enabled: false
                     },
-                    series: prepareSeries()            
+                    series: prepareSeries()
                 });
             }
-                
+
             function readJson(url){
                 var json = (function () {
                     var json = null;
@@ -97,7 +102,7 @@ ${demo.css}
                         'dataType': "json",
                         'success': function (data) {
                             json = data;
-                            console.log(data);
+                            console.log(json);
                         }
                     });
                     return json;
@@ -105,23 +110,26 @@ ${demo.css}
                 return json;
             }
 
-            function removeAllSeries(chart){
+            /*function removeAllSeries(chart){
                 var seriesLength = chart.series.length;
                 for(i = 0; i < seriesLength; i++){
                     chart.series[0].remove();
                 }
-            }
+            }*/
 
-            function addNewPoints(jsonData, targetdata, key, trafficType){
+            /*function addNewPoints(jsonData, targetData, key, trafficType){
+                console.log(targetData);
                 for (i = 0; i < jsonData[key]["times"].length; i++) {
-                    targetdata.addPoint({x: new Date("2016-01-19T" + jsonData[key]["times"][i]), y: jsonData[key][trafficType][i]}, true, true);
+                    targetData.addPoint([new Date("2016-01-19T" + jsonData[key]["times"][i]), jsonData[key][trafficType][i]], true, true);
                 }
-            }
+            }*/
 
             function getSeriesData(jsonData, key, trafficType){
                 var serie = {name: key + " " + trafficType, data: [], color: jsonData[key][trafficType + '_color']};
                 for (i = 0; i < jsonData[key]["times"].length; i++) {
-                    serie.data.push({x: new Date("2016-01-19T" + jsonData[key]["times"][i]), y: jsonData[key][trafficType][i]});
+                    console.log(new Date("2016-01-19T" + jsonData[key]["times"][i]))
+                    serie.data.push({x: (new Date("2016-01-19T" + jsonData[key]["times"][i])).getTime(), y: jsonData[key][trafficType][i]});
+                    //serie.data.push({x: jsonData[key]["times"][i], y: jsonData[key][trafficType][i]});
                 }
                 return serie;
             }
