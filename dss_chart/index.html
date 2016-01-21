@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Traffic Chart</title>
+
+    <script type="text/javascript" src="jquery.min.js"></script>
+    
+    <style type="text/css">
+${demo.css}
+    </style>
+    
+    <script type="text/javascript">
+        $(function () {
+            var inputURL = "data.json"
+            var fileJsonData = readJson(inputURL);
+
+            $(document).ready(function () {
+                Highcharts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
+        
+                attachChart();
+                
+                setInterval(function () {
+                    fileJsonData = readJson(inputURL);
+                    chart = $('#container').highcharts();
+                    //removeAllSeries(chart);
+                    for (var key in fileJsonData){
+                        for (var targetData in $('#container').highcharts().series){
+                            if(tagetData["name"] == key){
+                                addNewPoints(fileJsonData, targetData, key, "inbound");
+                                addNewPoints(fileJsonData, targetData, key, "outbound");
+                            }
+                        }
+                    }
+                    //chart.redraw();
+                }, 5000);
+            });
+            
+            function attachChart(){
+                $('#container').highcharts({
+                    chart: {
+                        type: 'spline',
+                        animation: Highcharts.svg, // don't animate in old IE
+                        marginRight: 200,
+                    },
+                    title: {
+                        text: 'Live traffic data'
+                    },
+                    xAxis: {
+						title: {
+                            text: 'Time'
+                        },
+                        type: 'datetime',
+                        tickPixelInterval: 150
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Value'
+                        },
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return '<b>' + this.series.name + '</b><br/>' +
+                                Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                                Highcharts.numberFormat(this.y, 3);
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: prepareSeries()            
+                });
+            }
+                
+            function readJson(url){
+                var json = (function () {
+                    var json = null;
+                    $.ajax({
+                        'async': false,
+                        'global': false,
+                        'url': url,
+                        'dataType': "json",
+                        'success': function (data) {
+                            json = data;
+                            console.log(data);
+                        }
+                    });
+                    return json;
+                })();
+                return json;
+            }
+
+            function removeAllSeries(chart){
+                var seriesLength = chart.series.length;
+                for(i = 0; i < seriesLength; i++){
+                    chart.series[0].remove();
+                }
+            }
+
+            function addNewPoints(jsonData, targetdata, key, trafficType){
+                for (i = 0; i < jsonData[key]["times"].length; i++) {
+                    targetdata.addPoint({x: new Date("2016-01-19T" + jsonData[key]["times"][i]), y: jsonData[key][trafficType][i]}, true, true);
+                }
+            }
+
+            function getSeriesData(jsonData, key, trafficType){
+                var serie = {name: key + " " + trafficType, data: [], color: jsonData[key][trafficType + '_color']};
+                for (i = 0; i < jsonData[key]["times"].length; i++) {
+                    serie.data.push({x: new Date("2016-01-19T" + jsonData[key]["times"][i]), y: jsonData[key][trafficType][i]});
+                }
+                return serie;
+            }
+
+            function prepareSeries(){
+                var series = [];
+                
+                for (var key in fileJsonData){
+                    series.push(getSeriesData(fileJsonData, key, "inbound"));
+                    series.push(getSeriesData(fileJsonData, key, "outbound"));
+                }
+                
+                return series;
+            }
+        });
+    </script>
+</head>
+<body>
+	<script src="highcharts.js"></script>
+    <script src="exporting.js"></script>
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</body>
+</html>
