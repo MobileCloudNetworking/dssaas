@@ -13,6 +13,7 @@ ${demo.css}
     <script type="text/javascript">
         $(function () {
             var inputURL = "data.json"
+            //var inputURL = "http://localhost:8080/values"
             var fileJsonData = readJson(inputURL);
 
             $(document).ready(function () {
@@ -21,7 +22,7 @@ ${demo.css}
                         useUTC: false
                     }
                 });
-        
+
                 attachChart();
 
                 setInterval(function () {
@@ -35,8 +36,8 @@ ${demo.css}
                             if (chart.series[i]["name"].indexOf(key) >= 0) {
                                 for (var j = 0; j < fileJsonData[key]["times"].length; j++) {
                                     console.log(new Date("2016-01-20T" + fileJsonData[key]["times"][j]));
-                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true);
-                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true);
+                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, true);
+                                    chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, true);
                                 }
                             }
                         }
