@@ -5,11 +5,11 @@
     <title>Traffic Chart</title>
 
     <script type="text/javascript" src="jquery.min.js"></script>
-    
+
     <style type="text/css">
-${demo.css}
+        ${demo.css}
     </style>
-    
+
     <script type="text/javascript">
         $(function () {
             var dotCount = 0;
@@ -33,10 +33,10 @@ ${demo.css}
                     slength = chart.series.length;
                     //chart.redraw();
                     //removeAllSeries(chart);
-                    if(dotCount > 120){
+                    if(dotCount > 60){
                         updateEnabled = true;
                     } else {
-                        dotCount++;
+                        dotCount+=2;
                     }
                     for (var key in fileJsonData){
                         for (var i = 0; i < slength; i++) {
@@ -64,10 +64,10 @@ ${demo.css}
                         marginRight: 200,
                     },
                     title: {
-                        text: 'Live traffic data'
+                        text: 'Player Traffic Rate'
                     },
                     xAxis: {
-						title: {
+                        title: {
                             text: 'Time'
                         },
                         type: 'datetime',
@@ -75,7 +75,7 @@ ${demo.css}
                     },
                     yAxis: {
                         title: {
-                            text: 'Value'
+                            text: 'Kb/s'
                         },
                         plotLines: [{
                             value: 0,
@@ -84,12 +84,12 @@ ${demo.css}
                         }]
                     },
                     /*tooltip: {
-                        formatter: function () {
-                            return '<b>' + this.series.name + '</b><br/>' +
-                                Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
-                                Highcharts.numberFormat(this.y, 3);
-                        }
-                    },*/
+                     formatter: function () {
+                     return '<b>' + this.series.name + '</b><br/>' +
+                     Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                     Highcharts.numberFormat(this.y, 3);
+                     }
+                     },*/
                     legend: {
                         layout: 'vertical',
                         align: 'right',
@@ -122,18 +122,18 @@ ${demo.css}
             }
 
             /*function removeAllSeries(chart){
-                var seriesLength = chart.series.length;
-                for(i = 0; i < seriesLength; i++){
-                    chart.series[0].remove();
-                }
-            }*/
+             var seriesLength = chart.series.length;
+             for(i = 0; i < seriesLength; i++){
+             chart.series[0].remove();
+             }
+             }*/
 
             /*function addNewPoints(jsonData, targetData, key, trafficType){
-                console.log(targetData);
-                for (i = 0; i < jsonData[key]["times"].length; i++) {
-                    targetData.addPoint([new Date("2016-01-19T" + jsonData[key]["times"][i]), jsonData[key][trafficType][i]], true, true);
-                }
-            }*/
+             console.log(targetData);
+             for (i = 0; i < jsonData[key]["times"].length; i++) {
+             targetData.addPoint([new Date("2016-01-19T" + jsonData[key]["times"][i]), jsonData[key][trafficType][i]], true, true);
+             }
+             }*/
 
             function getSeriesData(jsonData, key, trafficType){
                 var serie = {name: key + " " + trafficType, data: [], color: jsonData[key][trafficType + '_color']};
@@ -147,20 +147,20 @@ ${demo.css}
 
             function prepareSeries(){
                 var series = [];
-                
+
                 for (var key in fileJsonData){
                     series.push(getSeriesData(fileJsonData, key, "inbound"));
                     series.push(getSeriesData(fileJsonData, key, "outbound"));
                 }
-                
+
                 return series;
             }
         });
     </script>
 </head>
 <body>
-	<script src="highcharts.js"></script>
-    <script src="exporting.js"></script>
-    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<script src="highcharts.js"></script>
+<script src="exporting.js"></script>
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 </body>
 </html>
