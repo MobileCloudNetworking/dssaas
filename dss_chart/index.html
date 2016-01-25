@@ -12,9 +12,10 @@ ${demo.css}
     
     <script type="text/javascript">
         $(function () {
+            var docCount = 0;
             var inputURL = "data.json"
-            //var inputURL = "http://localhost:8080/values"
-            var fileJsonData = readJson(inputURL);
+            var inputURL = "http://localhost:8080/values"
+            //var fileJsonData = readJson(inputURL);
 
             $(document).ready(function () {
                 Highcharts.setOptions({
@@ -36,10 +37,19 @@ ${demo.css}
                             if (chart.series[i]["name"].indexOf(key) >= 0) {
                                 for (var j = 0; j < fileJsonData[key]["times"].length; j++) {
                                     console.log(new Date("2016-01-20T" + fileJsonData[key]["times"][j]));
-                                    if (chart.series[i]["name"].indexOf("inbound") >= 0) {
-                                        chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true);
+                                    if(dotCount > 120){
+                                        if (chart.series[i]["name"].indexOf("inbound") >= 0) {
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, true);
+                                        } else {
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, true);
+                                        }
                                     } else {
-                                        chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true);
+                                        if (chart.series[i]["name"].indexOf("inbound") >= 0) {
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true);
+                                        } else {
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true);
+                                        }
+                                        dotCount++;
                                     }
                                 }
                             }
