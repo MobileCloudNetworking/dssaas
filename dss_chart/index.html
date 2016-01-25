@@ -43,26 +43,17 @@ ${demo.css}
                             if (chart.series[i]["name"].indexOf(key) >= 0) {
                                 for (var j = 0; j < fileJsonData[key]["times"].length; j++) {
                                     console.log(new Date("2016-01-20T" + fileJsonData[key]["times"][j]));
-                                    if(dotCount > 120){
-                                        if (chart.series[i]["name"].indexOf("inbound") >= 0) {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, updateEnabled);
-                                        } else {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, updateEnabled);
-                                        }
+                                    if (chart.series[i]["name"].indexOf("inbound") >= 0) {
+                                        chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, updateEnabled);
                                     } else {
-                                        if (chart.series[i]["name"].indexOf("inbound") >= 0) {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, updateEnabled);
-                                        } else {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, updateEnabled);
-                                        }
-                                        dotCount++;
+                                        chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, updateEnabled);
                                     }
                                 }
                             }
                         }
                     }
                     //chart.redraw();
-                }, 5000);
+                }, 2000);
             });
 
             function attachChart(){
