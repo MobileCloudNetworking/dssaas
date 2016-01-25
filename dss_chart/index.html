@@ -13,9 +13,9 @@ ${demo.css}
     <script type="text/javascript">
         $(function () {
             var docCount = 0;
-            var inputURL = "data.json"
+            //var inputURL = "data.json"
             var inputURL = "http://localhost:8080/values"
-            //var fileJsonData = readJson(inputURL);
+            var fileJsonData = readJson(inputURL);
 
             $(document).ready(function () {
                 Highcharts.setOptions({
