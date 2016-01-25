@@ -13,6 +13,7 @@ ${demo.css}
     <script type="text/javascript">
         $(function () {
             var dotCount = 0;
+            var updateEnabled = false;
             //var inputURL = "data.json"
             var inputURL = "http://localhost:8080/values"
             var fileJsonData = readJson(inputURL);
@@ -32,6 +33,11 @@ ${demo.css}
                     slength = chart.series.length;
                     //chart.redraw();
                     //removeAllSeries(chart);
+                    if(dotCount > 120){
+                        updateEnabled = true;
+                    } else {
+                        dotCount++;
+                    }
                     for (var key in fileJsonData){
                         for (var i = 0; i < slength; i++) {
                             if (chart.series[i]["name"].indexOf(key) >= 0) {
@@ -39,15 +45,15 @@ ${demo.css}
                                     console.log(new Date("2016-01-20T" + fileJsonData[key]["times"][j]));
                                     if(dotCount > 120){
                                         if (chart.series[i]["name"].indexOf("inbound") >= 0) {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, true);
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, updateEnabled);
                                         } else {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, true);
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, updateEnabled);
                                         }
                                     } else {
                                         if (chart.series[i]["name"].indexOf("inbound") >= 0) {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true);
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["inbound"][j]], true, updateEnabled);
                                         } else {
-                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true);
+                                            chart.series[i].addPoint([(new Date("2016-01-19T" + fileJsonData[key]["times"][j])).getTime(), fileJsonData[key]["outbound"][j]], true, updateEnabled);
                                         }
                                         dotCount++;
                                     }
