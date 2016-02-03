@@ -609,7 +609,7 @@ class SOConfigure(threading.Thread):
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it
 
-        self.monitor = SOMonitor(self.so_e, self.so_d, self.monitoring_endpoint, 0, 'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php', 'admin', 'zabbix')
+        self.monitor = SOMonitor(self.so_e, self.so_d, self.monitoring_endpoint, 0, 'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php')
         self.performMonConfig()
 
         #LOG.debug(self.swComponent + ' ' + "Start monitoring service ...")
