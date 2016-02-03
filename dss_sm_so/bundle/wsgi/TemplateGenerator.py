@@ -28,7 +28,7 @@ class TemplateGenerator:
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'
-        self.dbpass = 'registro00'
+        self.dbpass = '******'
         self.dbuser = 'root'
         
         self.cms_scaleout_limit = 4
