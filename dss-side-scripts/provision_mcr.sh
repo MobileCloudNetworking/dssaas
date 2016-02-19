@@ -41,10 +41,6 @@ do
 #It is not ready yet, wait 1 second and try again
 	sleep 1
 done
-if [[ `echo "show schemas;" | mysql -h $databasehost -u $databaseusername -p$databasepassword` != *$databasename* ]]
-then
-	echo "create database $databasename" | mysql -h $databasehost -u $databaseusername -p$databasepassword
-fi
 #Start services
 service zabbix-agent restart
 service tomcat7 restart

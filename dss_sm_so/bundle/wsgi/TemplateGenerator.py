@@ -27,9 +27,9 @@ class TemplateGenerator:
         self.dss_mcr_image_name = 'DSS-IMG-filesync'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
-        self.dbname = 'webappdss'
-        self.dbpass = '******'
-        self.dbuser = 'root'
+        self.dbname = 'webappdss'# DO NOT CHANGE
+        self.dbpass = '******'# Use the one set in DB image
+        self.dbuser = 'root'# DO NOT CHANGE
         
         self.cms_scaleout_limit = 4
         self.mcr_scaleout_limit = 4
@@ -218,18 +218,8 @@ class TemplateGenerator:
         template += '        - port: { Ref : dbaas_server_port }' + "\n"
         template += '      user_data: |' + "\n"
         template += "        #!/bin/bash" + "\n"
-        template += "        cd /home/ubuntu/" + "\n"
-        template += "        #Static data, to be removed" + "\n"
-        template += "        databaseusername='" + self.dbuser + "'" + "\n"
-        template += "        databasehost='localhost'" + "\n"
-        template += "        databasepassword='" + self.dbpass + "'" + "\n"
         template += "        sed -i.bak s/dss-cms/`hostname`/g /etc/hosts" + "\n"
-        template += '        #Configure db' + "\n"
-        template += '        echo "GRANT ALL PRIVILEGES ON *.* TO \'$databaseusername\'@\'%\' IDENTIFIED BY \'$databasepassword\';" | mysql -u $databaseusername -p$databasepassword' + "\n"
-        template += '        sed -i.bak "s,bind-address,#bind-address,g" /etc/mysql/my.cnf' + "\n"
-        template += '        #restart services' + "\n"
-        template += "        service mysql restart" + "\n"           
-        template += "\n"             
+        template += "\n"
         template += "  dbaas_server_port:" + "\n"             
         template += "    Type: OS::Neutron::Port" + "\n"             
         template += "    Properties:" + "\n"             
