@@ -189,7 +189,11 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         if self.stack_id is not None:
             tmp = self.deployer.details(self.stack_id, self.token)
             if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
-                return -1, 'Stack is currently being deployed...'
+                return -1, 'Stack is currently being deployed ...'
+            elif tmp['state'] != 'CREATE_FAILED':
+                return -2, 'Stack creation failed ...'
+            elif tmp['state'] != 'UPDATE_FAILED':
+                return -3, 'Stack update failed ...'
             else:
                 serverList = []
                 for i in range(0 ,len(tmp["output"])):
@@ -205,7 +209,11 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         if self.stack_id is not None:
             tmp = self.deployer.details(self.stack_id, self.token)
             if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
-                return -1, 'Stack is currently being deployed...'
+                return -1, 'Stack is currently being deployed ...'
+            elif tmp['state'] != 'CREATE_FAILED':
+                return -2, 'Stack creation failed ...'
+            elif tmp['state'] != 'UPDATE_FAILED':
+                return -3, 'Stack update failed ...'
             else:
                 #serverList = []
                 serverList = {}
@@ -259,8 +267,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.configure = SOConfigure(self.so_e, self, self.event)
 
         # Scaling guard time
-        self.cmsScaleInThreshold = 450#in seconds
-        self.mcrScaleDownThreshold = 450#in seconds
+        self.cmsScaleInThreshold = 450# in seconds
+        self.mcrScaleDownThreshold = 450# in seconds
 
         # Number of players needed for each scale out/in
         self.playerCountLimit = 5.0
@@ -388,7 +396,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         #scaleTriggered = True
                         LOG.debug(self.swComponent + ' ' + "IN MCR scaleUp")
                     # MCR scale down
-                    elif  item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
+                    elif item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
                         LOG.debug(self.swComponent + ' ' + "Less than 30% hard disk usage on MCR machine")
                         LOG.debug(self.swComponent + ' ' + "Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed))
                         LOG.debug(self.swComponent + ' ' + "Last MCR scale action happened " + str(diff) + " second(s) ago")
@@ -419,36 +427,68 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     scale_type = 'scaling-in'
                 elif cmsScaleOutTriggered is True:
                     scale_type = 'scaling-out'
-                infoDict = {
-                    'so_id': 'idnotusefulhere',
-                    'sm_name': 'dssaas',
-                    'so_phase': 'update',
-                    'scaling': scale_type,
-                    'phase_event': 'start',
-                    'response_time': 0,
-                    'tenant': self.so_e.tenant_name
-                    }
-                tmpJSON = json.dumps(infoDict)
-                GLOG.debug(tmpJSON)
-                self.so_e.update_start = datetime.datetime.now()
-                self.so_e.update_stack()
-                LOG.debug(self.swComponent + ' ' + "Update in progress ...")
+                upd_result = -1
+                while(upd_result < 0):
+                    if cmsScaleOutTriggered is True and upd_result is -2:
+                        self.so_e.templateManager.scaleIn("cms")
+                        self.so_e.templateManager.scaleOut("cms")
+                        self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
+                    elif upd_result is -3:
+                        return
+                    infoDict = {
+                        'so_id': 'idnotusefulhere',
+                        'sm_name': 'dssaas',
+                        'so_phase': 'update',
+                        'scaling': scale_type,
+                        'phase_event': 'start',
+                        'response_time': 0,
+                        'tenant': self.so_e.tenant_name
+                        }
+                    tmpJSON = json.dumps(infoDict)
+                    GLOG.debug(tmpJSON)
+                    self.so_e.update_start = datetime.datetime.now()
+                    self.so_e.update_stack()
+                    LOG.debug(self.swComponent + ' ' + "Update in progress ...")
 
-                #Removing the deleted host from zabbix server
-                #if zHostToDelete is not None:
-                    #self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
+                    #Removing the deleted host from zabbix server
+                    #if zHostToDelete is not None:
+                        #self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
 
-                # Checking configuration status of the instances after scaling
-                self.checkConfigurationStats(scale_type= scale_type)
+                    # Checking configuration status of the instances after scaling
+                    # upd_result = 0 OK; upd_result = -1 Stack problem; upd_result = -2 SIC issue; upd_result = -3 DB issue;
+                    upd_result = self.checkConfigurationStats(scale_type= scale_type)
                 self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
     def checkConfigurationStats(self, scale_type):
         result = -1
+        config_max_retry = 60
+        config_retry_counter = 0
+        listOfAllServers = None
         # Waits till the deployment of the stack is finished
-        while(result == -1):
-            time.sleep(1)
+        while(result < 0 and config_retry_counter < config_max_retry):
             result, listOfAllServers = self.so_e.getServerIPs()
+            if result < 0 and config_retry_counter >= config_max_retry:
+                #Scale has failed
+                LOG.debug(self.swComponent + ' ' + "Update Type: " + scale_type)
+                self.so_e.update_end = datetime.datetime.now()
+                diff = self.so_e.update_end - self.so_e.update_start
+                infoDict = {
+                            'so_id': 'idnotusefulhere',
+                            'sm_name': 'dssaas',
+                            'so_phase': 'update',
+                            'scaling': scale_type,
+                            'phase_event': 'failed',
+                            'response_time': diff.total_seconds(),
+                            'tenant': self.so_e.tenant_name
+                            }
+                tmpJSON = json.dumps(infoDict)
+                GLOG.debug(tmpJSON)
+                LOG.debug(self.swComponent + ' ' + "Update failed")
+                LOG.debug(self.swComponent + ' ' + "Re-executing update")
+                return -1
+            config_retry_counter += 1
+            time.sleep(1)
 
         #Scale has finished
         LOG.debug(self.swComponent + ' ' + "Update Type: " + scale_type)
@@ -502,7 +542,17 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         else:
                             LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
                             LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
-                            self.configure.provisionInstance(item, listOfAllServers)
+                            newSIC_provision_status = 0
+                            while newSIC_provision_status is not 1:
+                                newSIC_provision_status, newSIC_provision_msg = self.configure.provisionInstance(item, listOfAllServers)
+                                if newSIC_provision_msg is not 'all_ok':
+                                    if newSIC_provision_msg is self.dss_instance_failed_msg:
+                                        LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
+                                        return -2
+                                    elif newSIC_provision_msg is self.db_failed_msg:
+                                        LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
+                                        return -3
+                            #self.configure.provisionInstance(item, listOfAllServers)
                             self.configure.configInstance(item)
                             LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
                             response_status = 0
@@ -524,6 +574,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                                     continue
                                 response_status = int(response.get("status"))
                                 self.configure.SICMonConfig(content)
+        return 0
 
     # Updates the decision map according to the triggered triggers :-)
     def updateDecisionMap(self, type, description):
@@ -569,7 +620,7 @@ class SOConfigure(threading.Thread):
         self.dss_instance_failed_msg = "DSS INSTANCE FAILED"
 
     def run(self):
-        #Pushing DNS configurations to DNS SICs
+        # Pushing DNS configurations to DNS SICs
         #------------------------------------------------------------------------------#
         # Comment the next 11 lines in case you are using SDK GET DNSaaS functionality #
         # And don't forget to set its stat to "Ready"                                  #
@@ -618,7 +669,7 @@ class SOConfigure(threading.Thread):
                 elif localConfig_msg is self.db_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                     # TODO: Recreate Stack and replace DB
-                    # TODO: Call and update with new DB resource
+                    # TODO: Call an update with new DB resource
             # Finishes the thread
             # Decision is already on waiting mode
             # Monitoring has not even started yet
@@ -704,11 +755,11 @@ class SOConfigure(threading.Thread):
             LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
             time.sleep(0.5)
 
-        result = -1
-        while (result < 0):
-            result, serverList = self.so_e.getServerNamesList()
-            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(serverList))
-            time.sleep(0.5)
+        #result = -1
+        #while (result < 0):
+        #    result, serverList = self.so_e.getServerNamesList()
+        #    LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(serverList))
+        #    time.sleep(0.5)
 
         #configure instances
         LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
