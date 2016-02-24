@@ -42,7 +42,8 @@ class SOMonitor(threading.Thread):
         self.addedServers = {}
         self.so_e = executionModule
         self.so_d = decisionModule
-        
+
+        self.webScenarioList = []
         self.mode = "addtriggers"
         LOG.debug(self.swComponent + ' ' + "SOMonitor initiated ................")
         
@@ -51,27 +52,27 @@ class SOMonitor(threading.Thread):
         result = -1
         while (result < 0):
             time.sleep(1)
-            result, serverList = self.so_e.getServerNamesList()
+            result, serverList = self.so_e.getServerInfo()
         
         while 1:
             # Getting the triggers which are triggered if in monitoring mode        
             if self.mode == "checktriggers":
                 time.sleep(10)
                 if i > 6:
-                    result, serverList = self.so_e.getServerNamesList()
+                    result, serverList = self.so_e.getServerInfo()
                     i = 0
                 else:
                     i += 1
                 LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
                 self.so_d.hostsWithIssues = []
                 for item in serverList:
-                    LOG.debug(self.swComponent + ' ' + item)
-                    if len(item) > 1:
-                        if 'mcr' in item:
-                            self.so_d.playerCount = self.getMetric(item.replace("_","-"),"DSS.Players.CNT")
+                    LOG.debug(self.swComponent + ' ' + item["hostname"])
+                    if len(item["hostname"]) > 1:
+                        if 'mcr' in item["hostname"]:
+                            self.so_d.playerCount = self.getMetric(item["hostname"].replace("_","-"), "DSS.Players.CNT")
                             LOG.debug(self.swComponent + ' ' + "Number of active players: " + str(self.so_d.playerCount))
 
-                        res = self.getProblematicTriggers(item.replace("_","-"))
+                        res = self.getProblematicTriggers(item["hostname"].replace("_","-"))
                         try:
                             for trigger in res:
                                 self.so_d.hostsWithIssues.append(trigger)
@@ -80,11 +81,18 @@ class SOMonitor(threading.Thread):
                             continue;
                         LOG.debug(self.swComponent + ' ' + str(res))
                 LOG.debug(self.swComponent + ' ' + str(self.so_d.hostsWithIssues))
+
+                self.so_d.ftlist[:] = []
+                for item in self.webScenarioList:
+                    check = self.getWebScenarioFromMaas(item["id"])
+                    if check["status_codes"] is not "200":
+                        self.so_d.ftlist.append(item["hostName"])
+
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
                 time.sleep(5)
 
-    #Add trigger to zabbix and update decision array            
+    # Add trigger to zabbix and update decision array
     def configTrigger(self, tName, zName, tCondition):
         triggerName = tName
         zabbixName = zName
@@ -111,7 +119,7 @@ class SOMonitor(threading.Thread):
             return 1
         return 0
         
-    # Implements zabbix interface o add a trigger    
+    # Implements zabbix interface to add a trigger
     def addTriggerToMaas(self, hostName, triggerDescription, expression):
         '''
         Adds a trigger to Zabbix server
@@ -140,7 +148,7 @@ class SOMonitor(threading.Thread):
         LOG.debug(self.swComponent + ' ' + 'Error adding trigger to host:' + hostName)
         return -1
     
-    # Implements zabbix interface o add a trigger
+    # Implements zabbix interface to add an item
     def addItemToMaas(self, hostName, AppName, itemName, itemKey, valueType, delay):
         '''
         Adds an item to Zabbix server
@@ -176,6 +184,83 @@ class SOMonitor(threading.Thread):
                 if "result" in content:
                     return 1
         LOG.debug(self.swComponent + ' ' + 'Error adding item to host:' + hostName)
+        return -1
+
+    # Implements zabbix interface to add a web scenario
+    def addWebScenarioToMaas(self, hostName, scenarioName, stepName, stepUrl, stepStatCode, no):
+        '''
+        Adds an item to Zabbix server
+        Note: we can have more than one step in a scenario but here we just add one
+        :param hostName: Hostname to add the item to (String)
+        :param scenarioName: A name for the new scenario (String)
+        :param stepName: A name for the new specific step (String)
+        :param stepUrl: A URL to poll and check if it works fine or not (String)
+        :param stepStatCode: The status code of the http call which we expect as working i.e 200 (Integer)
+        :return: 1 if the creation is successful and -1 if error occurs
+        '''
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "httptest.create",
+                        "params":{
+                                   "name": scenarioName,
+                                   "hostid": str(hostId[0]['hostid']),
+                                   "delay": "60",
+                                   "steps":[{
+                                       "name": stepName,
+                                       "url": stepUrl,
+                                       "status_codes": stepStatCode,
+                                       "no": no
+                                   }]
+                                 },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if "result" in content:
+                    self.webScenarioList.append({"name": scenarioName, "hostName": hostName.replace("-","_"), "id": content["result"]["httptestids"][0]})
+                    LOG.debug(self.swComponent + ' ' + "Web Scenario successfully added with id: " + content["result"]["httptestids"][0])
+                    return 1
+        LOG.debug(self.swComponent + ' ' + 'Error adding web scenario to host:' + hostName)
+        return -1
+
+    def getWebScenarioFromMaas(self, scenarioId):
+        '''
+        :param scenarioId: The ID of the target scenario (Integer)
+        :return: Json on success i.e {
+                    "httpstepid": "4",
+                    "httptestid": "4",
+                    "name": "Homepage",
+                    "no": "1",
+                    "url": "http://mycompany.com",
+                    "timeout": "30",
+                    "posts": "",
+                    "required": "",
+                    "status_codes": "200",
+                    "webstepid": "4"
+                }
+                Failure -1
+        '''
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "httptest.get",
+                        "params":{
+                                   "output": "extend",
+                                   "selectSteps": "extend",
+                                   "httptestids": str(scenarioId)
+                                 },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if "result" in content:
+                    return content["result"][0]["steps"][0]
+        LOG.debug(self.swComponent + ' ' + 'Error getting we scenario info')
         return -1
     
     # Iterates through triggers and returns a list of the ones with PROBLEM status 

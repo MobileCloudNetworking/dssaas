@@ -162,15 +162,15 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     if i['output_key'] == "mcn.endpoint.dssaas":
                         LOG.debug('Found key mcn.endpoint.dssaas with value: ' + i['output_value'])
                         result = -1
-                        instances = None
+                        sic_info = None
                         while (result < 0):
                             time.sleep(1)
-                            result, instances = self.getServerIPs()
-                            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(instances))
+                            result, sic_info = self.getServerInfo()
+                            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(sic_info))
 
-                        for item in instances:
-                            if item == "mcn.dss.cms.lb.endpoint":
-                                i['output_value'] = instances[item]
+                        for item in sic_info:
+                            if item["output_key"] == "mcn.dss.cms.lb.endpoint":
+                                i['output_value'] = item["ep"]
                         #i['output_value'] = 'http://' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + ':8080/WebAppDSS/'
                         LOG.debug('Replaced mcn.endpoint.dssaas value with: ' + i['output_value'])
                 return tmp['state'], self.stack_id, tmp['output']
@@ -184,8 +184,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
     #def update(self, updated_service):
         # TODO implement your own update logic - this could be a heat template update call
         #pass
-    # Getting the deployed SIC hostnames using the output of deployed stack (Heat Output)
-    def getServerNamesList(self):
+
+    # Getting the deployed SIC floating IPs and host names using the output of deployed stack (Heat Output)
+    def getServerInfo(self):
         if self.stack_id is not None:
             tmp = self.deployer.details(self.stack_id, self.token)
             if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
@@ -195,33 +196,20 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             elif tmp['state'] != 'UPDATE_FAILED':
                 return -3, 'Stack update failed ...'
             else:
-                serverList = []
+                # Example: {"outputKey": "mcn.dss.mcr.lb.endpoint", "ep": "160.85.4.37", "hostname": "-"}
+                # Example: {"outputKey": "mcn.dss.cms1_server_1454513381.endpoint", "ep": "160.85.4.29", "hostname": "cms1_server_1454513381"}
+                serverInfo = []
                 for i in range(0 ,len(tmp["output"])):
-                    if "hostname" in tmp["output"][i]["output_key"]:
-                        serverList.append(str(tmp["output"][i]["output_value"]))
-
-                return 0, serverList
-        else:
-            return -1, 'Stack is not deployed atm.'
-
-    # Getting the deployed SIC floating IPs using the output of deployed stack (Heat Output)
-    def getServerIPs(self):
-        if self.stack_id is not None:
-            tmp = self.deployer.details(self.stack_id, self.token)
-            if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
-                return -1, 'Stack is currently being deployed ...'
-            elif tmp['state'] != 'CREATE_FAILED':
-                return -2, 'Stack creation failed ...'
-            elif tmp['state'] != 'UPDATE_FAILED':
-                return -3, 'Stack update failed ...'
-            else:
-                #serverList = []
-                serverList = {}
-                for i in range(0 ,len(tmp["output"])):
-                    if "hostname" not in tmp["output"][i]["output_key"]:
-                        serverList[tmp["output"][i]["output_key"]] = tmp["output"][i]["output_value"]
-
-                return 0, serverList
+                    output_key = tmp["output"][i]["output_key"]
+                    if output_key == "mcn.dss.mcr.lb.endpoint" or output_key == "mcn.dss.cms.lb.endpoint" or output_key == "mcn.dss.db.endpoint" or output_key == "mcn.endpoint.dssaas":
+                        if "hostname" not in output_key:
+                            serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": "-"})
+                    elif "hostname" not in output_key:
+                        for j in range(0 ,len(tmp["output"])):
+                            j_key = tmp["output"][j]["output_key"]
+                            if "hostname" in j_key and output_key.split('.')[2] in j_key:
+                                serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": tmp["output"][j]["output_value"]})
+                return 0, serverInfo
         else:
             return -1, 'Stack is not deployed atm.'
 
@@ -255,6 +243,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         # Variables used for checking current DSS instance status according to monitoring triggers
         self.decisionArray = {}
         self.hostsWithIssues = []
+        self.ftlist = []
         self.playerCount = 0
         self.decisionMapMCR = [{"More than 90% hard disk usage on {HOST.NAME}": 0},
                                {"Less than 30% hard disk usage on {HOST.NAME}": 0}]
@@ -306,7 +295,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             time.sleep(3)
             cmsCount = self.so_e.getNumberOfCmsInstances()
             mcrCount = self.so_e.getNumberOfMcrInstances()
-            #Reseting the values in decision map
+            # Resetting the values in decision map
             for item in self.decisionMapCMS:
                 item[item.keys()[0]] = 0
             for item in self.decisionMapMCR:
@@ -327,8 +316,11 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
             # Take scaling decisions according to updated map and sending corresponding command to the Execution part
             scaleTriggered = False
+            replaceTriggered = False
             cmsScaleOutTriggered = False
             cmsScaleInTriggered = False
+            cmsReplaceTriggered = False
+            mcrReplaceTriggered = False
             LOG.debug(self.swComponent + ' ' + "Checking CMS status")
             for item in self.decisionMapCMS:
                 if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
@@ -365,6 +357,22 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             LOG.debug(self.swComponent + ' ' + "Last CMS scale action happened " + str(diff) + " second(s) ago")
             LOG.debug(self.swComponent + ' ' + "Threshold for CMS scale in is: " + str(self.cmsScaleInThreshold) + " second(s)")
             LOG.debug(self.swComponent + ' ' + "CMS cpu metric scale in triggered: " + str(cmsScaleInTriggered))
+
+            # Check if you need to replace one of the SICs cos of failure
+            for item in self.ftlist:
+                if "cms" in item:
+                    LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty instance " + item)
+                    self.so_e.templateManager.removeInstance(item, "cms")
+                    self.so_e.templateManager.scaleOut("cms")
+                    cmsReplaceTriggered = True
+                    replaceTriggered = True
+                elif "mcr" in item:
+                    LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty instance " + item)
+                    self.so_e.templateManager.removeInstance(item, "mcr")
+                    self.so_e.templateManager.scaleOut("mcr")
+                    mcrReplaceTriggered = True
+                    replaceTriggered = True
+
             if diff > self.cmsScaleInThreshold or self.lastCmsScale == 0:
                 #CMS scale out because less than specific number of players
                 if  numOfCmsNeeded < cmsCount and self.numberOfCmsScaleOutsPerformed > 0 and cmsScaleInTriggered:
@@ -373,52 +381,12 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     self.numberOfCmsScaleOutsPerformed -= 1
                     scaleTriggered = True
                     LOG.debug(self.swComponent + ' ' + "IN CMS scaleIn")
-                    # Get a backup of the server name list
-                    result = -1
-                    while (result < 0):
-                        time.sleep(1)
-                        result, instanceListInCaseOfScaleIn = self.so_e.getServerNamesList()
-
-            for item in self.decisionMapMCR:
-                LOG.debug(self.swComponent + ' ' + "Checking MCR status")
-                if self.lastMcrScale == 0:
-                    diff = 0
-                else:
-                    diff = int(time.time() - self.lastMcrScale)
-                if item[item.keys()[0]] > 0:
-                    # MCR scale up
-                    # It is commented because it's not working for current heat version )
-                    if item.keys()[0] == "More than 90% hard disk usage on {HOST.NAME}":
-                        LOG.debug(self.swComponent + ' ' + "More than 90% hard disk usage on MCR machine")
-                        self.lastMcrScale = time.time()
-                        #self.so_e.templateManager.templateToScaleUp()
-                        self.numberOfScaleUpsPerformed += 1
-                        #scaleTriggered = True
-                        LOG.debug(self.swComponent + ' ' + "IN MCR scaleUp")
-                    # MCR scale down
-                    elif item.keys()[0] == "Less than 30% hard disk usage on {HOST.NAME}" and self.numberOfScaleUpsPerformed > 0 and diff > self.mcrScaleDownThreshold:
-                        LOG.debug(self.swComponent + ' ' + "Less than 30% hard disk usage on MCR machine")
-                        LOG.debug(self.swComponent + ' ' + "Number of scale ups performed: " + str(self.numberOfScaleUpsPerformed))
-                        LOG.debug(self.swComponent + ' ' + "Last MCR scale action happened " + str(diff) + " second(s) ago")
-                        LOG.debug(self.swComponent + ' ' + "Threshold for MCR scale down is: " + str(self.mcrScaleDownThreshold) + " second(s)")
-                        self.lastMcrScale = time.time()
-                        #self.so_e.templateManager.templateToScaleDown()
-                        self.numberOfScaleUpsPerformed -= 1
-                        #scaleTriggered = True
-                        LOG.debug(self.swComponent + ' ' + "IN MCR scaleDown")
 
             # Call SO execution if scaling required
             LOG.debug(self.swComponent + ' ' + str(scaleTriggered))
-            if scaleTriggered:
+            if scaleTriggered or replaceTriggered:
                 self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
-
-                # find the deleted host from the server list backup
-                #zHostToDelete = None
-                #if instanceListInCaseOfScaleIn is not None:
-                #    for item in instanceListInCaseOfScaleIn:
-                #        if self.so_e.templateManager.cmsHostToRemove in item:
-                #            zHostToDelete = item
 
                 LOG.debug(self.swComponent + ' ' + "Performing stack update")
                 #Scale has started
@@ -427,14 +395,27 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     scale_type = 'scaling-in'
                 elif cmsScaleOutTriggered is True:
                     scale_type = 'scaling-out'
+                if replaceTriggered:
+                    if scale_type is None:
+                        scale_type = 'replacing'
+                    else:
+                        scale_type = scale_type + 'and replacing'
                 upd_result = -1
+                upd_code = ''
                 while(upd_result < 0):
-                    if cmsScaleOutTriggered is True and upd_result is -2:
-                        self.so_e.templateManager.scaleIn("cms")
+                    if "cms" in upd_code and upd_result is -2:
+                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty CMS instance " + item)
+                        self.so_e.templateManager.removeInstance(upd_code, "cms")
                         self.so_e.templateManager.scaleOut("cms")
+                        self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
+                    elif "mcr" in upd_code and upd_result is -2:
+                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty MCR instance " + item)
+                        self.so_e.templateManager.removeInstance(upd_code, "mcr")
+                        self.so_e.templateManager.scaleOut("mcr")
                         self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
                     elif upd_result is -3:
                         return
+
                     infoDict = {
                         'so_id': 'idnotusefulhere',
                         'sm_name': 'dssaas',
@@ -444,19 +425,16 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         'response_time': 0,
                         'tenant': self.so_e.tenant_name
                         }
+
                     tmpJSON = json.dumps(infoDict)
                     GLOG.debug(tmpJSON)
                     self.so_e.update_start = datetime.datetime.now()
                     self.so_e.update_stack()
                     LOG.debug(self.swComponent + ' ' + "Update in progress ...")
 
-                    #Removing the deleted host from zabbix server
-                    #if zHostToDelete is not None:
-                        #self.configure.monitor.removeHost(zHostToDelete.replace("_","-"))
-
                     # Checking configuration status of the instances after scaling
-                    # upd_result = 0 OK; upd_result = -1 Stack problem; upd_result = -2 SIC issue; upd_result = -3 DB issue;
-                    upd_result = self.checkConfigurationStats(scale_type= scale_type)
+                    # upd_result = 0 OK; upd_result = -1 FAIL; upd_result = -2, faulty host; upd_result = -3 DB issue;
+                    upd_result, upd_code = self.checkConfigurationStats(scale_type= scale_type)
                 self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
@@ -467,7 +445,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         listOfAllServers = None
         # Waits till the deployment of the stack is finished
         while(result < 0 and config_retry_counter < config_max_retry):
-            result, listOfAllServers = self.so_e.getServerIPs()
+            result, listOfAllServers = self.so_e.getServerInfo()
             if result < 0 and config_retry_counter >= config_max_retry:
                 #Scale has failed
                 LOG.debug(self.swComponent + ' ' + "Update Type: " + scale_type)
@@ -486,7 +464,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 GLOG.debug(tmpJSON)
                 LOG.debug(self.swComponent + ' ' + "Update failed")
                 LOG.debug(self.swComponent + ' ' + "Re-executing update")
-                return -1
+                return -1, 'FAIL'
             config_retry_counter += 1
             time.sleep(1)
 
@@ -509,72 +487,71 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         LOG.debug(self.swComponent + ' ' + "Check config stat of instances")
         checkList = {}
         for item in listOfAllServers:
-            if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
-                checkList[listOfAllServers[item]] = "unknown"
+            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
+                checkList[item["ep"]] = {"host": item["hostname"], "stat": "unknown"}
 
         # Talking to DSS SIC agents to get the configuration status of each
-        while "unknown" in checkList.values():
-            for item in checkList:
-                if checkList[item] == "unknown":
-                    response_status = 0
-                    while (response_status < 200 or response_status >= 400):
-                        time.sleep(1)
-                        headers = {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json; charset=UTF-8'
-                        }
-                        target = 'http://' + item + ':8051/v1.0/configstat'
-                        LOG.debug(self.swComponent + ' ' + target)
-                        try:
-                            h = http.Http()
-                            h.timeout = self.timeout
-                            LOG.debug(self.swComponent + ' ' + "Sending config request to " + item + ":")
-                            response, content = h.request(target, 'GET', None, headers)
-                            LOG.debug(self.swComponent + ' ' + "Config stat is: " + str(content))
-                        except Exception as e:
-                            LOG.debug(self.swComponent + ' ' + "Handled config request exception " + str(e))
-                            continue
-                        response_status = int(response.get("status"))
-                        instanceInfo = json.loads(content)
-                        if "False" not in instanceInfo.values():
-                            LOG.debug(self.swComponent + ' ' + item + " already configured")
-                            checkList[item] = "Configured"
-                        else:
-                            LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
-                            LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
-                            newSIC_provision_status = 0
-                            while newSIC_provision_status is not 1:
-                                newSIC_provision_status, newSIC_provision_msg = self.configure.provisionInstance(item, listOfAllServers)
-                                if newSIC_provision_msg is not 'all_ok':
-                                    if newSIC_provision_msg is self.dss_instance_failed_msg:
-                                        LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
-                                        return -2
-                                    elif newSIC_provision_msg is self.db_failed_msg:
-                                        LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
-                                        return -3
-                            #self.configure.provisionInstance(item, listOfAllServers)
-                            self.configure.configInstance(item)
-                            LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
-                            response_status = 0
-                            while (response_status < 200 or response_status >= 400):
-                                time.sleep(1)
-                                headers = {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json; charset=UTF-8'
-                                }
-                                target = 'http://' + item + ':8051/v1.0/hostname'
-                                LOG.debug(self.swComponent + ' ' + target)
-                                try:
-                                    h = http.Http()
-                                    h.timeout = self.timeout
-                                    LOG.debug(self.swComponent + ' ' + "Sending hostname request to " + item + ":")
-                                    response, content = h.request(target, 'GET', None, headers)
-                                except Exception as e:
-                                    LOG.debug(self.swComponent + ' ' + "Handled hostname request exception " + str(e))
-                                    continue
-                                response_status = int(response.get("status"))
-                                self.configure.SICMonConfig(content)
-        return 0
+        for item in checkList:
+            if checkList[item]["stat"] == "unknown":
+                response_status = 0
+                while (response_status < 200 or response_status >= 400):
+                    time.sleep(1)
+                    headers = {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json; charset=UTF-8'
+                    }
+                    target = 'http://' + item + ':8051/v1.0/configstat'
+                    LOG.debug(self.swComponent + ' ' + target)
+                    try:
+                        h = http.Http()
+                        h.timeout = self.timeout
+                        LOG.debug(self.swComponent + ' ' + "Sending config request to " + item + ":")
+                        response, content = h.request(target, 'GET', None, headers)
+                        LOG.debug(self.swComponent + ' ' + "Config stat is: " + str(content))
+                    except Exception as e:
+                        LOG.debug(self.swComponent + ' ' + "Handled config request exception " + str(e))
+                        continue
+                    response_status = int(response.get("status"))
+                    instanceInfo = json.loads(content)
+                    if "False" not in instanceInfo.values():
+                        LOG.debug(self.swComponent + ' ' + item + " already configured")
+                        checkList[item]["stat"] = "Configured"
+                    else:
+                        LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
+                        LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
+                        newSIC_provision_status = 0
+                        while newSIC_provision_status is not 1:
+                            newSIC_provision_status, newSIC_provision_msg = self.configure.provisionInstance(item, listOfAllServers)
+                            if newSIC_provision_msg is not 'all_ok':
+                                if newSIC_provision_msg is self.dss_instance_failed_msg:
+                                    LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
+                                    return -2, checkList[item]["host"]
+                                elif newSIC_provision_msg is self.db_failed_msg:
+                                    LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
+                                    return -3, 'DB'
+                        #self.configure.provisionInstance(item, listOfAllServers)
+                        self.configure.configInstance(item)
+                        LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
+                        response_status = 0
+                        while (response_status < 200 or response_status >= 400):
+                            time.sleep(1)
+                            headers = {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json; charset=UTF-8'
+                            }
+                            target = 'http://' + item + ':8051/v1.0/hostname'
+                            LOG.debug(self.swComponent + ' ' + target)
+                            try:
+                                h = http.Http()
+                                h.timeout = self.timeout
+                                LOG.debug(self.swComponent + ' ' + "Sending hostname request to " + item + ":")
+                                response, content = h.request(target, 'GET', None, headers)
+                            except Exception as e:
+                                LOG.debug(self.swComponent + ' ' + "Handled hostname request exception " + str(e))
+                                continue
+                            response_status = int(response.get("status"))
+                            self.configure.SICMonConfig(content)
+        return 0, 'OK'
 
     # Updates the decision map according to the triggered triggers :-)
     def updateDecisionMap(self, type, description):
@@ -689,19 +666,19 @@ class SOConfigure(threading.Thread):
     def getDbEndpoint(self):
         result = -1
         while (result < 0):
-            result, self.instances = self.so_e.getServerIPs()
+            result, self.instances = self.so_e.getServerInfo()
             LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
             time.sleep(0.5)
 
         #WAIT FOR FINISHING THE DEPLOYMENT
         for item in self.instances:
-            if item == "mcn.dss.db.endpoint":
-                self.db_endpoint = self.instances[item]
+            if item["output_key"] == "mcn.dss.db.endpoint":
+                self.db_endpoint = item["ep"]
 
     def performDNSConfig(self):
         result = -1
         while (result < 0):
-            result, self.instances = self.so_e.getServerIPs()
+            result, self.instances = self.so_e.getServerInfo()
             LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
             time.sleep(0.5)
 
@@ -721,64 +698,58 @@ class SOConfigure(threading.Thread):
             LOG.debug(self.swComponent + ' ' + 'DNS domain already exists' + lbDomainExists.__repr__())
 
         for item in self.instances:
-            if item == "mcn.dss.cms.lb.endpoint":
+            if item["output_key"] == "mcn.dss.cms.lb.endpoint":
                 lbRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssCmsDomainName, record_name=self.dssCmsRecordName, record_type='A', token=self.so_e.token)
                 if lbRecordExists.get('code', None) is not None and lbRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(1)
-                        result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
+                        result = self.so_e.dnsManager.create_record(domain_name=self.dssCmsDomainName,record_name=self.dssCmsRecordName, record_type='A', record_data=item["ep"], token=self.so_e.token)
                         LOG.debug(self.swComponent + ' ' + result.__repr__())
-                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for: ' + str(self.instances[item]))
-                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(self.instances[item]))
+                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for: ' + str(item["ep"]))
+                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(item["ep"]))
                 else:
-                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__())
-            elif item == "mcn.dss.mcr.lb.endpoint":
+                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(item["ep"]) + ' Or invaid output: ' + lbRecordExists.__repr__())
+            elif item["output_key"] == "mcn.dss.mcr.lb.endpoint":
                 mcrRecordExists = self.so_e.dnsManager.get_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', token=self.so_e.token)
                 if mcrRecordExists.get('code', None) is not None and mcrRecordExists['code'] == 404:
                     result = -1
                     while (result != 1):
                         time.sleep(1)
-                        result = self.so_e.dnsManager.create_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', record_data=self.instances[item], token=self.so_e.token)
+                        result = self.so_e.dnsManager.create_record(domain_name=self.dssMcrDomainName, record_name=self.dssMcrRecordName, record_type='A', record_data=item["ep"], token=self.so_e.token)
                         LOG.debug(self.swComponent + ' ' + result.__repr__())
-                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for:' + str(self.instances[item]))
-                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(self.instances[item]))
+                        LOG.debug(self.swComponent + ' ' + 'DNS record creation attempt for:' + str(item["ep"]))
+                    LOG.debug(self.swComponent + ' ' + 'DNS record created for: ' + str(item["ep"]))
                 else:
-                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(self.instances[item]) + ' Or invaid output: ' + lbRecordExists.__repr__())
+                    LOG.debug(self.swComponent + ' ' + 'DNS record already exists for:' + str(item["ep"]) + ' Or invaid output: ' + lbRecordExists.__repr__())
 
         LOG.debug(self.swComponent + ' ' + "Exiting the loop to push dns domain names for all instances")
 
     def performLocalConfig(self):
         result = -1
         while (result < 0):
-            result, self.instances = self.so_e.getServerIPs()
+            result, self.instances = self.so_e.getServerInfo()
             LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
             time.sleep(0.5)
-
-        #result = -1
-        #while (result < 0):
-        #    result, serverList = self.so_e.getServerNamesList()
-        #    LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(serverList))
-        #    time.sleep(0.5)
 
         #configure instances
         LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
         for item in self.instances:
-            if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
-                provision_status, status_msg = self.provisionInstance(self.instances[item], self.instances)
+            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
+                provision_status, status_msg = self.provisionInstance(item["ep"], self.instances)
                 if provision_status is 0:
                     return provision_status, status_msg
 
         LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
         for item in self.instances:
-            if item != "mcn.dss.cms.lb.endpoint" and item != "mcn.dss.mcr.lb.endpoint" and item != "mcn.dss.db.endpoint" and item != "mcn.endpoint.dssaas":
-                self.configInstance(self.instances[item])
+            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
+                self.configInstance(item["ep"])
 
         LOG.debug(self.swComponent + ' ' + "Exiting the loop for JSON config file creation for all instances")
         return 1, 'all_ok'
 
     # Executes the two shell scripts in the SIC which takes care of war deployment
-    def provisionInstance(self, target_ip, all_ips):
+    def provisionInstance(self, target_ip, all_sic_info):
         # AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}', max_retry=30)
         if str(resp) is '0':
@@ -793,8 +764,19 @@ class SOConfigure(threading.Thread):
             return 0, self.db_failed_msg
         LOG.debug(self.swComponent + ' ' + "DB status response is:" + str(resp))
         # AGENT STARTS PROVISIONING OF VM
+        # Fetch needed info from server info struct
+        mcr_srv_ip = None
+        cms_srv_ip = None
+        dbaas_srv_ip = None
+        for inf in all_sic_info:
+            if inf["output_key"] == "mcn.dss.cms.lb.endpoint":
+                cms_srv_ip = inf["ep"]
+            elif inf["output_key"] == "mcn.dss.mcr.lb.endpoint":
+                mcr_srv_ip = inf["ep"]
+            elif inf["output_key"] == "mcn.dss.db.endpoint":
+                dbaas_srv_ip = inf["ep"]
         # CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + all_ips["mcn.dss.mcr.lb.endpoint"] + '","cms_srv_ip":"' + all_ips["mcn.dss.cms.lb.endpoint"] + '","dbaas_srv_ip":"' + all_ips["mcn.dss.db.endpoint"] + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + mcr_srv_ip + '","cms_srv_ip":"' + cms_srv_ip + '","dbaas_srv_ip":"' + dbaas_srv_ip + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
         LOG.debug(self.swComponent + ' ' + "Provision response is:" + str(resp))
         return 1, 'all_ok'
 
@@ -853,14 +835,15 @@ class SOConfigure(threading.Thread):
         result = -1
         while (result < 0):
             time.sleep(0.5)
-            result, serverList = self.so_e.getServerNamesList()
+            result, serverList = self.so_e.getServerInfo()
 
         for item in serverList:
-            self.SICMonConfig(item)
+            if item["hostname"] is not "-":
+                self.SICMonConfig(item["hostname"], item["ep"])
         # Finished adding triggers so we change to monitoring mode
         self.monitor.mode = "checktriggers"
 
-    def SICMonConfig(self,targetHostName):
+    def SICMonConfig(self, targetHostName, targetEp):
         LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
         LOG.debug(self.swComponent + ' ' + targetHostName)
         zabbixName = targetHostName.replace("_","-")
@@ -890,6 +873,11 @@ class SOConfigure(threading.Thread):
             while (res != 1):
                 time.sleep(1)
                 res = self.monitor.configTrigger('Less than 30% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}>70')
+
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.addWebScenarioToMaas(zabbixName, "DSSMCRAPI_APP", "HomePage", "http://" + targetEp + "/DSSMCRAPI/", 200, 1)
         else:
             res = 0
             while (res != 1):
@@ -900,6 +888,11 @@ class SOConfigure(threading.Thread):
             while (res != 1):
                 time.sleep(1)
                 res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.addWebScenarioToMaas(zabbixName, "WEBAPPDSS_APP", "HomePage", "http://" + targetEp + "/WebAppDSS/", 200, 1)
+
         res = 0
         while (res != 1):
             time.sleep(1)
