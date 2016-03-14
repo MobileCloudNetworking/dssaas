@@ -69,6 +69,20 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.update_start = 0
         self.update_end = 0
 
+        # test calling outside world
+        headers = {
+                'X-Tenant-Name': 'STT-DSS',
+                'X-Auth-Token': 'cd49712fbd414aea9a49a12a73f60ab6'
+            }
+        try:
+            h = http.Http()
+            h.timeout = 10
+            api_url = "http://bart.cloudcomplab.ch:35357/v2.0/OS-KSADM/services/64939830d7024441bd6d40d3d381160d"
+            LOG.debug(self.swComponent + ' ' + "Sending request to:" + api_url)
+            response, content = h.request(api_url, 'get', '', headers)
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + "Handled " + api_url + " exception." + str(e))
+
         # make sure we can talk to deployer...
         LOG.debug(self.swComponent + ' ' + 'Make sure we can talk to deployer...')
         LOG.debug("About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name))
