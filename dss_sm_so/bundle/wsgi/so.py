@@ -420,17 +420,17 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 upd_result = -1
                 upd_code = ''
                 while(upd_result < 0):
-                    if "cms" in upd_code and upd_result is -2:
+                    if "cms" in upd_code and upd_result == -2:
                         LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty CMS instance " + item)
                         self.so_e.templateManager.removeInstance(upd_code, "cms")
                         self.so_e.templateManager.scaleOut("cms")
                         self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
-                    elif "mcr" in upd_code and upd_result is -2:
+                    elif "mcr" in upd_code and upd_result == -2:
                         LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty MCR instance " + item)
                         self.so_e.templateManager.removeInstance(upd_code, "mcr")
                         self.so_e.templateManager.scaleOut("mcr")
                         self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
-                    elif upd_result is -3:
+                    elif upd_result == -3:
                         return
 
                     infoDict = {
@@ -537,13 +537,13 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
                         LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
                         newSIC_provision_status = 0
-                        while newSIC_provision_status is not 1:
+                        while newSIC_provision_status != 1:
                             newSIC_provision_status, newSIC_provision_msg = self.configure.provisionInstance(item, listOfAllServers)
-                            if newSIC_provision_msg is not 'all_ok':
-                                if newSIC_provision_msg is self.dss_instance_failed_msg:
+                            if newSIC_provision_msg != 'all_ok':
+                                if newSIC_provision_msg == self.dss_instance_failed_msg:
                                     LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
                                     return -2, checkList[item]["host"]
-                                elif newSIC_provision_msg is self.db_failed_msg:
+                                elif newSIC_provision_msg == self.db_failed_msg:
                                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                                     return -3, 'DB'
                         #self.configure.provisionInstance(item, listOfAllServers)
@@ -654,15 +654,15 @@ class SOConfigure(threading.Thread):
 
         # Pushing local configurations to DSS SICs
         localConfig_status = 0
-        while localConfig_status is not 1:
+        while localConfig_status != 1:
             localConfig_status, localConfig_msg = self.performLocalConfig()
             LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
             LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
-            if localConfig_msg is not 'all_ok':
-                if localConfig_msg is self.dss_instance_failed_msg:
+            if localConfig_msg != 'all_ok':
+                if localConfig_msg == self.dss_instance_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
                     # Everything failed, STOP
-                elif localConfig_msg is self.db_failed_msg:
+                elif localConfig_msg == self.db_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                     # TODO: Recreate Stack and replace DB
                     # TODO: Call an update with new DB resource
@@ -758,7 +758,7 @@ class SOConfigure(threading.Thread):
         for item in self.instances:
             if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
                 provision_status, status_msg = self.provisionInstance(item["ep"], self.instances)
-                if provision_status is 0:
+                if provision_status == 0:
                     return provision_status, status_msg
 
         LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
@@ -773,7 +773,7 @@ class SOConfigure(threading.Thread):
     def provisionInstance(self, target_ip, all_sic_info):
         # AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}', max_retry=30)
-        if str(resp) is '0':
+        if str(resp) == '0':
             return 0, self.dss_instance_failed_msg
         token = resp["token"]
         LOG.debug(self.swComponent + ' ' + "Auth response is: " + str(resp))
@@ -781,7 +781,7 @@ class SOConfigure(threading.Thread):
         # Before provisioning we make sure DB is ready
         # TODO: Here we check if after a while DB is not ready, DB has failed so we replace it with another one
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', max_retry=30)
-        if str(resp) is '0':
+        if str(resp) == '0':
             return 0, self.db_failed_msg
         LOG.debug(self.swComponent + ' ' + "DB status response is: " + str(resp))
         # AGENT STARTS PROVISIONING OF VM
@@ -859,7 +859,7 @@ class SOConfigure(threading.Thread):
             result, serverList = self.so_e.getServerInfo()
 
         for item in serverList:
-            if item["hostname"] is not "-":
+            if item["hostname"] != "-":
                 self.SICMonConfig(item["hostname"], item["ep"])
         # Finished adding triggers so we change to monitoring mode
         self.monitor.mode = "checktriggers"
