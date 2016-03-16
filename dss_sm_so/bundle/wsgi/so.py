@@ -776,14 +776,14 @@ class SOConfigure(threading.Thread):
         if str(resp) is '0':
             return 0, self.dss_instance_failed_msg
         token = resp["token"]
-        LOG.debug(self.swComponent + ' ' + "Auth response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "Auth response is: " + str(resp))
         # AGENT DB CHECK
         # Before provisioning we make sure DB is ready
         # TODO: Here we check if after a while DB is not ready, DB has failed so we replace it with another one
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', max_retry=30)
         if str(resp) is '0':
             return 0, self.db_failed_msg
-        LOG.debug(self.swComponent + ' ' + "DB status response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "DB status response is: " + str(resp))
         # AGENT STARTS PROVISIONING OF VM
         # Fetch needed info from server info struct
         mcr_srv_ip = None
@@ -798,7 +798,7 @@ class SOConfigure(threading.Thread):
                 dbaas_srv_ip = inf["ep"]
         # CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + mcr_srv_ip + '","cms_srv_ip":"' + cms_srv_ip + '","dbaas_srv_ip":"' + dbaas_srv_ip + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        LOG.debug(self.swComponent + ' ' + "Provision response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "Provision response is: " + str(resp))
         return 1, 'all_ok'
 
     # Calls to the SIC agent to complete the provisioning
@@ -806,20 +806,20 @@ class SOConfigure(threading.Thread):
         # AGENT AUTH
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
         token = resp["token"]
-        LOG.debug(self.swComponent + ' ' + "Auth response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "Auth response is: " + str(resp))
         # AGENT PUSH DNS EP
         # DNS endpoint will be used later by CMS application to generate the player configuration script
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
-        LOG.debug(self.swComponent + ' ' + "DNS response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "DNS response is: " + str(resp))
         # AGENT PUSH MON EP & CONFIG
         # MON endpoint is not really being used at the moment
         # DB info is being sent to be used by the getcdr script in zabbix custom item definitions
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/MON', 'POST', '{"user":"SO","token":"' + token + '","monendpoint":"' + self.monitoring_endpoint + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        LOG.debug(self.swComponent + ' ' + "MON response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "MON response is: " + str(resp))
         # AGENT PUSH RCB CONFIG
         # DB info is used to create an event for generating cdr data in DB
         resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        LOG.debug(self.swComponent + ' ' + "RCB response is:" + str(resp))
+        LOG.debug(self.swComponent + ' ' + "RCB response is: " + str(resp))
 
     def sendRequestToSICAgent(self, api_url, req_type, json_data, max_retry=-1):
         response_status = 0
@@ -839,13 +839,13 @@ class SOConfigure(threading.Thread):
                     h.timeout = 60
                 else:
                     h.timeout = self.timeout
-                LOG.debug(self.swComponent + ' ' + "Sending request to:" + api_url)
+                LOG.debug(self.swComponent + ' ' + "Sending request to: " + api_url)
                 response, content = h.request(api_url, req_type, json_data, headers)
             except Exception as e:
                 LOG.debug(self.swComponent + ' ' + "Handled " + api_url + " exception." + str(e))
                 continue
             response_status = int(response.get("status"))
-            LOG.debug(self.swComponent + ' ' + "response status is:" + str(response_status) + " Content: " + str(content))
+            LOG.debug(self.swComponent + ' ' + "response status is: " + str(response_status) + " Content: " + str(content))
             if (response_status < 200 or response_status >= 400):
                 continue
             content_dict = json.loads(content)
