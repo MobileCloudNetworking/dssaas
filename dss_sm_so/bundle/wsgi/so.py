@@ -191,9 +191,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
             tmp = self.deployer.details(self.stack_id, self.token)
             if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
                 return -1, 'Stack is currently being deployed ...'
-            elif tmp['state'] != 'CREATE_FAILED':
+            elif tmp['state'] == 'CREATE_FAILED':
                 return -2, 'Stack creation failed ...'
-            elif tmp['state'] != 'UPDATE_FAILED':
+            elif tmp['state'] == 'UPDATE_FAILED':
                 return -3, 'Stack update failed ...'
             else:
                 # Example: {"outputKey": "mcn.dss.mcr.lb.endpoint", "ep": "160.85.4.37", "hostname": "-"}
