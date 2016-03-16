@@ -190,9 +190,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     LOG.debug('Output was None :-/')
                     return tmp['state'], self.stack_id, None
 
-            return 'Unknown', 'N/A'
+            return 'Unknown', '', None
         except:
-            return 'Unknown', 'N/A'
+            return 'Unknown', '', None
 
     # This is not part of the SOE interface
     #def update(self, updated_service):
