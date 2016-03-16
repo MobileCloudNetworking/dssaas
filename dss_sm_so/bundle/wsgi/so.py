@@ -187,31 +187,34 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
 
     # Getting the deployed SIC floating IPs and host names using the output of deployed stack (Heat Output)
     def getServerInfo(self):
-        if self.stack_id is not None:
-            tmp = self.deployer.details(self.stack_id, self.token)
-            if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
-                return -1, 'Stack is currently being deployed ...'
-            elif tmp['state'] == 'CREATE_FAILED':
-                return -2, 'Stack creation failed ...'
-            elif tmp['state'] == 'UPDATE_FAILED':
-                return -3, 'Stack update failed ...'
+        try:
+            if self.stack_id is not None:
+                tmp = self.deployer.details(self.stack_id, self.token)
+                if tmp['state'] != 'CREATE_COMPLETE' and tmp['state'] != 'UPDATE_COMPLETE':
+                    return -1, 'Stack is currently being deployed ...'
+                elif tmp['state'] == 'CREATE_FAILED':
+                    return -2, 'Stack creation failed ...'
+                elif tmp['state'] == 'UPDATE_FAILED':
+                    return -3, 'Stack update failed ...'
+                else:
+                    # Example: {"outputKey": "mcn.dss.mcr.lb.endpoint", "ep": "160.85.4.37", "hostname": "-"}
+                    # Example: {"outputKey": "mcn.dss.cms1_server_1454513381.endpoint", "ep": "160.85.4.29", "hostname": "cms1_server_1454513381"}
+                    serverInfo = []
+                    for i in range(0 ,len(tmp["output"])):
+                        output_key = tmp["output"][i]["output_key"]
+                        if output_key == "mcn.dss.mcr.lb.endpoint" or output_key == "mcn.dss.cms.lb.endpoint" or output_key == "mcn.dss.db.endpoint" or output_key == "mcn.endpoint.dssaas":
+                            if "hostname" not in output_key:
+                                serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": "-"})
+                        elif "hostname" not in output_key:
+                            for j in range(0 ,len(tmp["output"])):
+                                j_key = tmp["output"][j]["output_key"]
+                                if "hostname" in j_key and output_key.split('.')[2] in j_key:
+                                    serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": tmp["output"][j]["output_value"]})
+                    return 0, serverInfo
             else:
-                # Example: {"outputKey": "mcn.dss.mcr.lb.endpoint", "ep": "160.85.4.37", "hostname": "-"}
-                # Example: {"outputKey": "mcn.dss.cms1_server_1454513381.endpoint", "ep": "160.85.4.29", "hostname": "cms1_server_1454513381"}
-                serverInfo = []
-                for i in range(0 ,len(tmp["output"])):
-                    output_key = tmp["output"][i]["output_key"]
-                    if output_key == "mcn.dss.mcr.lb.endpoint" or output_key == "mcn.dss.cms.lb.endpoint" or output_key == "mcn.dss.db.endpoint" or output_key == "mcn.endpoint.dssaas":
-                        if "hostname" not in output_key:
-                            serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": "-"})
-                    elif "hostname" not in output_key:
-                        for j in range(0 ,len(tmp["output"])):
-                            j_key = tmp["output"][j]["output_key"]
-                            if "hostname" in j_key and output_key.split('.')[2] in j_key:
-                                serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": tmp["output"][j]["output_value"]})
-                return 0, serverInfo
-        else:
-            return -1, 'Stack is not deployed atm.'
+                return -1, 'Stack is not deployed atm.'
+        except Exception as e:
+            return -1, str(e)
 
     # Returns the current number of CMS VMs deployed in the stack for scaling purposes
     def getNumberOfCmsInstances(self):
