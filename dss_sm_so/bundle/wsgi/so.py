@@ -656,8 +656,8 @@ class SOConfigure(threading.Thread):
         localConfig_status = 0
         while localConfig_status is not 1:
             localConfig_status, localConfig_msg = self.performLocalConfig()
-            LOG.debug(self.swComponent + ' ' + "Config status is:" + str(localConfig_status))
-            LOG.debug(self.swComponent + ' ' + "Config message is:" + str(localConfig_msg))
+            LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
+            LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
             if localConfig_msg is not 'all_ok':
                 if localConfig_msg is self.dss_instance_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
@@ -673,8 +673,9 @@ class SOConfigure(threading.Thread):
 
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it
-
+        LOG.debug(self.swComponent + ' ' + "About to get MaaS object")
         self.monitor = SOMonitor(self.so_e, self.so_d, self.monitoring_endpoint, 0, 'http://' + self.monitoring_endpoint +'/zabbix/api_jsonrpc.php')
+        LOG.debug(self.swComponent + ' ' + "Succesfully got MaaS object")
         self.performMonConfig()
 
         #LOG.debug(self.swComponent + ' ' + "Start monitoring service ...")
