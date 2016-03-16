@@ -72,7 +72,10 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         # make sure we can talk to deployer...
         LOG.debug(self.swComponent + ' ' + 'Make sure we can talk to deployer...')
         LOG.debug("About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name))
-        self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name, region=self.region_name)
+        try:
+            self.deployer = util.get_deployer(self.token, url_type='public', tenant_name=self.tenant_name, region=self.region_name)
+        except Exception as e:
+            LOG.debug("Failed to get deployer")
         LOG.debug("Got the deployer")
 
     def design(self):
@@ -86,12 +89,14 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         """
         deploy SICs.
         """
-        LOG.debug('Deploy service dependencies')
-        self.resolver.deploy()
-        LOG.debug('Executing deployment logic')
-        if self.stack_id is None:
-            self.stack_id = self.deployer.deploy(self.template, self.token, name='dssaas_' + str(random.randint(1000, 9999)))
-
+        try:
+            LOG.debug('Deploy service dependencies')
+            self.resolver.deploy()
+            LOG.debug('Executing deployment logic')
+            if self.stack_id is None:
+                self.stack_id = self.deployer.deploy(self.template, self.token, name='dssaas_' + str(random.randint(1000, 9999)))
+        except Exception as e:
+            LOG.debug("Failed to deploy stack")
         #self.event.set()
 
     def provision(self, entity, attrib):
@@ -107,12 +112,15 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         """
         Dispose SICs.
         """
-        LOG.info('Disposing of 3rd party service instances...')
-        self.resolver.dispose()
-        LOG.debug('Executing disposal logic')
-        if self.stack_id is not None:
-            self.deployer.dispose(self.stack_id, self.token)
-            self.stack_id = None
+        try:
+            LOG.info('Disposing of 3rd party service instances...')
+            self.resolver.dispose()
+            LOG.debug('Executing disposal logic')
+            if self.stack_id is not None:
+                self.deployer.dispose(self.stack_id, self.token)
+                self.stack_id = None
+        except Exception as e:
+            LOG.debug("Failed to delete stack")
 
         # TODO on disposal, the SOE should notify the SOD to shutdown its thread
 
@@ -120,9 +128,12 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         """
         update SICs.
         """
-        LOG.debug('Executing disposal logic')
-        if self.stack_id is not None:
-            self.deployer.update(self.stack_id, self.templateUpdate, self.token)
+        try:
+            LOG.debug('Executing disposal logic')
+            if self.stack_id is not None:
+                self.deployer.update(self.stack_id, self.templateUpdate, self.token)
+        except Exception as e:
+            LOG.debug("Failed to update stack")
 
     def update(self, updated):
         """
@@ -153,32 +164,35 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         resolver_state = self.resolver.state()
         #LOG.info('Resolver state:')
         #LOG.info(resolver_state.__repr__())
-        LOG.debug('Executing state retrieval logic')
-        if self.stack_id is not None:
-            tmp = self.deployer.details(self.stack_id, self.token)
-            if tmp.get('output', None) is not None:
-                for i in tmp['output']:
-                    # DSS Load Balancer address
-                    if i['output_key'] == "mcn.endpoint.dssaas":
-                        LOG.debug('Found key mcn.endpoint.dssaas with value: ' + i['output_value'])
-                        result = -1
-                        sic_info = None
-                        while (result < 0):
-                            time.sleep(1)
-                            result, sic_info = self.getServerInfo()
-                            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(sic_info))
+        try:
+            LOG.debug('Executing state retrieval logic')
+            if self.stack_id is not None:
+                tmp = self.deployer.details(self.stack_id, self.token)
+                if tmp.get('output', None) is not None:
+                    for i in tmp['output']:
+                        # DSS Load Balancer address
+                        if i['output_key'] == "mcn.endpoint.dssaas":
+                            LOG.debug('Found key mcn.endpoint.dssaas with value: ' + i['output_value'])
+                            result = -1
+                            sic_info = None
+                            while (result < 0):
+                                time.sleep(1)
+                                result, sic_info = self.getServerInfo()
+                                LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(sic_info))
 
-                        for item in sic_info:
-                            if item["output_key"] == "mcn.dss.cms.lb.endpoint":
-                                i['output_value'] = item["ep"]
-                        #i['output_value'] = 'http://' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + ':8080/WebAppDSS/'
-                        LOG.debug('Replaced mcn.endpoint.dssaas value with: ' + i['output_value'])
-                return tmp['state'], self.stack_id, tmp['output']
-            else:
-                LOG.debug('Output was None :-/')
-                return tmp['state'], self.stack_id, None
+                            for item in sic_info:
+                                if item["output_key"] == "mcn.dss.cms.lb.endpoint":
+                                    i['output_value'] = item["ep"]
+                            #i['output_value'] = 'http://' + self.dssDashboardRecordName + '.' + self.dssCmsDomainName + ':8080/WebAppDSS/'
+                            LOG.debug('Replaced mcn.endpoint.dssaas value with: ' + i['output_value'])
+                    return tmp['state'], self.stack_id, tmp['output']
+                else:
+                    LOG.debug('Output was None :-/')
+                    return tmp['state'], self.stack_id, None
 
-        return 'Unknown', 'N/A'
+            return 'Unknown', 'N/A'
+        except:
+            return 'Unknown', 'N/A'
 
     # This is not part of the SOE interface
     #def update(self, updated_service):
