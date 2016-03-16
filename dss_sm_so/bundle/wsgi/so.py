@@ -129,7 +129,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         update SICs.
         """
         try:
-            LOG.debug('Executing disposal logic')
+            LOG.debug('Executing scale logic')
             if self.stack_id is not None:
                 self.deployer.update(self.stack_id, self.templateUpdate, self.token)
         except Exception as e:
