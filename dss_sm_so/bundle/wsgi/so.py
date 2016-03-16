@@ -759,7 +759,7 @@ class SOConfigure(threading.Thread):
         # AGENT DB CHECK
         # Before provisioning we make sure DB is ready
         # TODO: Here we check if after a while DB is not ready, DB has failed so we replace it with another one
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DB', 'POST', '{"user":"SO","password":"SO","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', max_retry=30)
+        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', max_retry=30)
         if str(resp) is '0':
             return 0, self.db_failed_msg
         LOG.debug(self.swComponent + ' ' + "DB status response is:" + str(resp))

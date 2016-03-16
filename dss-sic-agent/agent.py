@@ -220,9 +220,11 @@ class Application:
             try:
                 db = mdb.connect(db_json["dbhost"], db_json["dbuser"], db_json["dbpassword"], db_json["dbname"])
                 response_body = 'OK'
+                LOG.debug(str([response_body]))
                 self.start_response('200 OK', [('Content-Type', self.ctype), ('Content-Length', str(len(response_body)))])
                 return [response_body]
-            except (ValueError, KeyError, TypeError):
+            except Exception as e:
+                LOG.debug(str(e))
                 return self.servererror(self.SERVER_ERROR_DB_NOT_READY)
         else:
             return self.not_found()
