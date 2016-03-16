@@ -664,10 +664,10 @@ class SOConfigure(threading.Thread):
                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                     # TODO: Recreate Stack and replace DB
                     # TODO: Call an update with new DB resource
-            # Finishes the thread
-            # Decision is already on waiting mode
-            # Monitoring has not even started yet
-            return
+                # Finishes the thread
+                # Decision is already on waiting mode
+                # Monitoring has not even started yet
+                return
 
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it

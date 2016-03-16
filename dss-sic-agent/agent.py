@@ -219,7 +219,7 @@ class Application:
                 return self.unauthorised()
             try:
                 db = mdb.connect(db_json["dbhost"], db_json["dbuser"], db_json["dbpassword"], db_json["dbname"])
-                response_body = 'OK'
+                response_body = '{"status":"Ok"}'
                 LOG.debug(str([response_body]))
                 self.start_response('200 OK', [('Content-Type', self.ctype), ('Content-Length', str(len(response_body)))])
                 return [response_body]
