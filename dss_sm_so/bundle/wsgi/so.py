@@ -669,6 +669,7 @@ class SOConfigure(threading.Thread):
                 # Finishes the thread
                 # Decision is already on waiting mode
                 # Monitoring has not even started yet
+                LOG.debug(self.swComponent + ' ' + "Adios nube!")
                 return
 
         # Creating a monitor for pulling MaaS information
