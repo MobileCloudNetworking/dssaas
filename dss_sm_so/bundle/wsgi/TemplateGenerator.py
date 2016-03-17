@@ -58,9 +58,9 @@ class TemplateGenerator:
     def getBaseName(self, instance_type):
         hostname = None
         devicename = None
-        if instance_type is "cms":
+        if instance_type == "cms":
             hostname = devicename = "cms" + str(self.numberOfCmsInstances) + "_server_" + str(int(time.time()))
-        elif instance_type is "mcr":
+        elif instance_type == "mcr":
             hostname = devicename = "mcr" + str(self.numberOfMcrInstances) + "_server_" + str(int(time.time()))
         return hostname, devicename
 
@@ -346,7 +346,7 @@ class TemplateGenerator:
         return template
 
     def scaleOut(self, instance_type, count=1):
-        if instance_type is "cms":
+        if instance_type == "cms":
             for i in range(0, count):
                 if self.numberOfCmsInstances < self.cms_scaleout_limit:
                     self.numberOfCmsInstances += 1
@@ -371,7 +371,7 @@ class TemplateGenerator:
     # TODO: If needed add multiple host removal feature
     def removeInstance(self, hostname, instance_type):
         host_to_remove = None
-        if instance_type is "cms":
+        if instance_type == "cms":
             if len(self.cms_instances) > 1:
                 for item in self.cms_instances:
                     if item["host_name"] == hostname:
@@ -393,7 +393,7 @@ class TemplateGenerator:
                 print "Can not remove all MCR instances, scale out first."
 
     def scaleIn(self, instance_type, count=1):
-        if instance_type is "cms":
+        if instance_type == "cms":
             for i in range(0, count):
                 if len(self.cms_instances) > 1:
                     self.cms_instances.pop()

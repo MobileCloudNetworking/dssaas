@@ -85,7 +85,9 @@ class SOMonitor(threading.Thread):
                 self.so_d.ftlist[:] = []
                 for item in self.webScenarioList:
                     check = self.getWebScenarioFromMaas(item["id"])
-                    if check["status_codes"] is not "200":
+                    if check["status_codes"] != "200":
+                        LOG.debug(self.swComponent + ' ' + "Found faulty SIC: " + item["hostName"])
+                        LOG.debug(self.swComponent + ' ' + "Status code is: " + check["status_codes"])
                         self.so_d.ftlist.append(item["hostName"])
 
             # Idle mode will be enabled when scaling out is happening    
