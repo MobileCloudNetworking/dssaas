@@ -93,7 +93,7 @@ class SOMonitor(threading.Thread):
                         LOG.debug(self.swComponent + ' ' + 'Status code is: ' + str(check))
                     else:
                         LOG.debug(self.swComponent + ' ' + 'Status code is: Unknown')
-                    if check is not None and check != "200":
+                    if check is not None and check != "200" and check != "0":
                         LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
                         LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                         self.so_d.ftlist.append(item["hostName"])
