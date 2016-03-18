@@ -43,6 +43,8 @@ class TemplateGenerator:
 
         self.numberOfCmsInstances = 0
         self.numberOfMcrInstances = 0
+        self.lastCmsNumAssigned = 1
+        self.lastMcrNumAssigned = 1
 
         self.new_cms_lb_needed = False
         self.new_mcr_lb_needed = False
@@ -59,9 +61,11 @@ class TemplateGenerator:
         hostname = None
         devicename = None
         if instance_type == "cms":
-            hostname = devicename = "cms" + str(self.numberOfCmsInstances) + "_server_" + str(int(time.time()))
+            hostname = devicename = "cms" + str(self.lastCmsNumAssigned) + "_server_" + str(int(time.time()))
+            self.lasCmsNumAssigned += 1
         elif instance_type == "mcr":
-            hostname = devicename = "mcr" + str(self.numberOfMcrInstances) + "_server_" + str(int(time.time()))
+            hostname = devicename = "mcr" + str(self.lastMcrNumAssigned) + "_server_" + str(int(time.time()))
+            self.lastMcrNumAssigned += 1
         return hostname, devicename
 
     def getBaseCmsTemplate(self, hostname, device_name):
