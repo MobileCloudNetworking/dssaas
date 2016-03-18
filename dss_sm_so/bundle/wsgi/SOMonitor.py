@@ -512,7 +512,3 @@ class SOMonitor(threading.Thread):
         else:
             LOG.debug(self.swComponent + ' ' + 'MaaS Authentication')
             return None
-
-if __name__ == '__main__':
-    mytemp = SOMonitor(None, None, "160.85.4.31", 0, 'http://160.85.4.31/zabbix/api_jsonrpc.php', apiUserMaaS = 'zAdmin', apiPassMaaS = 'mcnPassword77')
-    print mytemp.getMetric("mcr2-server-1458312939","web.test.rspcode[WEBAPPDSS_APP,HomePage]")
