@@ -45,6 +45,7 @@ class SOMonitor(threading.Thread):
         self.changeMode = False
 
         self.webScenarioList = []
+        self.scenarioAllowedFailCount = 6
         self.mode = "addtriggers"
         LOG.debug(self.swComponent + ' ' + "SOMonitor initiated ................")
         
@@ -61,9 +62,11 @@ class SOMonitor(threading.Thread):
                         time.sleep(0.2)
                         result, serverList = self.so_e.getServerInfo()
                     i = 0
+                    result = -1
                     self.changeMode = False
                 else:
                     i += 1
+                print str(serverList)
                 LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
                 self.so_d.hostsWithIssues = []
                 for item in serverList:
@@ -91,13 +94,18 @@ class SOMonitor(threading.Thread):
                     check = self.getMetric(item["hostName"].replace("_","-"), "web.test.rspcode[" + item["name"] + ",HomePage]")
                     if check is None:
                         LOG.debug(self.swComponent + ' ' + 'Status code is: Unknown')
-                    if check is not None and check != "200" and check != "0":
-                        LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
-                        LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
-                        if item["hostName"] not in self.so_d.ftlist:
-                            self.so_d.ftlist.append(item["hostName"])
+                    if check is not None and check != "200":
+                        if item["fail_count"] > self.scenarioAllowedFailCount:
+                            LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
+                            LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
+                            if item["hostName"] not in self.so_d.ftlist:
+                                self.so_d.ftlist.append(item["hostName"])
+                        else:
+                            item["fail_count"] += 1
                     elif check is not None and check == "200":
                         LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
+                        # Reset fail count
+                        item["fail_count"] = 0
                 LOG.debug(self.swComponent + ' ' + 'FT list AFTER check: ' + str(self.so_d.ftlist))
 
             # Idle mode will be enabled when scaling out is happening    
@@ -233,7 +241,7 @@ class SOMonitor(threading.Thread):
                         }
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if "result" in content:
-                    self.webScenarioList.append({"name": scenarioName, "hostName": hostName.replace("-","_"), "id": content["result"]["httptestids"][0]})
+                    self.webScenarioList.append({"name": scenarioName, "hostName": hostName.replace("-","_"), "id": content["result"]["httptestids"][0], "fail_count": 0})
                     LOG.debug(self.swComponent + ' ' + "Web Scenario successfully added with id: " + content["result"]["httptestids"][0])
                     return 1
         LOG.debug(self.swComponent + ' ' + 'Error adding web scenario to host:' + hostName)
@@ -283,7 +291,7 @@ class SOMonitor(threading.Thread):
         if targetWS is not None:
             LOG.debug(self.swComponent + ' ' + 'Removing Web Scenario of host ' + targetWS["hostName"])
             self.webScenarioList.remove(targetWS)
-    
+
     # Iterates through triggers and returns a list of the ones with PROBLEM status 
     def getProblematicTriggers(self, hostName, valuesLimit = 10):
         '''

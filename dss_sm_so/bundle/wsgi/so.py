@@ -330,7 +330,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             LOG.debug(self.swComponent + ' ' + str(self.decisionMapCMS))
             LOG.debug(self.swComponent + ' ' + str(self.decisionMapMCR))
             LOG.debug(self.swComponent + ' ' + "DecisionMap update successful")
-            self.configure.monitor.mode = "idle"
+            #self.configure.monitor.mode = "idle"
             # Take scaling decisions according to updated map and sending corresponding command to the Execution part
             scaleTriggered = False
             replaceTriggered = False
@@ -406,7 +406,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             # Call SO execution if scaling required
             LOG.debug(self.swComponent + ' ' + str(scaleTriggered))
             if scaleTriggered or replaceTriggered:
-                #self.configure.monitor.mode = "idle"
+                self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
 
                 LOG.debug(self.swComponent + ' ' + "Performing stack update")
@@ -456,9 +456,10 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     # Checking configuration status of the instances after scaling
                     # upd_result = 0 OK; upd_result = -1 FAIL; upd_result = -2, faulty host; upd_result = -3 DB issue;
                     upd_result, upd_code = self.checkConfigurationStats(scale_type= scale_type)
-                #self.configure.monitor.mode = "checktriggers"
-            self.configure.monitor.changeMode = True
-            self.configure.monitor.mode = "checktriggers"
+                self.configure.monitor.changeMode = True
+                self.configure.monitor.mode = "checktriggers"
+            #self.configure.monitor.changeMode = True
+            #self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
     def checkConfigurationStats(self, scale_type):
