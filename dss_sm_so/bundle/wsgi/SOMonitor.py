@@ -84,6 +84,7 @@ class SOMonitor(threading.Thread):
                 LOG.debug(self.swComponent + ' ' + str(self.so_d.hostsWithIssues))
 
                 self.so_d.ftlist[:] = []
+                LOG.debug(self.swComponent + ' ' + 'FT list BEFORE check: ' + str(self.so_d.ftlist))
                 for item in self.webScenarioList:
                     LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
                     #check = self.getWebScenarioFromMaas(item["id"])
@@ -97,6 +98,7 @@ class SOMonitor(threading.Thread):
                         LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                         if item["hostName"] not in self.so_d.ftlist:
                             self.so_d.ftlist.append(item["hostName"])
+                LOG.debug(self.swComponent + ' ' + 'FT list AFTER check: ' + str(self.so_d.ftlist))
 
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
