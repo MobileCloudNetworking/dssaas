@@ -66,7 +66,6 @@ class SOMonitor(threading.Thread):
                     self.changeMode = False
                 else:
                     i += 1
-                print str(serverList)
                 LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
                 self.so_d.hostsWithIssues = []
                 for item in serverList:
