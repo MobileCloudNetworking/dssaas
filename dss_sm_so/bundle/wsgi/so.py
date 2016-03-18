@@ -505,7 +505,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         checkList = {}
         for item in listOfAllServers:
             if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
-                checkList[item["ep"]] = {"host": item["hostname"], "stat": "unknown"}
+                checkList[item["ep"]] = {"hostname": item["hostname"], "stat": "unknown"}
 
         # Talking to DSS SIC agents to get the configuration status of each
         for item in checkList:
@@ -542,7 +542,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                             if newSIC_provision_msg != 'all_ok':
                                 if newSIC_provision_msg == self.dss_instance_failed_msg:
                                     LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
-                                    return -2, checkList[item]["host"]
+                                    return -2, checkList[item]["hostname"]
                                 elif newSIC_provision_msg == self.db_failed_msg:
                                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                                     return -3, 'DB'
