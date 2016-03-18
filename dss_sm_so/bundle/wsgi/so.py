@@ -453,6 +453,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     # upd_result = 0 OK; upd_result = -1 FAIL; upd_result = -2, faulty host; upd_result = -3 DB issue;
                     upd_result, upd_code = self.checkConfigurationStats(scale_type= scale_type)
                 #self.configure.monitor.mode = "checktriggers"
+            self.monitor.changeMode = True
             self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
@@ -845,6 +846,7 @@ class SOConfigure(threading.Thread):
             if item["hostname"] != "-":
                 self.SICMonConfig(item["hostname"], item["ep"])
         # Finished adding triggers so we change to monitoring mode
+        self.monitor.changeMode = True
         self.monitor.mode = "checktriggers"
 
     def SICMonConfig(self, targetHostName, targetEp):

@@ -42,6 +42,7 @@ class SOMonitor(threading.Thread):
         self.addedServers = {}
         self.so_e = executionModule
         self.so_d = decisionModule
+        self.changeMode = False
 
         self.webScenarioList = []
         self.mode = "addtriggers"
@@ -50,19 +51,17 @@ class SOMonitor(threading.Thread):
     def run(self):
         i = 0
         result = -1
-        while (result < 0):
-            time.sleep(1)
-            result, serverList = self.so_e.getServerInfo()
         
         while 1:
             # Getting the triggers which are triggered if in monitoring mode        
             if self.mode == "checktriggers":
                 time.sleep(10)
-                if i > 6:
+                if i > 6 or self.changeMode is True:
                     while (result < 0):
                         time.sleep(0.2)
                         result, serverList = self.so_e.getServerInfo()
                     i = 0
+                    self.changeMode = False
                 else:
                     i += 1
                 LOG.debug(self.swComponent + ' ' + time.strftime("%H:%M:%S"))
