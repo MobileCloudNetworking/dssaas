@@ -59,7 +59,9 @@ class SOMonitor(threading.Thread):
             if self.mode == "checktriggers":
                 time.sleep(10)
                 if i > 6:
-                    result, serverList = self.so_e.getServerInfo()
+                    while (result < 0):
+                        time.sleep(0.2)
+                        result, serverList = self.so_e.getServerInfo()
                     i = 0
                 else:
                     i += 1
@@ -84,10 +86,13 @@ class SOMonitor(threading.Thread):
 
                 self.so_d.ftlist[:] = []
                 for item in self.webScenarioList:
-                    check = self.getWebScenarioFromMaas(item["id"])
-                    if check["status_codes"] != "200":
-                        LOG.debug(self.swComponent + ' ' + "Found faulty SIC: " + item["hostName"])
-                        LOG.debug(self.swComponent + ' ' + "Status code is: " + check["status_codes"])
+                    LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
+                    #check = self.getWebScenarioFromMaas(item["id"])
+                    check = self.getMetric(item["hostName"], "web.test.rspcode[" + item["name"] + ",HomePage]")
+                    LOG.debug(self.swComponent + ' ' + 'Check results are: ' + str(check))
+                    if check != "200":
+                        LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
+                        LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                         self.so_d.ftlist.append(item["hostName"])
 
             # Idle mode will be enabled when scaling out is happening    
@@ -334,6 +339,34 @@ class SOMonitor(threading.Thread):
         #'Item is not added to the host yet     
         return -1
 
+    def listHostItems(self, hostName):
+        '''
+        Lists all items in Zabbix server for a special hostname
+        :param hostName: Hostname to add the item to
+        '''
+        self.__authId = self.__getAuthId()
+        if self.__authId is not None:
+            hostId = self.__getHostId(hostName)
+        if hostId is not None:
+                jsonData = {
+                        "jsonrpc": "2.0",
+                        "method": "item.get",
+                        "params":{
+                                  "output": "extend",
+                                  "hostids": str(hostId[0]['hostid']),
+                                  "sortfield": "name",
+                                  "webitems": "true"
+                                  },
+                        "auth": str(self.__authId),
+                        "id": 1
+                        }
+                status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
+                if len(content["result"]) > 0:
+                    LOG.debug(self.swComponent + ' ' + str(content))
+                    return 1
+        #'Item is not added to the host yet
+        return -1
+
     def getMetric(self, hostName, itemKey):
         self.__authId = self.__getAuthId()
         if self.__authId is not None:
@@ -348,7 +381,8 @@ class SOMonitor(threading.Thread):
                                   "search": {
                                              "key_": itemKey
                                              },
-                                  "sortfield": "name"
+                                  "sortfield": "name",
+                                  "webitems": "true"
                                   },
                         "auth": str(self.__authId),
                         "id": 1
