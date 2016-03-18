@@ -549,25 +549,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                         #self.configure.provisionInstance(item, listOfAllServers)
                         self.configure.configInstance(item)
                         LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
-                        response_status = 0
-                        while (response_status < 200 or response_status >= 400):
-                            time.sleep(1)
-                            headers = {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json; charset=UTF-8'
-                            }
-                            target = 'http://' + item + ':8051/v1.0/hostname'
-                            LOG.debug(self.swComponent + ' ' + target)
-                            try:
-                                h = http.Http()
-                                h.timeout = self.timeout
-                                LOG.debug(self.swComponent + ' ' + "Sending hostname request to " + item + ":")
-                                response, content = h.request(target, 'GET', None, headers)
-                            except Exception as e:
-                                LOG.debug(self.swComponent + ' ' + "Handled hostname request exception " + str(e))
-                                continue
-                            response_status = int(response.get("status"))
-                            self.configure.SICMonConfig(content)
+                        self.configure.SICMonConfig(checkList[item]["hostname"], item)
         return 0, 'OK'
 
     # Updates the decision map according to the triggered triggers :-)
