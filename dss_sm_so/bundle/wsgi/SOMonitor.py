@@ -274,6 +274,15 @@ class SOMonitor(threading.Thread):
                     return content["result"][0]["steps"][0]
         LOG.debug(self.swComponent + ' ' + 'Error getting we scenario info')
         return -1
+
+    def removeWebScenarioFromWSList(self, hostname):
+        targetWS = None
+        for item in self.webScenarioList:
+            if item["hostName"] == hostname:
+                targetWS = item
+        if targetWS is not None:
+            LOG.debug(self.swComponent + ' ' + 'Removing Web Scenario of host ' + targetWS["hostName"])
+            self.webScenarioList.remove(targetWS)
     
     # Iterates through triggers and returns a list of the ones with PROBLEM status 
     def getProblematicTriggers(self, hostName, valuesLimit = 10):

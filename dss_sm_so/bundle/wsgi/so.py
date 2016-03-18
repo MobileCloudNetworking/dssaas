@@ -383,12 +383,16 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     self.so_e.templateManager.scaleOut("cms")
                     cmsReplaceTriggered = True
                     replaceTriggered = True
+                    self.configure.monitor.removeWebScenarioFromWSList(item)
                 elif "mcr" in item:
                     LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty instance " + item)
                     self.so_e.templateManager.removeInstance(item, "mcr")
                     self.so_e.templateManager.scaleOut("mcr")
                     mcrReplaceTriggered = True
                     replaceTriggered = True
+                    self.configure.monitor.removeWebScenarioFromWSList(item)
+            LOG.debug(self.swComponent + ' ' + "Cleaned up FT list")
+            self.ftlist[:] = []
 
             if diff > self.cmsScaleInThreshold or self.lastCmsScale == 0:
                 #CMS scale out because less than specific number of players
@@ -454,8 +458,6 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     upd_result, upd_code = self.checkConfigurationStats(scale_type= scale_type)
                 #self.configure.monitor.mode = "checktriggers"
             self.configure.monitor.changeMode = True
-            LOG.debug(self.swComponent + ' ' + "Cleaned up FT list")
-            self.ftlist[:] = []
             self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
