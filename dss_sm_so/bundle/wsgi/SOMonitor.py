@@ -89,15 +89,15 @@ class SOMonitor(threading.Thread):
                     LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
                     #check = self.getWebScenarioFromMaas(item["id"])
                     check = self.getMetric(item["hostName"].replace("_","-"), "web.test.rspcode[" + item["name"] + ",HomePage]")
-                    if check is not None:
-                        LOG.debug(self.swComponent + ' ' + 'Status code is: ' + str(check))
-                    else:
+                    if check is None:
                         LOG.debug(self.swComponent + ' ' + 'Status code is: Unknown')
                     if check is not None and check != "200" and check != "0":
                         LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
                         LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                         if item["hostName"] not in self.so_d.ftlist:
                             self.so_d.ftlist.append(item["hostName"])
+                    elif check is not None and check == "200":
+                        LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                 LOG.debug(self.swComponent + ' ' + 'FT list AFTER check: ' + str(self.so_d.ftlist))
 
             # Idle mode will be enabled when scaling out is happening    

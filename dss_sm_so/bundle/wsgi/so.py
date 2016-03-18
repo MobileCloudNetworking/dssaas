@@ -403,7 +403,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             LOG.debug(self.swComponent + ' ' + str(scaleTriggered))
             if scaleTriggered or replaceTriggered:
                 if replaceTriggered:
-                    self.so_d.ftlist[:] = []
+                    self.ftlist[:] = []
                 #self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
 
