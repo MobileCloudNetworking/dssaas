@@ -402,8 +402,6 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             # Call SO execution if scaling required
             LOG.debug(self.swComponent + ' ' + str(scaleTriggered))
             if scaleTriggered or replaceTriggered:
-                if replaceTriggered:
-                    self.ftlist[:] = []
                 #self.configure.monitor.mode = "idle"
                 self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
 
@@ -456,6 +454,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     upd_result, upd_code = self.checkConfigurationStats(scale_type= scale_type)
                 #self.configure.monitor.mode = "checktriggers"
             self.configure.monitor.changeMode = True
+            LOG.debug(self.swComponent + ' ' + "Cleaned up FT list")
+            self.ftlist[:] = []
             self.configure.monitor.mode = "checktriggers"
 
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
