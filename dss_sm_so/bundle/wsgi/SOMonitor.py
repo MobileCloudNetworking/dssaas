@@ -96,7 +96,8 @@ class SOMonitor(threading.Thread):
                     if check is not None and check != "200" and check != "0":
                         LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
                         LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
-                        self.so_d.ftlist.append(item["hostName"])
+                        if item["hostName"] not in self.so_d.ftlist:
+                            self.so_d.ftlist.append(item["hostName"])
 
             # Idle mode will be enabled when scaling out is happening    
             elif self.mode == "idle":
