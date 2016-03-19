@@ -72,9 +72,12 @@ class SOMonitor(threading.Thread):
                     LOG.debug(self.swComponent + ' ' + item["hostname"])
                     if len(item["hostname"]) > 1:
                         if 'mcr' in item["hostname"]:
-                            self.so_d.playerCount = self.getMetric(item["hostname"].replace("_","-"), "DSS.Players.CNT")
-                            LOG.debug(self.swComponent + ' ' + "Number of active players: " + str(self.so_d.playerCount))
-
+                            checkCount = self.getMetric(item["hostname"].replace("_","-"), "DSS.Players.CNT")
+                            try:
+                                self.so_d.playerCount = int(checkCount)
+                                LOG.debug(self.swComponent + ' ' + "Number of active players: " + str(self.so_d.playerCount))
+                            except:
+                                LOG.error(self.swComponent + ' ' + "Unable to convert player count to Integer")
                         res = self.getProblematicTriggers(item["hostname"].replace("_","-"))
                         try:
                             for trigger in res:
@@ -94,7 +97,7 @@ class SOMonitor(threading.Thread):
                     if check is None:
                         LOG.debug(self.swComponent + ' ' + 'Status code is: Unknown')
                     if check is not None and check != "200":
-                        if item["fail_count"] > self.scenarioAllowedFailCount:
+                        if item["fail_count"] >= self.scenarioAllowedFailCount:
                             LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
                             LOG.debug(self.swComponent + ' ' + "Status code is: " + check)
                             if item["hostName"] not in self.so_d.ftlist:

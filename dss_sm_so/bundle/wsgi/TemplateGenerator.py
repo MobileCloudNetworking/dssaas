@@ -62,7 +62,7 @@ class TemplateGenerator:
         devicename = None
         if instance_type == "cms":
             hostname = devicename = "cms" + str(self.lastCmsNumAssigned) + "_server_" + str(int(time.time()))
-            self.lasCmsNumAssigned += 1
+            self.lastCmsNumAssigned += 1
         elif instance_type == "mcr":
             hostname = devicename = "mcr" + str(self.lastMcrNumAssigned) + "_server_" + str(int(time.time()))
             self.lastMcrNumAssigned += 1
