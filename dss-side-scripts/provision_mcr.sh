@@ -34,7 +34,6 @@ sed -i.bak "s,MCRPUBLICIP,$machinepublicip,g" icn_putcontents.py
 cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
 
-# Create db if required
 # Check database aaS is already there
 while [[ `echo "status" | mysql -h $databasehost -u $databaseusername -p$databasepassword | grep Uptime` != *Uptime* ]]
 do
@@ -45,6 +44,6 @@ done
 service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart
-service streaming restart
+service ftstream restart
 service filesync restart
 exit 0

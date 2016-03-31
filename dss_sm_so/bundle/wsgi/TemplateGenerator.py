@@ -376,7 +376,7 @@ class TemplateGenerator:
     def removeInstance(self, hostname, instance_type):
         host_to_remove = None
         if instance_type == "cms":
-            if len(self.cms_instances) > 1:
+            if len(self.cms_instances) > 0:
                 for item in self.cms_instances:
                     if item["host_name"] == hostname:
                         host_to_remove = item
@@ -384,9 +384,9 @@ class TemplateGenerator:
                 self.new_cms_lb_needed = True
                 self.numberOfCmsInstances -= 1
             else:
-                print "Can not remove all CMS instances, scale out first."
+                print "No CMS instances found."
         else:
-            if len(self.mcr_instances) > 1:
+            if len(self.mcr_instances) > 0:
                 for item in self.mcr_instances:
                     if item["host_name"] == hostname:
                         host_to_remove = item
@@ -394,7 +394,7 @@ class TemplateGenerator:
                 self.new_mcr_lb_needed = True
                 self.numberOfMcrInstances -= 1
             else:
-                print "Can not remove all MCR instances, scale out first."
+                print "No MCR instances found."
 
     def scaleIn(self, instance_type, count=1):
         if instance_type == "cms":
@@ -404,7 +404,7 @@ class TemplateGenerator:
                     self.new_cms_lb_needed = True
                     self.numberOfCmsInstances -= 1
                 else:
-                    print "Can not remove all CMS instances."
+                    print "Can not remove all CMS instances, scale out first."
                     break
         else:
             for i in range(0, count):
@@ -413,7 +413,7 @@ class TemplateGenerator:
                     self.new_mcr_lb_needed = True
                     self.numberOfMcrInstances -= 1
                 else:
-                    print "Can not remove all MCR instances."
+                    print "Can not remove all MCR instances, scale out first."
                     break
 
 if __name__ == '__main__':
