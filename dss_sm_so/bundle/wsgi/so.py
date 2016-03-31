@@ -878,6 +878,30 @@ class SOConfigure(threading.Thread):
             res = 0
             while (res != 1):
                 time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "DSS.Tracker.STATUS")
+                if res != 1:
+                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
+                    res = self.monitor.configItem("DSS tracker service status", zabbixName, "DSS.Tracker.STATUS", 4, 30)
+
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "DSS.Streaming.STATUS")
+                if res != 1:
+                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
+                    res = self.monitor.configItem("DSS streaming service status", zabbixName, "DSS.Streaming.STATUS", 4, 30)
+
+            res = 0
+            while (res != 1):
+                time.sleep(1)
+                res = self.monitor.itemExists(zabbixName, "DSS.Filesync.STATUS")
+                if res != 1:
+                    # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
+                    res = self.monitor.configItem("DSS filesync service status", zabbixName, "DSS.Filesync.STATUS", 4, 30)
+
+            res = 0
+            while (res != 1):
+                time.sleep(1)
                 res = self.monitor.configTrigger('More than 90% hard disk usage on {HOST.NAME}', zabbixName, ':vfs.fs.size[/,pfree].last(0)}<10')
 
             res = 0

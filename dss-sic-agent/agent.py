@@ -281,6 +281,9 @@ class Application:
                         dbname = mon_json["dbname"]
                         call(['sed', '-i.bak', 's/# UnsafeUserParameters=0/UnsafeUserParameters=1/g', '/etc/zabbix/zabbix_agentd.conf'])
                         call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.Players.CNT,python /home/ubuntu/getactiveplayers.py ' + dbhost + ' ' + dbuser + ' ' + dbpassword + ' ' + dbname + '"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.Tracker.STATUS,python /home/ubuntu/checkTrackerService.py"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.Streaming.STATUS,python /home/ubuntu/checkStreamingService.py"g', '/etc/zabbix/zabbix_agentd.conf'])
+                        call(['sed', '-i.bak', 's"# UserParameter="# UserParameter=\\nUserParameter=DSS.Filesync.STATUS,python /home/ubuntu/checkFilesyncService.py"g', '/etc/zabbix/zabbix_agentd.conf'])
                         call(['sed', '-i.bak', 's"# UserParameter="UserParameter=DSS.Player.Reqcount,python /home/ubuntu/getrequests.py"g', '/etc/zabbix/zabbix_agentd.conf'])
                     else:
                         return self.servererror(self.SERVER_ERROR_DEPLOY_NOT_FINISHED)
