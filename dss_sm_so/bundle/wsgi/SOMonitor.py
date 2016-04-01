@@ -46,6 +46,8 @@ class SOMonitor(threading.Thread):
 
         self.webScenarioList = []
         self.scenarioAllowedFailCount = 6
+        self.ftItemList = []
+        self.ftItemFailCount = 6
         self.mode = "addtriggers"
         LOG.debug(self.swComponent + ' ' + "SOMonitor initiated ................")
         
@@ -89,21 +91,24 @@ class SOMonitor(threading.Thread):
                 LOG.debug(self.swComponent + ' ' + str(self.so_d.hostsWithIssues))
 
                 self.so_d.ftlist[:] = []
-                LOG.debug(self.swComponent + ' ' + 'FT list BEFORE check: ' + str(self.so_d.ftlist))
-                for item in serverList:
-                    LOG.debug(self.swComponent + ' ' + item["hostname"])
-                    if len(item["hostname"]) > 1:
-                        if 'mcr' in item["hostname"]:
-                            checkFilesyncStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Filesync.STATUS")
-                            checkStreamingStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Streaming.STATUS")
-                            checkTrackerStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Tracker.STATUS")
-                            try:
-                                if int(checkFilesyncStat) != 1 or int(checkStreamingStat) != 1 or int(checkTrackerStat) != 1:
-                                    if item["hostname"] not in self.so_d.ftlist:
-                                        self.so_d.ftlist.append(item["hostname"])
-                            except Exception as e:
-                                LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats, " + str(e))
 
+                LOG.debug(self.swComponent + ' ' + 'FT list BEFORE check: ' + str(self.so_d.ftlist))
+                for item in self.ftItemList:
+                    LOG.debug(self.swComponent + ' ' + item["hostName"])
+                    if 'mcr' in item["hostName"]:
+                        checkFilesyncStat = self.getMetric(item["hostName"].replace("_","-"), "DSS.Filesync.STATUS")
+                        checkStreamingStat = self.getMetric(item["hostName"].replace("_","-"), "DSS.Streaming.STATUS")
+                        checkTrackerStat = self.getMetric(item["hostName"].replace("_","-"), "DSS.Tracker.STATUS")
+                        try:
+                            if int(checkFilesyncStat) != 1 or int(checkStreamingStat) != 1 or int(checkTrackerStat) != 1:
+                                if item["fail_count"] >= self.ftItemFailCount:
+                                    LOG.debug(self.swComponent + ' ' + "Faulty SIC Info: " + str(item))
+                                    if item["hostName"] not in self.so_d.ftlist:
+                                        self.so_d.ftlist.append(item["hostName"])
+                                else:
+                                    item["fail_count"] += 1
+                        except Exception as e:
+                            LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats, " + str(e))
                 for item in self.webScenarioList:
                     LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
                     #check = self.getWebScenarioFromMaas(item["id"])
@@ -181,11 +186,11 @@ class SOMonitor(threading.Thread):
             status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
             if "result" in content:
                 return content["result"]["triggerids"][0]
-        LOG.debug(self.swComponent + ' ' + 'Error adding trigger to host:' + hostName)
+        LOG.debug(self.swComponent + ' ' + 'Error adding trigger to host: ' + hostName)
         return -1
     
     # Implements zabbix interface to add an item
-    def addItemToMaas(self, hostName, AppName, itemName, itemKey, valueType, delay):
+    def addItemToMaas(self, hostName, AppName, itemName, itemKey, valueType, delay, ft_enabler=False):
         '''
         Adds an item to Zabbix server
         :param hostName: Hostname to add the item to
@@ -218,8 +223,11 @@ class SOMonitor(threading.Thread):
                         }
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if "result" in content:
+                    if ft_enabler:
+                        self.ftItemList.append({"name": itemKey, "hostName": hostName.replace("-","_"), "fail_count": 0})
+                        LOG.debug(self.swComponent + ' ' + 'FT item successfully added for: ' + hostName)
                     return 1
-        LOG.debug(self.swComponent + ' ' + 'Error adding item to host:' + hostName)
+        LOG.debug(self.swComponent + ' ' + 'Error adding item to host: ' + hostName)
         return -1
 
     # Implements zabbix interface to add a web scenario
@@ -260,7 +268,7 @@ class SOMonitor(threading.Thread):
                     self.webScenarioList.append({"name": scenarioName, "hostName": hostName.replace("-","_"), "id": content["result"]["httptestids"][0], "fail_count": 0})
                     LOG.debug(self.swComponent + ' ' + "Web Scenario successfully added with id: " + content["result"]["httptestids"][0])
                     return 1
-        LOG.debug(self.swComponent + ' ' + 'Error adding web scenario to host:' + hostName)
+        LOG.debug(self.swComponent + ' ' + 'Error adding web scenario to host: ' + hostName)
         return -1
 
     def getWebScenarioFromMaas(self, scenarioId):
@@ -372,7 +380,7 @@ class SOMonitor(threading.Thread):
                         }
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if len(content["result"]) > 0:
-                    LOG.debug(self.swComponent + ' ' + 'Item already exists on host:' + hostName)
+                    LOG.debug(self.swComponent + ' ' + 'Item already exists on host: ' + hostName)
                     return 1
         #'Item is not added to the host yet     
         return -1

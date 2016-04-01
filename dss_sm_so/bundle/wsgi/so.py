@@ -881,7 +881,7 @@ class SOConfigure(threading.Thread):
                 res = self.monitor.itemExists(zabbixName, "DSS.Tracker.STATUS")
                 if res != 1:
                     # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
-                    res = self.monitor.configItem("DSS tracker service status", zabbixName, "DSS.Tracker.STATUS", 4, 30)
+                    res = self.monitor.configItem("DSS tracker service status", zabbixName, "DSS.Tracker.STATUS", 4, 30, ft_enabler=True)
 
             res = 0
             while (res != 1):
@@ -889,7 +889,7 @@ class SOConfigure(threading.Thread):
                 res = self.monitor.itemExists(zabbixName, "DSS.Streaming.STATUS")
                 if res != 1:
                     # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
-                    res = self.monitor.configItem("DSS streaming service status", zabbixName, "DSS.Streaming.STATUS", 4, 30)
+                    res = self.monitor.configItem("DSS streaming service status", zabbixName, "DSS.Streaming.STATUS", 4, 30, ft_enabler=True)
 
             res = 0
             while (res != 1):
@@ -897,7 +897,7 @@ class SOConfigure(threading.Thread):
                 res = self.monitor.itemExists(zabbixName, "DSS.Filesync.STATUS")
                 if res != 1:
                     # 4 - Specifies data type "String" and 30 Specifies this item will be checked every 30 seconds
-                    res = self.monitor.configItem("DSS filesync service status", zabbixName, "DSS.Filesync.STATUS", 4, 30)
+                    res = self.monitor.configItem("DSS filesync service status", zabbixName, "DSS.Filesync.STATUS", 4, 30, ft_enabler=True)
 
             res = 0
             while (res != 1):
