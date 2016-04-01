@@ -148,12 +148,12 @@ class SOMonitor(threading.Thread):
         return 0
     
     # Add item to zabbix
-    def configItem(self, iName, zName, iKey, valueType, delay):
+    def configItem(self, iName, zName, iKey, valueType, delay, ft_enabler=False):
         itemName = iName
         zabbixName = zName
         if zabbixName + ":" + itemName not in self.addedServers.keys():
             if len(zabbixName) > 1:
-                result = self.addItemToMaas(zabbixName, "General", itemName, iKey, valueType, delay)
+                result = self.addItemToMaas(zabbixName, "General", itemName, iKey, valueType, delay, ft_enabler)
                 if result != -1:
                     self.addedServers[zabbixName + ":" + itemName] = result 
                     LOG.debug(self.swComponent + ' ' + "Item successfully added")
@@ -190,7 +190,7 @@ class SOMonitor(threading.Thread):
         return -1
     
     # Implements zabbix interface to add an item
-    def addItemToMaas(self, hostName, AppName, itemName, itemKey, valueType, delay, ft_enabler=False):
+    def addItemToMaas(self, hostName, AppName, itemName, itemKey, valueType, delay, ft_enabler):
         '''
         Adds an item to Zabbix server
         :param hostName: Hostname to add the item to
