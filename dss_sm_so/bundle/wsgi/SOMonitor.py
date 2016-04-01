@@ -101,8 +101,8 @@ class SOMonitor(threading.Thread):
                                 if int(checkFilesyncStat) != 1 or int(checkStreamingStat) != 1 or int(checkTrackerStat) != 1:
                                     if item["hostName"] not in self.so_d.ftlist:
                                         self.so_d.ftlist.append(item["hostName"])
-                            except:
-                                LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats")
+                            except Exception as e:
+                                LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats, " + str(e))
 
                 for item in self.webScenarioList:
                     LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
