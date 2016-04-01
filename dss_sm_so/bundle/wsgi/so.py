@@ -391,6 +391,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     mcrReplaceTriggered = True
                     replaceTriggered = True
                     self.configure.monitor.removeWebScenarioFromWSList(item)
+                    self.configure.monitor.removeFTItemFromFTList(item)
             LOG.debug(self.swComponent + ' ' + "Cleaned up FT list")
             self.ftlist[:] = []
 

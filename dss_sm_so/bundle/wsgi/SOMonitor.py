@@ -318,6 +318,15 @@ class SOMonitor(threading.Thread):
             LOG.debug(self.swComponent + ' ' + 'Removing Web Scenario of host ' + targetWS["hostName"])
             self.webScenarioList.remove(targetWS)
 
+    def removeFTItemFromFTList(self, hostname):
+        targetHost = None
+        for item in self.ftItemList:
+            if item["hostName"] == hostname:
+                targetHost = item
+        if targetHost is not None:
+            LOG.debug(self.swComponent + ' ' + 'Removing FTitem of host ' + targetHost["hostName"])
+            self.ftItemList.remove(targetHost)
+
     # Iterates through triggers and returns a list of the ones with PROBLEM status 
     def getProblematicTriggers(self, hostName, valuesLimit = 10):
         '''
