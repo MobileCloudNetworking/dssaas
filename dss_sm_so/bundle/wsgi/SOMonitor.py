@@ -99,8 +99,8 @@ class SOMonitor(threading.Thread):
                             checkTrackerStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Tracker.STATUS")
                             try:
                                 if int(checkFilesyncStat) != 1 or int(checkStreamingStat) != 1 or int(checkTrackerStat) != 1:
-                                    if item["hostName"] not in self.so_d.ftlist:
-                                        self.so_d.ftlist.append(item["hostName"])
+                                    if item["hostname"] not in self.so_d.ftlist:
+                                        self.so_d.ftlist.append(item["hostname"])
                             except Exception as e:
                                 LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats, " + str(e))
 
