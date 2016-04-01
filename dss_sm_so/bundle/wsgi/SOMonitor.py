@@ -226,7 +226,9 @@ class SOMonitor(threading.Thread):
                 status, content =  self.doRequestMaaS('GET', json.dumps(jsonData))
                 if "result" in content:
                     if ft_enabler:
-                        self.ftItemList.append({"name": itemKey, "hostName": hostName.replace("-","_"), "fail_count": 0})
+                        exists = self.checkFTHostExistence(hostName.replace("-","_"))
+                        if exists != True:
+                            self.ftItemList.append({"hostName": hostName.replace("-","_"), "fail_count": 0})
                         LOG.debug(self.swComponent + ' ' + 'FT item successfully added for: ' + hostName)
                     return 1
         LOG.debug(self.swComponent + ' ' + 'Error adding item to host: ' + hostName)
@@ -318,13 +320,22 @@ class SOMonitor(threading.Thread):
             LOG.debug(self.swComponent + ' ' + 'Removing Web Scenario of host ' + targetWS["hostName"])
             self.webScenarioList.remove(targetWS)
 
+    def checkFTHostExistence(self, hostname):
+        targetHost = None
+        for item in self.ftItemList:
+            if item["hostName"] == hostname:
+                targetHost = item
+        if targetHost is not None:
+            return True
+        return False
+
     def removeHostFromFTItemList(self, hostname):
         targetHost = None
         for item in self.ftItemList:
             if item["hostName"] == hostname:
                 targetHost = item
         if targetHost is not None:
-            LOG.debug(self.swComponent + ' ' + 'Removing FTitem of host ' + targetHost["hostName"])
+            LOG.debug(self.swComponent + ' ' + 'Removing host ' + targetHost["hostName"] + '  from FTItem list')
             self.ftItemList.remove(targetHost)
 
     # Iterates through triggers and returns a list of the ones with PROBLEM status 
