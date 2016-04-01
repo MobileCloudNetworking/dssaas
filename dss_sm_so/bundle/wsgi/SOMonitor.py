@@ -107,6 +107,8 @@ class SOMonitor(threading.Thread):
                                         self.so_d.ftlist.append(item["hostName"])
                                 else:
                                     item["fail_count"] += 1
+                            else:
+                                item["fail_count"] = 0
                         except Exception as e:
                             LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats, " + str(e))
                 for item in self.webScenarioList:
