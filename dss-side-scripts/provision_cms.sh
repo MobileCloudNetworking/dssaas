@@ -41,4 +41,6 @@ done
 service zabbix-agent restart
 service tomcat7 restart
 service apache2 restart
+service ftstream stop
+service filesync stop
 exit 0

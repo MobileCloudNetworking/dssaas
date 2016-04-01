@@ -90,6 +90,20 @@ class SOMonitor(threading.Thread):
 
                 self.so_d.ftlist[:] = []
                 LOG.debug(self.swComponent + ' ' + 'FT list BEFORE check: ' + str(self.so_d.ftlist))
+                for item in serverList:
+                    LOG.debug(self.swComponent + ' ' + item["hostname"])
+                    if len(item["hostname"]) > 1:
+                        if 'mcr' in item["hostname"]:
+                            checkFilesyncStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Filesync.STATUS")
+                            checkStreamingStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Streaming.STATUS")
+                            checkTrackerStat = self.getMetric(item["hostname"].replace("_","-"), "DSS.Tracker.STATUS")
+                            try:
+                                if int(checkFilesyncStat) != 1 or int(checkStreamingStat) != 1 or int(checkTrackerStat) != 1:
+                                    if item["hostName"] not in self.so_d.ftlist:
+                                        self.so_d.ftlist.append(item["hostName"])
+                            except:
+                                LOG.error(self.swComponent + ' ' + "Unable to retrieve service stats")
+
                 for item in self.webScenarioList:
                     LOG.debug(self.swComponent + ' ' + 'Checking item in Web Scenario: ' + str(item))
                     #check = self.getWebScenarioFromMaas(item["id"])
