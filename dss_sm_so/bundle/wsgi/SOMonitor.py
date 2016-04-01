@@ -47,7 +47,7 @@ class SOMonitor(threading.Thread):
         self.webScenarioList = []
         self.scenarioAllowedFailCount = 6
         self.ftItemList = []
-        self.ftItemFailCount = 6
+        self.ftItemFailCount = 12
         self.mode = "addtriggers"
         LOG.debug(self.swComponent + ' ' + "SOMonitor initiated ................")
         
