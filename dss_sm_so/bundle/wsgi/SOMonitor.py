@@ -318,7 +318,7 @@ class SOMonitor(threading.Thread):
             LOG.debug(self.swComponent + ' ' + 'Removing Web Scenario of host ' + targetWS["hostName"])
             self.webScenarioList.remove(targetWS)
 
-    def removeFTItemFromFTList(self, hostname):
+    def removeHostFromFTItemList(self, hostname):
         targetHost = None
         for item in self.ftItemList:
             if item["hostName"] == hostname:
