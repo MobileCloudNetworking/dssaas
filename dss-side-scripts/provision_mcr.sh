@@ -29,8 +29,6 @@ sed -i.bak "s,DSSMCRAPIDBUSERNAME,$databaseusername,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,DSSMCRAPIDBPASSWORD,$databasepassword,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,MCRAPICONTENTMANAGEMENTPATTERN,$corsurlpattern,g" DSSMCRAPIConfig.groovy
 sed -i.bak "s,DSSCMSSERVER,$corsalloworiginregex,g" DSSMCRAPIConfig.groovy
-sed -i.bak "s,MCRHOSTNAME,$machinehostname,g" icn_putcontents.py
-sed -i.bak "s,MCRPUBLICIP,$machinepublicip,g" icn_putcontents.py
 cp DSSMCRAPIConfig.groovy /usr/share/tomcat7/
 cp DSSMCRAPI.war /var/lib/tomcat7/webapps/
 
