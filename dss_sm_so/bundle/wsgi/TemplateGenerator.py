@@ -169,11 +169,19 @@ class TemplateGenerator:
         template += "\n"
         template += '  mcn.dss.cms.lb.endpoint:' + "\n"
         template += '    Description: Floating IP address of DSS (CMS) load balancer in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
+        if self.numberOfCmsInstances > 1:
+            template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
+        else:
+            for i in range(0, len(self.cms_instances)):# Should iterate just once
+                template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
         template += "\n"
         template += '  mcn.dss.mcr.lb.endpoint:' + "\n"
         template += '    Description: Floating IP address of DSS (MCR) load balancer in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
+        if self.numberOfMcrInstances > 1:
+            template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
+        else:
+            for i in range(0, len(self.mcr_instances)):
+                template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
         template += "\n"
         
         for i in range(0, len(self.cms_instances)):
@@ -242,102 +250,105 @@ class TemplateGenerator:
             template += self.getBaseMcrTemplate(item["host_name"], item["device_name"])
             template += "\n"
 
-        template += "\n"
-        template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += '#                         LB / FRONTEND RESOURCES                                  #' + "\n"
-        template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += "\n"
-        template += '  cms_healthmonitor:' + "\n"
-        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      delay : 10' + "\n"            
-        template += '      max_retries : 3' + "\n"            
-        template += '      timeout : 10' + "\n"            
-        template += '      type : HTTP' + "\n"
-        template += '      url_path : /WebAppDSS/' + "\n"
-        template += '      expected_codes : 200-399'            
-        template += "\n"            
-        template += '  cms_lb_pool:' + "\n"            
-        template += '    Type: OS::Neutron::Pool' + "\n"            
-        template += '    Properties:' + "\n"            
-        template += '      lb_method: ROUND_ROBIN' + "\n"            
-        template += '      name: cmspool' + "\n"
-        template += '      protocol: HTTP' + "\n"            
-        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"            
-        template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"            
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": cmsvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
-        template += "\n"
+        if self.numberOfCmsInstances > 1:
+            template += "\n"
+            template += '# -------------------------------------------------------------------------------- #' + "\n"
+            template += '#                         LB / FRONTEND RESOURCES                                  #' + "\n"
+            template += '# -------------------------------------------------------------------------------- #' + "\n"
+            template += "\n"
+            template += '  cms_healthmonitor:' + "\n"
+            template += '    Type: OS::Neutron::HealthMonitor' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      delay : 10' + "\n"
+            template += '      max_retries : 3' + "\n"
+            template += '      timeout : 10' + "\n"
+            template += '      type : HTTP' + "\n"
+            template += '      url_path : /WebAppDSS/' + "\n"
+            template += '      expected_codes : 200-399'
+            template += "\n"
+            template += '  cms_lb_pool:' + "\n"
+            template += '    Type: OS::Neutron::Pool' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      lb_method: ROUND_ROBIN' + "\n"
+            template += '      name: cmspool' + "\n"
+            template += '      protocol: HTTP' + "\n"
+            template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+            template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"
+            template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": cmsvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+            template += "\n"
 
-        if self.new_cms_lb_needed:
-            self.cms_lb_name = self.randomNameGenerator(6)
-        self.new_cms_lb_needed = False
-         
-        template += '  ' + self.cms_lb_name + '_loadbalancer:' + "\n"
-        template += '    Type: OS::Neutron::LoadBalancer' + "\n"           
-        template += '    Properties:' + "\n"           
-        template += '      members: [ '
-        
-        template += '{ Ref: ' + self.cms_instances[0]["device_name"] +' }'
-        for i in range(1, len(self.cms_instances)):
-            template += ', { Ref: ' + self.cms_instances[i]["device_name"] +' }'
+            if self.new_cms_lb_needed:
+                self.cms_lb_name = self.randomNameGenerator(6)
+            self.new_cms_lb_needed = False
 
-        template += ' ]' + "\n"           
-        template += '      pool_id: { Ref: cms_lb_pool }' + "\n"           
-        template += '      protocol_port: 80' + "\n"           
-        template += "\n"           
-        template += '  cms_lb_floatingip:' + "\n"           
-        template += '    Type: OS::Neutron::FloatingIP' + "\n"           
-        template += '    Properties:' + "\n"           
-        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed          
-        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"           
-        template += "\n"
-        template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += '#                         LB / MCR RESOURCES                                       #' + "\n"
-        template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += "\n"
-        template += '  mcr_healthmonitor:' + "\n"
-        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      delay : 10' + "\n"
-        template += '      max_retries : 3' + "\n"
-        template += '      timeout : 10' + "\n"
-        template += '      type : HTTP' + "\n"
-        template += '      url_path : /DSSMCRAPI/' + "\n"
-        template += '      expected_codes : 200-399'
-        template += "\n"
-        template += '  mcr_lb_pool:' + "\n"
-        template += '    Type: OS::Neutron::Pool' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      lb_method: ROUND_ROBIN' + "\n"
-        template += '      name: mcrpool' + "\n"
-        template += '      protocol: HTTP' + "\n"
-        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
-        template += '      monitors : [{ Ref: mcr_healthmonitor }]' + "\n"
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": mcrvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
-        template += "\n"
+            template += '  ' + self.cms_lb_name + '_loadbalancer:' + "\n"
+            template += '    Type: OS::Neutron::LoadBalancer' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      members: [ '
 
-        if self.new_mcr_lb_needed:
-            self.mcr_lb_name = self.randomNameGenerator(6)
-        self.new_mcr_lb_needed = False
+            template += '{ Ref: ' + self.cms_instances[0]["device_name"] +' }'
+            for i in range(1, len(self.cms_instances)):
+                template += ', { Ref: ' + self.cms_instances[i]["device_name"] +' }'
 
-        template += '  ' + self.mcr_lb_name + '_loadbalancer:' + "\n"
-        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      members: [ '
+            template += ' ]' + "\n"
+            template += '      pool_id: { Ref: cms_lb_pool }' + "\n"
+            template += '      protocol_port: 80' + "\n"
+            template += "\n"
+            template += '  cms_lb_floatingip:' + "\n"
+            template += '    Type: OS::Neutron::FloatingIP' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
+            template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"
 
-        template += '{ Ref: ' + self.mcr_instances[0]["device_name"] +' }'
-        for i in range(1, len(self.mcr_instances)):
-            template += ', { Ref: ' + self.mcr_instances[i]["device_name"] +' }'
+        if self.numberOfMcrInstances > 1:
+            template += "\n"
+            template += '# -------------------------------------------------------------------------------- #' + "\n"
+            template += '#                         LB / MCR RESOURCES                                       #' + "\n"
+            template += '# -------------------------------------------------------------------------------- #' + "\n"
+            template += "\n"
+            template += '  mcr_healthmonitor:' + "\n"
+            template += '    Type: OS::Neutron::HealthMonitor' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      delay : 10' + "\n"
+            template += '      max_retries : 3' + "\n"
+            template += '      timeout : 10' + "\n"
+            template += '      type : HTTP' + "\n"
+            template += '      url_path : /DSSMCRAPI/' + "\n"
+            template += '      expected_codes : 200-399'
+            template += "\n"
+            template += '  mcr_lb_pool:' + "\n"
+            template += '    Type: OS::Neutron::Pool' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      lb_method: ROUND_ROBIN' + "\n"
+            template += '      name: mcrpool' + "\n"
+            template += '      protocol: HTTP' + "\n"
+            template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+            template += '      monitors : [{ Ref: mcr_healthmonitor }]' + "\n"
+            template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": mcrvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+            template += "\n"
 
-        template += ' ]' + "\n"
-        template += '      pool_id: { Ref: mcr_lb_pool }' + "\n"
-        template += '      protocol_port: 80' + "\n"
-        template += "\n"
-        template += '  mcr_lb_floatingip:' + "\n"
-        template += '    Type: OS::Neutron::FloatingIP' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
-        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ mcr_lb_pool, vip ] } ] }" + "\n"
+            if self.new_mcr_lb_needed:
+                self.mcr_lb_name = self.randomNameGenerator(6)
+            self.new_mcr_lb_needed = False
+
+            template += '  ' + self.mcr_lb_name + '_loadbalancer:' + "\n"
+            template += '    Type: OS::Neutron::LoadBalancer' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      members: [ '
+
+            template += '{ Ref: ' + self.mcr_instances[0]["device_name"] +' }'
+            for i in range(1, len(self.mcr_instances)):
+                template += ', { Ref: ' + self.mcr_instances[i]["device_name"] +' }'
+
+            template += ' ]' + "\n"
+            template += '      pool_id: { Ref: mcr_lb_pool }' + "\n"
+            template += '      protocol_port: 80' + "\n"
+            template += "\n"
+            template += '  mcr_lb_floatingip:' + "\n"
+            template += '    Type: OS::Neutron::FloatingIP' + "\n"
+            template += '    Properties:' + "\n"
+            template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
+            template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ mcr_lb_pool, vip ] } ] }" + "\n"
         template += "\n"
         template += self.getOutput()
         
