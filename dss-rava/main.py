@@ -164,7 +164,7 @@ def decisionEngine(from_ae, dc_nodes):
     print "IN DE: ",dc_dict, type(dc_dict)
     #print "Input data from AE: ", ae_output
 
-    TARGET_NODE = "compute1" #hardcoded
+    TARGET_NODE = "bart" #hardcoded
     TARGET_NIC_INGRESS_THRESH = 4000
     TARGET_NIC_NET_IN_AV_THRESH = 30000
     TARGET_NIC_NET_IN_SLOPE_THRESH = 2000
