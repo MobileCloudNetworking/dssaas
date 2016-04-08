@@ -1,0 +1,5 @@
+pyzabbix>=0.7,<0.8
+python-novaclient
+python-neutronclient
+pylab
+scipy
