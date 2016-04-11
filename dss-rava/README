@@ -1,4 +1,0 @@
-IInstall requirement packages:
-
-	$ sudo apt-get install python-matplotlib python-scipy
-	$ sudo pip install pyzabbix
