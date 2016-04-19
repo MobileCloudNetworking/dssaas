@@ -399,7 +399,9 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 #CMS scale out because less than specific number of players
                 if  numOfCmsNeeded < cmsCount and self.numberOfCmsScaleOutsPerformed > 0 and cmsScaleInTriggered:
                     self.lastCmsScale = time.time()
-                    self.so_e.templateManager.scaleIn("cms")
+                    removed_hosts = self.so_e.templateManager.scaleIn("cms")
+                    for hostname in removed_hosts:
+                        self.configure.monitor.removeWebScenarioFromWSList(hostname.replace("_","-"))
                     self.numberOfCmsScaleOutsPerformed -= 1
                     scaleTriggered = True
                     LOG.debug(self.swComponent + ' ' + "IN CMS scaleIn")
