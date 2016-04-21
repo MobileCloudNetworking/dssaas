@@ -20,6 +20,7 @@ DSS SO.
 from sm.so import service_orchestrator
 from TemplateGenerator import *
 from SOMonitor import *
+from MessagingService import *
 from dnsaascli import *
 import graypy
 import datetime
@@ -585,6 +586,7 @@ class SOConfigure(threading.Thread):
 
         self.so_e = so_e
         self.so_d = so_d
+        self.so_mqs = MessagingService()
 
         self.dns_forwarder = None
         self.dns_api = None

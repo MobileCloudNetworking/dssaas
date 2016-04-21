@@ -1,5 +1,5 @@
 '''''''''
-# DNS Manager to update dss related dns records n DNSaaS  
+# Monitoring service management class
 '''''''''
 import threading
 import json
