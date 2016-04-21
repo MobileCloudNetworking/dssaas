@@ -25,11 +25,15 @@ class TemplateGenerator:
         self.dns_enable = 'false'
         self.dss_cms_image_name = 'DSS-IMG-filesync'
         self.dss_mcr_image_name = 'DSS-IMG-filesync'
+        self.dss_mq_image_name = 'DSS-MQ-SIC'
         self.dss_db_image_name = 'DSS-DB-SIC'
         
         self.dbname = 'webappdss'# DO NOT CHANGE
         self.dbpass = '******'# Use the one set in DB image
         self.dbuser = 'root'# DO NOT CHANGE
+
+        self.mq_service_user = 'adminRabbit'
+        self.mq_service_pass = '******'
         
         self.cms_scaleout_limit = 4
         self.mcr_scaleout_limit = 4
@@ -68,6 +72,43 @@ class TemplateGenerator:
             self.lastMcrNumAssigned += 1
         return hostname, devicename
 
+    def getBaseMQTemplate(self):
+        template = ''
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += '#                         MessageQ / MESSAGING RESOURCES                           #' + "\n"
+        template += '# -------------------------------------------------------------------------------- #' + "\n"
+        template += '  messageq_server:' + "\n"
+        template += '    Type: OS::Nova::Server' + "\n"
+        template += '    Properties:' + "\n"
+        template += '      key_name: ' + self.key_name + "\n"
+        template += '      name: dss_messageq_server' + "\n"
+        template += '      flavor: m1.small' + "\n"
+        template += '      image: ' + self.dss_mq_image_name + "\n"
+        template += '      networks:' + "\n"
+        template += '        - port: { Ref : messageq_server_port }' + "\n"
+        template += '      user_data: |' + "\n"
+        template += '        #!/bin/bash' + "\n"
+        template += '        cd /home/ubuntu/' + "\n"
+        template += '        rabbitmqctl add_user ' + self.mq_service_user + ' ' + self.mq_service_pass + "\n"
+        template += '        rabbitmqctl set_user_tags ' + self.mq_service_user + ' administrator' + "\n"
+        template += '        rabbitmqctl set_permissions -p / ' + self.mq_service_user + ' ".*" ".*" ".*"' + "\n"
+        template += "\n"
+        template += "  messageq_server_port:" + "\n"
+        template += "    Type: OS::Neutron::Port" + "\n"
+        template += "    Properties:" + "\n"
+        template += '      network_id: "' + self.private_network_id + '"' + "\n"
+        template += "      fixed_ips:" + "\n"
+        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '      replacement_policy: AUTO' + "\n"
+        template += "\n"
+        template += "  messageq_server_floating_ip:" + "\n"
+        template += "    Type: OS::Neutron::FloatingIP" + "\n"
+        template += "    Properties:" + "\n"
+        template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
+        template += '      port_id: { Ref : messageq_server_port }' + "\n"
+
+        return template
+
     def getBaseCmsTemplate(self, hostname, device_name):
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
@@ -99,14 +140,8 @@ class TemplateGenerator:
         template += "      fixed_ips:" + "\n"             
         template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
-        template += "\n"             
-        template += "  " + device_name + "_floating_ip:" + "\n"
-        template += "    Type: OS::Neutron::FloatingIP" + "\n"             
-        template += "    Properties:" + "\n"             
-        template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
-        template += '      port_id: { Ref : ' + device_name + '_port }' + "\n"
 
-        return template             
+        return template
     
     def getBaseMcrTemplate(self, hostname, device_name):
         template = ''
@@ -139,12 +174,6 @@ class TemplateGenerator:
         template += "      fixed_ips:" + "\n"             
         template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
-        template += "\n"             
-        template += "  " + device_name + "_floating_ip:" + "\n"
-        template += "    Type: OS::Neutron::FloatingIP" + "\n"             
-        template += "    Properties:" + "\n"             
-        template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
-        template += '      port_id: { Ref : ' + device_name + '_port }' + "\n"
         
         return template
     
@@ -153,35 +182,31 @@ class TemplateGenerator:
         
         for i in range(0, len(self.cms_instances)):
             template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.endpoint:' + "\n"
-            template += '    Description: Floating IP address of DSS CMS in public network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
+            template += '    Description: IP address of DSS CMS in private network' + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + ", first_address] }" + "\n"
             template += "\n"
 
         for i in range(0, len(self.mcr_instances)):
             template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.endpoint:' + "\n"
-            template += '    Description: Floating IP address of DSS MCR in public network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
+            template += '    Description: IP address of DSS MCR in private network' + "\n"
+            template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + ", first_address] }" + "\n"
             template += "\n"
 
+        template += '  mcn.dss.mq.endpoint:' + "\n"
+        template += '    Description: Floating IP address of DSS MQ in public network' + "\n"
+        template += "    Value: { 'Fn::GetAtt': [ messageq_server_floating_ip, floating_ip_address ] }" + "\n"
+        template += "\n"
         template += '  mcn.dss.db.endpoint:' + "\n"
         template += '    Description: IP address of DSS DB in private network' + "\n"
         template += "    Value: { 'Fn::GetAtt': [ dbaas_server, first_address ] }" + "\n"
         template += "\n"
         template += '  mcn.dss.cms.lb.endpoint:' + "\n"
         template += '    Description: Floating IP address of DSS (CMS) load balancer in public network' + "\n"
-        #if self.numberOfCmsInstances > 1:
         template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
-        #else:
-        #    for i in range(0, len(self.cms_instances)):# Should iterate just once
-        #        template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
         template += "\n"
         template += '  mcn.dss.mcr.lb.endpoint:' + "\n"
         template += '    Description: Floating IP address of DSS (MCR) load balancer in public network' + "\n"
-        #if self.numberOfMcrInstances > 1:
         template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
-        #else:
-        #    for i in range(0, len(self.mcr_instances)):
-        #        template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + "_floating_ip, floating_ip_address] }" + "\n"
         template += "\n"
         
         for i in range(0, len(self.cms_instances)):
@@ -250,7 +275,10 @@ class TemplateGenerator:
             template += self.getBaseMcrTemplate(item["host_name"], item["device_name"])
             template += "\n"
 
-        #if self.numberOfCmsInstances > 1:
+        template += "\n"
+        template += self.getBaseMQTemplate()
+        template += "\n"
+
         template += "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         LB / FRONTEND RESOURCES                                  #' + "\n"
@@ -300,7 +328,6 @@ class TemplateGenerator:
         template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
         template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"
 
-        #if self.numberOfMcrInstances > 1:
         template += "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         LB / MCR RESOURCES                                       #' + "\n"
@@ -378,6 +405,7 @@ class TemplateGenerator:
                 if self.numberOfMcrInstances < self.mcr_scaleout_limit:
                     self.numberOfMcrInstances += 1
                     hostname, device_name = self.getBaseName(instance_type=instance_type)
+                    self.mcr_instances.append({"device_name": device_name, "host_name": hostname})
                     added_sics.append({"device_name": device_name, "host_name": hostname})
                     self.new_mcr_lb_needed = True
                 else:
@@ -437,9 +465,9 @@ class TemplateGenerator:
 if __name__ == '__main__':
     mytemp = TemplateGenerator()
     print mytemp.getTemplate()
-    print "#########################################################################"
-    mytemp.scaleIn("cms")
-    print mytemp.getTemplate()
-    print "#########################################################################"
-    mytemp.scaleOut("cms", 3)
-    print mytemp.getTemplate()
+    #print "#########################################################################"
+    #mytemp.scaleIn("cms")
+    #print mytemp.getTemplate()
+    #print "#########################################################################"
+    #mytemp.scaleOut("cms", 3)
+    #print mytemp.getTemplate()
