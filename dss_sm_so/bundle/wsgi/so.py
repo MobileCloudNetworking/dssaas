@@ -289,6 +289,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
 
         self.timeout = 10
 
+        self.ignored_keys = ["mcn.dss.cms.lb.endpoint", "mcn.dss.mcr.lb.endpoint", "mcn.dss.db.endpoint", "mcn.endpoint.dssaas", "mcn.dss.mq.endpoint"]
+
     def run(self):
         """
         Decision part implementation goes here.
@@ -513,54 +515,23 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         GLOG.debug(tmpJSON)
         LOG.debug(self.swComponent + ' ' + "Update successful")
         LOG.debug(self.swComponent + ' ' + "Check config stat of instances")
-        checkList = {}
-        for item in listOfAllServers:
-            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
-                checkList[item["ep"]] = {"hostname": item["hostname"], "stat": "unknown"}
 
-        # Talking to DSS SIC agents to get the configuration status of each
-        for item in checkList:
-            if checkList[item]["stat"] == "unknown":
-                response_status = 0
-                while (response_status < 200 or response_status >= 400):
-                    time.sleep(1)
-                    headers = {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json; charset=UTF-8'
-                    }
-                    target = 'http://' + item + ':8051/v1.0/configstat'
-                    LOG.debug(self.swComponent + ' ' + target)
-                    try:
-                        h = http.Http()
-                        h.timeout = self.timeout
-                        LOG.debug(self.swComponent + ' ' + "Sending config request to " + item + ":")
-                        response, content = h.request(target, 'GET', None, headers)
-                        LOG.debug(self.swComponent + ' ' + "Config stat is: " + str(content))
-                    except Exception as e:
-                        LOG.debug(self.swComponent + ' ' + "Handled config request exception " + str(e))
-                        continue
-                    response_status = int(response.get("status"))
-                    instanceInfo = json.loads(content)
-                    if "False" not in instanceInfo.values():
-                        LOG.debug(self.swComponent + ' ' + item + " already configured")
-                        checkList[item]["stat"] = "Configured"
-                    else:
-                        LOG.debug(self.swComponent + ' ' + 'Configuring ' + item)
-                        LOG.debug(self.swComponent + ' ' + 'Configuring in progress ...')
-                        newSIC_provision_status = 0
-                        while newSIC_provision_status != 1:
-                            newSIC_provision_status, newSIC_provision_msg = self.configure.provisionInstance(item, listOfAllServers)
-                            if newSIC_provision_msg != 'all_ok':
-                                if newSIC_provision_msg == self.dss_instance_failed_msg:
-                                    LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
-                                    return -2, checkList[item]["hostname"]
-                                elif newSIC_provision_msg == self.db_failed_msg:
-                                    LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
-                                    return -3, 'DB'
-                        #self.configure.provisionInstance(item, listOfAllServers)
-                        self.configure.configInstance(item)
-                        LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
-                        self.configure.SICMonConfig(checkList[item]["hostname"], item)
+        # Talking to DSS SIC agents to get the configuration status of each# Pushing local configurations to DSS SICs
+        localConfig_status = 0
+        while localConfig_status != 1:
+            localConfig_status, localConfig_msg = self.performLocalConfig()
+            LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
+            LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
+            if localConfig_msg != 'all_ok':
+                if localConfig_msg == self.agent_timedout:
+                    LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
+                    return -2, 'Change it to return failed hostname'#checkList[item]["hostname"]
+                elif localConfig_msg == self.db_failed_msg:
+                    LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
+                    return -3, 'DB'
+        # Another problem, we have to mon config them by hostname
+        #LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
+        #self.configure.SICMonConfig(checkList[item]["hostname"], item)
         return 0, 'OK'
 
     # Updates the decision map according to the triggered triggers :-)
@@ -586,7 +557,7 @@ class SOConfigure(threading.Thread):
 
         self.so_e = so_e
         self.so_d = so_d
-        self.so_mqs = MessagingService()
+        self.so_mqs = None
 
         self.dns_forwarder = None
         self.dns_api = None
@@ -599,13 +570,22 @@ class SOConfigure(threading.Thread):
         self.monitor = None
         self.instances = None
         self.db_endpoint = None
+        self.mq_service_endpoint = None
 
         self.timeout = 10
+        self.max_retry_count = 30
+
+        self.send_count = 0
+        self.rec_count = 0
+        self.consume_timedout = False
 
         self.dependencyStat = {"DNS":"not ready","MON":"not ready"}
+        self.ignored_keys = ["mcn.dss.cms.lb.endpoint", "mcn.dss.mcr.lb.endpoint", "mcn.dss.db.endpoint", "mcn.endpoint.dssaas", "mcn.dss.mq.endpoint"]
 
         self.db_failed_msg = "DATABSE FAILURE"
         self.dss_instance_failed_msg = "DSS INSTANCE FAILED"
+        self.dss_mq_service_failed_msg = "DSS MESSAGE QUEUE SERVICE FAILED"
+        self.agent_timedout = "DSS INSTANCE AGENT FAILED TO RESPOND ON TIME"
 
     def run(self):
         # Pushing DNS configurations to DNS SICs
@@ -641,10 +621,31 @@ class SOConfigure(threading.Thread):
                 self.dependencyStat["MON"] = "ready"
             time.sleep(3)
         LOG.debug(self.swComponent + ' ' + "MONaaS dependency stat changed to READY")
+        #TODO: What would you do if you never get the eps? Needs some checks here too
 
         # Get the DB endpoint from stack output
         # In this function we also make sure our stack creation is done
         self.getDbEndpoint()
+        # Get the MQ Service endpoint from stack output
+        # In this function we also make sure our stack creation is done
+        self.getMQServiceEndpoint()
+        #TODO: What would you do if at this point stack creation fails? Needs some checks here too
+
+        self.so_mqs = MessagingService()
+        mq_reachable = False
+        try_to_reach_mq = 0
+        max_retry = self.max_retry_count * self.timeout# 30 * 10 * 1 = 5 minutes
+        while mq_reachable is not True:
+            time.sleep(1)
+            try_to_reach_mq += 1
+            mq_reachable = self.so_mqs.connect_to_mq()
+            if try_to_reach_mq > max_retry:
+                LOG.debug(self.swComponent + ' ' + self.dss_mq_service_failed_msg)
+                # Finishes the thread
+                # Decision is already on waiting mode
+                # Monitoring has not even started yet
+                LOG.debug(self.swComponent + ' ' + "Adios nube!")
+                return
 
         # Pushing local configurations to DSS SICs
         localConfig_status = 0
@@ -653,8 +654,8 @@ class SOConfigure(threading.Thread):
             LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
             LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
             if localConfig_msg != 'all_ok':
-                if localConfig_msg == self.dss_instance_failed_msg:
-                    LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
+                if localConfig_msg == self.agent_timedout:
+                    LOG.debug(self.swComponent + ' ' + "Connection between SO and SIC agents malfunctioning - Deployment Failed")
                     # Everything failed, STOP
                 elif localConfig_msg == self.db_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
@@ -678,6 +679,11 @@ class SOConfigure(threading.Thread):
         # once logic executes, deploy phase is done
         self.event.set()
 
+    def notify_msg_receive(self, data):
+        #TODO: process the data and act accordingly
+        self.rec_count += 1
+        self.consume_timedout = False
+
     def getDbEndpoint(self):
         result = -1
         while (result < 0):
@@ -689,6 +695,18 @@ class SOConfigure(threading.Thread):
         for item in self.instances:
             if item["output_key"] == "mcn.dss.db.endpoint":
                 self.db_endpoint = item["ep"]
+
+    def getMQServiceEndpoint(self):
+        result = -1
+        while (result < 0):
+            result, self.instances = self.so_e.getServerInfo()
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
+            time.sleep(0.5)
+
+        #WAIT FOR FINISHING THE DEPLOYMENT
+        for item in self.instances:
+            if item["output_key"] == "mcn.dss.mq.endpoint":
+                self.mq_service_endpoint = item["ep"]
 
     def performDNSConfig(self):
         result = -1
@@ -747,39 +765,105 @@ class SOConfigure(threading.Thread):
             LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
             time.sleep(0.5)
 
-        #configure instances
         LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
+        #Publish DB config messages to broker
+        self.send_count = 0
         for item in self.instances:
-            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
-                provision_status, status_msg = self.provisionInstance(item["ep"], self.instances)
+            time.sleep(0.1)
+            if item["output_key"] not in self.ignored_keys:
+                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"], self.instances)
+                if dbconfig_status == 0:
+                    return dbconfig_status, status_msg
+                self.send_count += 1
+
+        timeout_counter = 0
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        while self.send_count > self.rec_count:
+            self.consume_timedout = True
+            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            if self.consume_timedout:
+                timeout_counter += 1
+            else:
+                timeout_counter = 0
+            if timeout_counter > max_retry:
+                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                return 0, self.agent_timedout
+
+        self.send_count = 0
+        self.rec_count = 0
+
+        #Publish SIC provision messages to broker
+        self.send_count = 0
+        for item in self.instances:
+            time.sleep(0.1)
+            if item["output_key"] not in self.ignored_keys:
+                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"], self.instances)
                 if provision_status == 0:
                     return provision_status, status_msg
+                self.send_count += 1
+
+        timeout_counter = 0
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        while self.send_count > self.rec_count:
+            self.consume_timedout = True
+            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            if self.consume_timedout:
+                timeout_counter += 1
+            else:
+                timeout_counter = 0
+            if timeout_counter > max_retry:
+                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                return 0, self.agent_timedout
+
+        self.send_count = 0
+        self.rec_count = 0
 
         LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
+        #Publish JSON config messages to broker
+        self.send_count = 0
         for item in self.instances:
-            if item["output_key"] != "mcn.dss.cms.lb.endpoint" and item["output_key"] != "mcn.dss.mcr.lb.endpoint" and item["output_key"] != "mcn.dss.db.endpoint" and item["output_key"] != "mcn.endpoint.dssaas":
-                self.configInstance(item["ep"])
+            time.sleep(0.1)
+            if item["output_key"] not in self.ignored_keys:
+                json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"])
+                if json_publish_status == 0:
+                    return json_publish_status, status_msg
+                self.send_count += 1
 
+        timeout_counter = 0
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        while self.send_count > self.rec_count:
+            self.consume_timedout = True
+            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            if self.consume_timedout:
+                timeout_counter += 1
+            else:
+                timeout_counter = 0
+            if timeout_counter > max_retry:
+                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                return 0, self.agent_timedout
+
+        self.send_count = 0
+        self.rec_count = 0
         LOG.debug(self.swComponent + ' ' + "Exiting the loop for JSON config file creation for all instances")
         return 1, 'all_ok'
 
-    # Executes the two shell scripts in the SIC which takes care of war deployment
-    def provisionInstance(self, target_ip, all_sic_info):
-        # AGENT AUTH
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}', max_retry=30)
-        if str(resp) == '0':
-            return 0, self.dss_instance_failed_msg
-        token = resp["token"]
-        #LOG.debug(self.swComponent + ' ' + "Auth response is: " + str(resp))
-        # AGENT DB CHECK
-        # Before provisioning we make sure DB is ready
-        # TODO: Here we check if after a while DB is not ready, DB has failed so we replace it with another one
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', max_retry=30)
-        if str(resp) == '0':
+    # Configures all the things SIC needs to attach to DBaaS
+    def configureInstanceDB(self, target_ip, target_hostname, all_sic_info):
+        # We don't declare the queue here, SICs later should do it and bind to SO exchange
+        # Here we just publish required message to already defined exchange
+        # Publish message for DB config
+        resp = self.so_mqs.basic_publish('{"action":"DB","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '","dbhost":"' + self.db_endpoint + '"}', target_hostname)
+        LOG.debug(self.swComponent + ' ' + 'DB Message publish for ' + target_hostname + ' returned ' + str(resp))
+        if resp == 1:
+            return 1, 'all_ok'
+        else:
             return 0, self.db_failed_msg
-        #LOG.debug(self.swComponent + ' ' + "DB status response is: " + str(resp))
-        # AGENT STARTS PROVISIONING OF VM
-        # Fetch needed info from server info struct
+
+    # Executes the two shell scripts in the SIC which takes care of war deployment
+    def provisionInstance(self, target_ip, target_hostname, all_sic_info):
+        # We don't declare the queue here, SICs later should do it and bind to SO exchange
+        # Here we just publish required message to already defined exchange
+        # Publish message for provision config
         mcr_srv_ip = None
         cms_srv_ip = None
         dbaas_srv_ip = None
@@ -791,60 +875,34 @@ class SOConfigure(threading.Thread):
             elif inf["output_key"] == "mcn.dss.db.endpoint":
                 dbaas_srv_ip = inf["ep"]
         # CMS ip address is sent to MCR for cross domain issues but as the player is trying to get contents from CMS DOMAIN NAME it will not work as it's an ip address
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/provision', 'POST', '{"user":"SO","token":"' + token + '","mcr_srv_ip":"' + mcr_srv_ip + '","cms_srv_ip":"' + cms_srv_ip + '","dbaas_srv_ip":"' + dbaas_srv_ip + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        #LOG.debug(self.swComponent + ' ' + "Provision response is: " + str(resp))
-        return 1, 'all_ok'
+        resp = self.so_mqs.basic_publish('{"action":"provision","mcr_srv_ip":"' + mcr_srv_ip + '","cms_srv_ip":"' + cms_srv_ip + '","dbaas_srv_ip":"' + dbaas_srv_ip + '", "dbuser":"' + self.so_e.templateManager.dbuser +'", "dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}', target_hostname)
+        LOG.debug(self.swComponent + ' ' + 'Provision Message publish for ' + target_hostname + ' returned ' + str(resp))
+        if resp == 1:
+            return 1, 'all_ok'
+        else:
+            return 0, self.dss_instance_failed_msg
 
     # Calls to the SIC agent to complete the provisioning
-    def configInstance(self, target_ip):
-        # AGENT AUTH
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/auth', 'POST', '{"user":"SO","password":"SO"}')
-        token = resp["token"]
-        #LOG.debug(self.swComponent + ' ' + "Auth response is: " + str(resp))
-        # AGENT PUSH DNS EP
-        # DNS endpoint will be used later by CMS application to generate the player configuration script
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/DNS', 'POST', '{"user":"SO","token":"' + token + '","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}')
-        #LOG.debug(self.swComponent + ' ' + "DNS response is: " + str(resp))
-        # AGENT PUSH MON EP & CONFIG
+    def configInstance(self, target_ip, target_hostname):
+        # Publish DNS EP
+        resp = self.so_mqs.basic_publish('{"action":"DNS","dnsendpoint":"'+ self.dns_forwarder + '","dssdomainname":"' + self.dssCmsRecordName + '.' + self.dssCmsDomainName + '"}', target_hostname)
+        LOG.debug(self.swComponent + ' ' + 'DNS EP publish for ' + target_hostname + ' returned ' + str(resp))
+        if resp == 0:
+            return 0, 'nok'
+        # Publish MON EP & Conf
         # MON endpoint is not really being used at the moment
         # DB info is being sent to be used by the getcdr script in zabbix custom item definitions
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/MON', 'POST', '{"user":"SO","token":"' + token + '","monendpoint":"' + self.monitoring_endpoint + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        #LOG.debug(self.swComponent + ' ' + "MON response is: " + str(resp))
-        # AGENT PUSH RCB CONFIG
+        resp = self.so_mqs.basic_publish('{"action":"MON","monendpoint":"' + self.monitoring_endpoint + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}', target_hostname)
+        LOG.debug(self.swComponent + ' ' + 'MON EP publish for ' + target_hostname + ' returned ' + str(resp))
+        if resp == 0:
+            return 0, 'nok'
+        # Publish RCB Conf
         # DB info is used to create an event for generating cdr data in DB
-        resp = self.sendRequestToSICAgent('http://' + target_ip + ':8051/v1.0/RCB', 'POST', '{"user":"SO","token":"' + token + '","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}')
-        #LOG.debug(self.swComponent + ' ' + "RCB response is: " + str(resp))
-
-    def sendRequestToSICAgent(self, api_url, req_type, json_data, max_retry=-1):
-        response_status = 0
-        retry_counter = -1
-        while (response_status < 200 or response_status >= 400):
-            retry_counter += 1
-            if max_retry > -1 and retry_counter > max_retry:
-                return 0
-            time.sleep(1)
-            headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json; charset=UTF-8'
-            }
-            try:
-                h = http.Http()
-                if 'provision' in api_url or 'MON' in api_url:
-                    h.timeout = 60
-                else:
-                    h.timeout = self.timeout
-                LOG.debug(self.swComponent + ' ' + "Sending request to: " + api_url)
-                response, content = h.request(api_url, req_type, json_data, headers)
-            except Exception as e:
-                LOG.debug(self.swComponent + ' ' + "Handled " + api_url + " exception." + str(e))
-                continue
-            response_status = int(response.get("status"))
-            LOG.debug(self.swComponent + ' ' + "response status is: " + str(response_status) + " Content: " + str(content))
-            if (response_status < 200 or response_status >= 400):
-                continue
-            content_dict = json.loads(content)
-            return content_dict
-            #if response status is not OK, retry
+        resp = self.so_mqs.basic_publish('{"action":"RCB","dbuser":"' + self.so_e.templateManager.dbuser + '","dbpassword":"' + self.so_e.templateManager.dbpass + '","dbname":"' + self.so_e.templateManager.dbname + '"}', target_hostname)
+        LOG.debug(self.swComponent + ' ' + 'RCB Conf publish for ' + target_hostname + ' returned ' + str(resp))
+        if resp == 0:
+            return 0, 'nok'
+        return 1, 'all_ok'
 
     def performMonConfig(self):
         result = -1

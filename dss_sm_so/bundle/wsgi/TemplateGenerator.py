@@ -42,8 +42,8 @@ class TemplateGenerator:
         self.cms_instances = []
         self.mcr_instances = []
 
-        self.initial_cms_count = 1
-        self.initial_mcr_count = 1
+        self.initial_cms_count = 2
+        self.initial_mcr_count = 2
 
         self.numberOfCmsInstances = 0
         self.numberOfMcrInstances = 0

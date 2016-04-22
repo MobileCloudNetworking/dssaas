@@ -95,7 +95,8 @@ class MessagingService(object):
             return 0
 
     def msg_received(self, ch, method, properties, body):
-        print(" [x] %r" % body)
+        # TODO: Check if its config ok message
+        self.so_config.notify_msg_receive(body)
         self.channel.stop_consuming()
 
     def stop_listening(self):
