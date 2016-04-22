@@ -1,5 +1,5 @@
 '''''''''
-#Template Generator for scaling purposes 
+#Template Generator for scaling purposes
 '''''''''
 import string
 import random
@@ -27,14 +27,14 @@ class TemplateGenerator:
         self.dss_mcr_image_name = 'DSS-IMG-filesync'
         self.dss_mq_image_name = 'DSS-MQ-SIC'
         self.dss_db_image_name = 'DSS-DB-SIC'
-        
+
         self.dbname = 'webappdss'# DO NOT CHANGE
         self.dbpass = '******'# Use the one set in DB image
         self.dbuser = 'root'# DO NOT CHANGE
 
         self.mq_service_user = 'adminRabbit'
         self.mq_service_pass = '******'
-        
+
         self.cms_scaleout_limit = 4
         self.mcr_scaleout_limit = 4
 
@@ -42,8 +42,8 @@ class TemplateGenerator:
         self.cms_instances = []
         self.mcr_instances = []
 
-        self.initial_cms_count = 2
-        self.initial_mcr_count = 2
+        self.initial_cms_count = 1
+        self.initial_mcr_count = 1
 
         self.numberOfCmsInstances = 0
         self.numberOfMcrInstances = 0
@@ -78,34 +78,42 @@ class TemplateGenerator:
         template += '#                         MessageQ / MESSAGING RESOURCES                           #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '  messageq_server:' + "\n"
-        template += '    Type: OS::Nova::Server' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      name: dss_messageq_server' + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_mq_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : messageq_server_port }' + "\n"
+        template += '        - ' + "\n"
+        template += '          port: ' + "\n"
+        template += '            Ref: messageq_server_port' + "\n"
         template += '      user_data: |' + "\n"
         template += '        #!/bin/bash' + "\n"
-        template += '        cd /home/ubuntu/' + "\n"
+        template += '        cd /home/ubuntu' + "\n"
         template += '        rabbitmqctl add_user ' + self.mq_service_user + ' ' + self.mq_service_pass + "\n"
         template += '        rabbitmqctl set_user_tags ' + self.mq_service_user + ' administrator' + "\n"
         template += '        rabbitmqctl set_permissions -p / ' + self.mq_service_user + ' ".*" ".*" ".*"' + "\n"
+        template += '        rabbitmq-plugins enable rabbitmq_management' + "\n"
+        template += '    type: "OS::Nova::Server"' + "\n"
         template += "\n"
         template += "  messageq_server_port:" + "\n"
-        template += "    Type: OS::Neutron::Port" + "\n"
-        template += "    Properties:" + "\n"
-        template += '      network_id: "' + self.private_network_id + '"' + "\n"
+        template += "    properties:" + "\n"
+        template += '      network_id: ' + "\n"
+        template += '        get_param: private_net_id' + "\n"
         template += "      fixed_ips:" + "\n"
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += '        - ' + "\n"
+        template += '          subnet_id: ' + "\n"
+        template += '            get_param: private_subnet_id' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
+        template += '    type: "OS::Neutron::Port"' + "\n"
         template += "\n"
         template += "  messageq_server_floating_ip:" + "\n"
-        template += "    Type: OS::Neutron::FloatingIP" + "\n"
-        template += "    Properties:" + "\n"
-        template += '      floating_network_id: "' + self.public_network_id + '"  # public OK' + "\n"
-        template += '      port_id: { Ref : messageq_server_port }' + "\n"
+        template += "    properties:" + "\n"
+        template += '      floating_network_id: ' + "\n"
+        template += '        get_param: public_net_id' + "\n"
+        template += '      port_id: ' + "\n"
+        template += '        Ref : messageq_server_port' + "\n"
+        template += '    type: "OS::Neutron::FloatingIP"' + "\n"
 
         return template
 
@@ -115,156 +123,216 @@ class TemplateGenerator:
         template += '#                         CMS / FRONTEND RESOURCES                                 #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '  ' + device_name + ':' + "\n"
-        template += '    Type: OS::Nova::Server' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      name: ' + hostname + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_cms_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : ' + device_name + '_port }' + "\n"
-        template += '      user_data: |' + "\n"
-        template += '        #!/bin/bash' + "\n"
-        template += '        cd /home/ubuntu/' + "\n"
-        template += "        sed -i.bak s/dss/`hostname`/g /etc/hosts" + "\n"
-        template += "        # Download and run main server agent" + "\n"
-        template += "        rm -f agent*" + "\n"
-        template += "        curl http://213.165.68.82/agent_ex.tar.gz > agent_ex.tar.gz" + "\n"
-        template += "        tar -xvzf agent_ex.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ &" + "\n"
-        template += "\n"             
+        template += '        - ' + "\n"
+        template += '          port: ' + "\n"
+        template += '            Ref: ' + device_name + '_port' + "\n"
+        template += '      user_data:' + "\n"
+        template += '        str_replace:' + "\n"
+        template += '          template: |' + "\n"
+        template += '            #!/bin/bash' + "\n"
+        template += '            cd /home/ubuntu/' + "\n"
+        template += "            sed -i.bak s/dss/`hostname`/g /etc/hosts" + "\n"
+        template += "            # Download and run main server agent" + "\n"
+        template += "            rm -f agent*" + "\n"
+        template += "            curl http://213.165.68.82/agent_ex.tar.gz > agent_ex.tar.gz" + "\n"
+        template += "            tar -xvzf agent_ex.tar.gz" + "\n"
+        template += "            python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ mq_service_ip &" + "\n"
+        template += "          params:" + "\n"
+        template += '            mq_service_ip:' + "\n"
+        template += '              get_attr: ' + "\n"
+        template += '                - messageq_server_floating_ip' + "\n"
+        template += '                - floating_ip_address' + "\n"
+        template += '    type: "OS::Nova::Server"' + "\n"
+        template += "\n"
         template += "  " + device_name + "_port:" + "\n"
-        template += "    Type: OS::Neutron::Port" + "\n"             
-        template += "    Properties:" + "\n"             
-        template += '      network_id: "' + self.private_network_id + '"' + "\n"             
-        template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += "    properties:" + "\n"
+        template += '      network_id: ' + "\n"
+        template += '        get_param: private_net_id' + "\n"
+        template += "      fixed_ips:" + "\n"
+        template += '        - ' + "\n"
+        template += '          subnet_id: ' + "\n"
+        template += '            get_param: private_subnet_id' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
+        template += '    type: "OS::Neutron::Port"' + "\n"
 
         return template
-    
+
     def getBaseMcrTemplate(self, hostname, device_name):
         template = ''
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         MCR / FRONTEND RESOURCES                                 #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '  ' + device_name + ':' + "\n"
-        template += '    Type: OS::Nova::Server' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      name: ' + hostname + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_mcr_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : ' + device_name + '_port }' + "\n"
-        template += '      user_data: |' + "\n"
-        template += '        #!/bin/bash' + "\n"
-        template += '        cd /home/ubuntu/' + "\n"
-        template += "        sed -i.bak s/dss/`hostname`/g /etc/hosts" + "\n"
-        template += "        # Download and run main server agent" + "\n"
-        template += "        rm -f agent*" + "\n"
-        template += "        curl http://213.165.68.82/agent_ex.tar.gz > agent_ex.tar.gz" + "\n"
-        template += "        tar -xvzf agent_ex.tar.gz" + "\n"
-        template += "        python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ &" + "\n"
-        template += "\n"             
+        template += '        - ' + "\n"
+        template += '          port: ' + "\n"
+        template += '            Ref: ' + device_name + '_port' + "\n"
+        template += '      user_data:' + "\n"
+        template += '        str_replace:' + "\n"
+        template += '          template: |' + "\n"
+        template += '            #!/bin/bash' + "\n"
+        template += '            cd /home/ubuntu/' + "\n"
+        template += "            sed -i.bak s/dss/`hostname`/g /etc/hosts" + "\n"
+        template += "            # Download and run main server agent" + "\n"
+        template += "            rm -f agent*" + "\n"
+        template += "            curl http://213.165.68.82/agent_ex.tar.gz > agent_ex.tar.gz" + "\n"
+        template += "            tar -xvzf agent_ex.tar.gz" + "\n"
+        template += "            python /home/ubuntu/agent_ex.py /usr/share/tomcat7/ mq_service_ip &" + "\n"
+        template += "          params:" + "\n"
+        template += '            mq_service_ip:' + "\n"
+        template += '              get_attr: ' + "\n"
+        template += '                - messageq_server_floating_ip' + "\n"
+        template += '                - floating_ip_address' + "\n"
+        template += '    type: "OS::Nova::Server"' + "\n"
+        template += "\n"
         template += "  " + device_name + "_port:" + "\n"
-        template += "    Type: OS::Neutron::Port" + "\n"             
-        template += "    Properties:" + "\n"             
-        template += '      network_id: "' + self.private_network_id + '"' + "\n"             
-        template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += "    properties:" + "\n"
+        template += '      network_id: ' + "\n"
+        template += '        get_param: private_net_id' + "\n"
+        template += "      fixed_ips:" + "\n"
+        template += '        - ' + "\n"
+        template += '          subnet_id: ' + "\n"
+        template += '            get_param: private_subnet_id' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
-        
+        template += '    type: "OS::Neutron::Port"' + "\n"
+
         return template
-    
+
     def getOutput(self):
-        template = "Outputs:" + "\n"
-        
+        template = "outputs:" + "\n"
+
         for i in range(0, len(self.cms_instances)):
             template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.endpoint:' + "\n"
-            template += '    Description: IP address of DSS CMS in private network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.cms_instances[i]["device_name"] + ", first_address] }" + "\n"
+            template += '    description: IP address of DSS CMS in private network' + "\n"
+            template += '    value: ' + "\n"
+            template += '      get_attr: ' + "\n"
+            template += '        - ' + self.cms_instances[i]["device_name"] + "\n"
+            template += '        - first_address' + "\n"
             template += "\n"
 
         for i in range(0, len(self.mcr_instances)):
             template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.endpoint:' + "\n"
-            template += '    Description: IP address of DSS MCR in private network' + "\n"
-            template += "    Value: {'Fn::GetAtt': [" + self.mcr_instances[i]["device_name"] + ", first_address] }" + "\n"
+            template += '    description: IP address of DSS MCR in private network' + "\n"
+            template += '    value: ' + "\n"
+            template += '      get_attr: ' + "\n"
+            template += '        - ' + self.mcr_instances[i]["device_name"] + "\n"
+            template += '        - first_address' + "\n"
             template += "\n"
 
         template += '  mcn.dss.mq.endpoint:' + "\n"
-        template += '    Description: Floating IP address of DSS MQ in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ messageq_server_floating_ip, floating_ip_address ] }" + "\n"
+        template += '    description: Floating IP address of DSS MQ in public network' + "\n"
+        template += '    value: ' + "\n"
+        template += '      get_attr: ' + "\n"
+        template += '        - messageq_server_floating_ip' + "\n"
+        template += '        - floating_ip_address' + "\n"
         template += "\n"
         template += '  mcn.dss.db.endpoint:' + "\n"
-        template += '    Description: IP address of DSS DB in private network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ dbaas_server, first_address ] }" + "\n"
+        template += '    description: IP address of DSS DB in private network' + "\n"
+        template += '    value: ' + "\n"
+        template += '      get_attr: ' + "\n"
+        template += '        - dbaas_server' + "\n"
+        template += '        - first_address' + "\n"
         template += "\n"
         template += '  mcn.dss.cms.lb.endpoint:' + "\n"
-        template += '    Description: Floating IP address of DSS (CMS) load balancer in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ cms_lb_floatingip, floating_ip_address ] }" + "\n"
+        template += '    description: Floating IP address of DSS (CMS) load balancer in public network' + "\n"
+        template += '    value: ' + "\n"
+        template += '      get_attr: ' + "\n"
+        template += '        - cms_lb_floatingip' + "\n"
+        template += '        - floating_ip_address' + "\n"
         template += "\n"
         template += '  mcn.dss.mcr.lb.endpoint:' + "\n"
-        template += '    Description: Floating IP address of DSS (MCR) load balancer in public network' + "\n"
-        template += "    Value: { 'Fn::GetAtt': [ mcr_lb_floatingip, floating_ip_address ] }" + "\n"
+        template += '    description: Floating IP address of DSS (MCR) load balancer in public network' + "\n"
+        template += '    value: ' + "\n"
+        template += '      get_attr: ' + "\n"
+        template += '        - mcr_lb_floatingip' + "\n"
+        template += '        - floating_ip_address' + "\n"
         template += "\n"
-        
+
         for i in range(0, len(self.cms_instances)):
             template += '  mcn.dss.' + self.cms_instances[i]["device_name"] + '.hostname:' + "\n"
-            template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.cms_instances[i]["device_name"] + ", name ] }" + "\n"
+            template += '    description: open stack instance name' + "\n"
+            template += '    value: ' + "\n"
+            template += '      get_attr: ' + "\n"
+            template += '        - ' + self.cms_instances[i]["device_name"] + "\n"
+            template += '        - name' + "\n"
             template += "\n"
 
         for i in range(0, len(self.mcr_instances)):
             template += '  mcn.dss.' + self.mcr_instances[i]["device_name"] + '.hostname:' + "\n"
-            template += '    Description: open stack instance name' + "\n"
-            template += "    Value: { 'Fn::GetAtt': [ " + self.mcr_instances[i]["device_name"] + ", name ] }" + "\n"
+            template += '    description: open stack instance name' + "\n"
+            template += '    value: ' + "\n"
+            template += '      get_attr: ' + "\n"
+            template += '        - ' + self.mcr_instances[i]["device_name"] + "\n"
+            template += '        - name' + "\n"
             template += "\n"
 
         template += '  mcn.endpoint.dssaas:' + "\n"
-        template += '    Description: DSS service endpoint' + "\n"
-        template += '    Value: "N/A"' + "\n"
+        template += '    description: DSS service endpoint' + "\n"
+        template += '    value: "N/A"' + "\n"
 
         return template
-        
+
     def getTemplate(self):
-        template = "HeatTemplateFormatVersion: '2012-12-12'" + "\n"
-        template += "Description: 'YAML MCN DSSaaS Template'" + "\n"
-        template += "Resources:" + "\n"
+        template = 'description: "YAML MCN DSSaaS Template"' + "\n"
+        template += 'heat_template_version: 2013-05-23' + "\n"
+        template += 'parameters:' + "\n"
+        template += '  private_net_id:' + "\n"
+        template += '    default: "' + self.private_network_id + '"' + "\n"
+        template += '    description: "Private network ID"' + "\n"
+        template += '    type: string' + "\n"
+        template += '  private_subnet_id:' + "\n"
+        template += '    default: "' + self.private_sub_network_id + '"' + "\n"
+        template += '    description: "Private sub network ID"' + "\n"
+        template += '    type: string' + "\n"
+        template += '  public_net_id:' + "\n"
+        template += '    default: "' + self.public_network_id + '"' + "\n"
+        template += '    description: "Public network ID"' + "\n"
+        template += '    type: string' + "\n"
+        template += '  public_subnet_id:' + "\n"
+        template += '    default: "' + self.public_sub_network_id + '"' + "\n"
+        template += '    description: "Public sub network ID"' + "\n"
+        template += '    type: string' + "\n"
+        template += "resources:" + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += '#                         DATABASE / STORING RESOURCES                             #' + "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
-        template += "\n"
-        template += '#  dbaas_trove_instance:' + "\n"
-        template += '#    Type: OS::Trove::Instance' + "\n"
-        template += '#    Properties:' + "\n"
-        template += '#      databases: [{"character_set": utf8, "name": DSSaaS, "collate": utf8_general_ci}]' + "\n"
-        template += '#      flavor: m1.small' + "\n"
-        template += '#      name: dbaas_trove_instance' + "\n"
-        template += '#      size: 2' + "\n"
-        template += '#      users: [{"password": changeme, "name": user, "databases": [DSSaaS]}]' + "\n"
-        template += "\n"
         template += '  dbaas_server:' + "\n"
-        template += '    Type: OS::Nova::Server' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      key_name: ' + self.key_name + "\n"
         template += '      name: dss_dbaas_server' + "\n"
         template += '      flavor: m1.small' + "\n"
         template += '      image: ' + self.dss_db_image_name + "\n"
         template += '      networks:' + "\n"
-        template += '        - port: { Ref : dbaas_server_port }' + "\n"
+        template += '        - ' + "\n"
+        template += '          port: ' + "\n"
+        template += '            Ref: dbaas_server_port' + "\n"
         template += '      user_data: |' + "\n"
         template += "        #!/bin/bash" + "\n"
         template += "        sed -i.bak s/dss-cms/`hostname`/g /etc/hosts" + "\n"
+        template += '    type: "OS::Nova::Server"' + "\n"
         template += "\n"
-        template += "  dbaas_server_port:" + "\n"             
-        template += "    Type: OS::Neutron::Port" + "\n"             
-        template += "    Properties:" + "\n"             
-        template += '      network_id: "' + self.private_network_id + '"' + "\n"             
-        template += "      fixed_ips:" + "\n"             
-        template += '        - subnet_id: "' + self.private_sub_network_id + '"' + "\n"
+        template += "  dbaas_server_port:" + "\n"
+        template += "    properties:" + "\n"
+        template += '      network_id: ' + "\n"
+        template += '        get_param: private_net_id' + "\n"
+        template += "      fixed_ips:" + "\n"
+        template += '        - ' + "\n"
+        template += '          subnet_id: ' + "\n"
+        template += '            get_param: private_subnet_id' + "\n"
         template += '      replacement_policy: AUTO' + "\n"
-        
+        template += '    type: "OS::Neutron::Port"' + "\n"
+
         for item in self.cms_instances:
             template += "\n"
             template += self.getBaseCmsTemplate(item["host_name"], item["device_name"])
@@ -285,24 +353,33 @@ class TemplateGenerator:
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += "\n"
         template += '  cms_healthmonitor:' + "\n"
-        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      delay : 10' + "\n"
         template += '      max_retries : 3' + "\n"
         template += '      timeout : 10' + "\n"
         template += '      type : HTTP' + "\n"
         template += '      url_path : /WebAppDSS/' + "\n"
-        template += '      expected_codes : 200-399'
+        template += '      expected_codes : 200-399' + "\n"
+        template += '    type: "OS::Neutron::HealthMonitor"' + "\n"
         template += "\n"
         template += '  cms_lb_pool:' + "\n"
-        template += '    Type: OS::Neutron::Pool' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      lb_method: ROUND_ROBIN' + "\n"
         template += '      name: cmspool' + "\n"
         template += '      protocol: HTTP' + "\n"
-        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
-        template += '      monitors : [{ Ref: cms_healthmonitor }]' + "\n"
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": cmsvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+        template += '      subnet_id:' + "\n"
+        template += '        get_param: private_subnet_id' + "\n"
+        template += '      monitors:' + "\n"
+        template += '        -' + "\n"
+        template += '          Ref: cms_healthmonitor' + "\n"
+        template += '      vip:' + "\n"
+        template += '        subnet:' + "\n"
+        template += '          get_param: private_subnet_id' + "\n"
+        template += '        name: cmsvip' + "\n"
+        template += '        protocol_port: 80' + "\n"
+        template += '        session_persistence:' + "\n"
+        template += '          type: HTTP_COOKIE' + "\n"
+        template += '    type: "OS::Neutron::Pool"' + "\n"
         template += "\n"
 
         if self.new_cms_lb_needed:
@@ -310,23 +387,28 @@ class TemplateGenerator:
         self.new_cms_lb_needed = False
 
         template += '  ' + self.cms_lb_name + '_loadbalancer:' + "\n"
-        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      members: [ '
-
-        template += '{ Ref: ' + self.cms_instances[0]["device_name"] +' }'
+        template += '    properties:' + "\n"
+        template += '      members:' + "\n"
+        template += '        -' + "\n"
+        template += '          Ref: ' + self.cms_instances[0]["device_name"] + "\n"
         for i in range(1, len(self.cms_instances)):
-            template += ', { Ref: ' + self.cms_instances[i]["device_name"] +' }'
-
-        template += ' ]' + "\n"
-        template += '      pool_id: { Ref: cms_lb_pool }' + "\n"
+            template += '        -' + "\n"
+            template += '          Ref: ' + self.cms_instances[i]["device_name"] + "\n"
+        template += '      pool_id:' + "\n"
+        template += '        Ref: cms_lb_pool' + "\n"
         template += '      protocol_port: 80' + "\n"
+        template += '    type: "OS::Neutron::LoadBalancer"' + "\n"
         template += "\n"
         template += '  cms_lb_floatingip:' + "\n"
-        template += '    Type: OS::Neutron::FloatingIP' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
-        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ cms_lb_pool, vip ] } ] }" + "\n"
+        template += '    properties:' + "\n"
+        template += '      floating_network_id:' + "\n"
+        template += '        get_param: public_net_id' + "\n"
+        template += '      port_id: ' + "\n"
+        template += '        get_attr: ' + "\n"
+        template += '          - cms_lb_pool' + "\n"
+        template += '          - vip' + "\n"
+        template += '          - port_id' + "\n"
+        template += '    type: "OS::Neutron::FloatingIP"' + "\n"
 
         template += "\n"
         template += '# -------------------------------------------------------------------------------- #' + "\n"
@@ -334,24 +416,33 @@ class TemplateGenerator:
         template += '# -------------------------------------------------------------------------------- #' + "\n"
         template += "\n"
         template += '  mcr_healthmonitor:' + "\n"
-        template += '    Type: OS::Neutron::HealthMonitor' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      delay : 10' + "\n"
         template += '      max_retries : 3' + "\n"
         template += '      timeout : 10' + "\n"
         template += '      type : HTTP' + "\n"
         template += '      url_path : /DSSMCRAPI/' + "\n"
-        template += '      expected_codes : 200-399'
+        template += '      expected_codes : 200-399' + "\n"
+        template += '    type: "OS::Neutron::HealthMonitor"' + "\n"
         template += "\n"
         template += '  mcr_lb_pool:' + "\n"
-        template += '    Type: OS::Neutron::Pool' + "\n"
-        template += '    Properties:' + "\n"
+        template += '    properties:' + "\n"
         template += '      lb_method: ROUND_ROBIN' + "\n"
         template += '      name: mcrpool' + "\n"
         template += '      protocol: HTTP' + "\n"
-        template += '      subnet_id: "' + self.private_sub_network_id + '"' + "\n"
-        template += '      monitors : [{ Ref: mcr_healthmonitor }]' + "\n"
-        template += '      vip : {"subnet": "' + self.private_sub_network_id + '", "name": mcrvip, "protocol_port": 80, "session_persistence":{"type": HTTP_COOKIE }}' + "\n"
+        template += '      subnet_id:' + "\n"
+        template += '        get_param: private_subnet_id' + "\n"
+        template += '      monitors:' + "\n"
+        template += '        -' + "\n"
+        template += '          Ref: mcr_healthmonitor' + "\n"
+        template += '      vip:' + "\n"
+        template += '        subnet:' + "\n"
+        template += '          get_param: private_subnet_id' + "\n"
+        template += '        name: mcrvip' + "\n"
+        template += '        protocol_port: 80' + "\n"
+        template += '        session_persistence:' + "\n"
+        template += '          type: HTTP_COOKIE' + "\n"
+        template += '    type: "OS::Neutron::Pool"' + "\n"
         template += "\n"
 
         if self.new_mcr_lb_needed:
@@ -359,32 +450,37 @@ class TemplateGenerator:
         self.new_mcr_lb_needed = False
 
         template += '  ' + self.mcr_lb_name + '_loadbalancer:' + "\n"
-        template += '    Type: OS::Neutron::LoadBalancer' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      members: [ '
-
-        template += '{ Ref: ' + self.mcr_instances[0]["device_name"] +' }'
+        template += '    properties:' + "\n"
+        template += '      members:' + "\n"
+        template += '        -' + "\n"
+        template += '          Ref: ' + self.mcr_instances[0]["device_name"] + "\n"
         for i in range(1, len(self.mcr_instances)):
-            template += ', { Ref: ' + self.mcr_instances[i]["device_name"] +' }'
-
-        template += ' ]' + "\n"
-        template += '      pool_id: { Ref: mcr_lb_pool }' + "\n"
+            template += '        -' + "\n"
+            template += '          Ref: ' + self.mcr_instances[i]["device_name"] + "\n"
+        template += '      pool_id: ' + "\n"
+        template += '        Ref: mcr_lb_pool' + "\n"
         template += '      protocol_port: 80' + "\n"
+        template += '    type: "OS::Neutron::LoadBalancer"' + "\n"
         template += "\n"
         template += '  mcr_lb_floatingip:' + "\n"
-        template += '    Type: OS::Neutron::FloatingIP' + "\n"
-        template += '    Properties:' + "\n"
-        template += '      floating_network_id: "' + self.public_network_id + '"' + "\n" #Change this for local testbed
-        template += "      port_id: {'Fn::Select' : ['port_id', { 'Fn::GetAtt': [ mcr_lb_pool, vip ] } ] }" + "\n"
+        template += '    properties:' + "\n"
+        template += '      floating_network_id:' + "\n"
+        template += '        get_param: public_net_id' + "\n"
+        template += '      port_id: ' + "\n"
+        template += '        get_attr: ' + "\n"
+        template += '          - mcr_lb_pool' + "\n"
+        template += '          - vip' + "\n"
+        template += '          - port_id' + "\n"
+        template += '    type: "OS::Neutron::FloatingIP"' + "\n"
         template += "\n"
         template += self.getOutput()
-        
+
         '''
         self.jsonfile = open(''+'testtemp.yaml', 'w')
         self.jsonfile.write(template)
         self.jsonfile.close()
         '''
-        
+
         return template
 
     def scaleOut(self, instance_type, count=1):
