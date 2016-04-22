@@ -58,6 +58,8 @@ class TemplateGenerator:
         self.scaleOut("cms", self.initial_cms_count)
         self.scaleOut("mcr", self.initial_mcr_count)
 
+        self.added_sics = []
+
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
 
@@ -484,14 +486,13 @@ class TemplateGenerator:
         return template
 
     def scaleOut(self, instance_type, count=1):
-        added_sics = []
         if instance_type == "cms":
             for i in range(0, count):
                 if self.numberOfCmsInstances < self.cms_scaleout_limit:
                     self.numberOfCmsInstances += 1
                     hostname, device_name = self.getBaseName(instance_type=instance_type)
                     self.cms_instances.append({"device_name": device_name, "host_name": hostname})
-                    added_sics.append({"device_name": device_name, "host_name": hostname})
+                    self.added_sics.append({"device_name": device_name, "host_name": hostname})
                     self.new_cms_lb_needed = True
                 else:
                     print "CMS scale out limit reached."
@@ -502,12 +503,12 @@ class TemplateGenerator:
                     self.numberOfMcrInstances += 1
                     hostname, device_name = self.getBaseName(instance_type=instance_type)
                     self.mcr_instances.append({"device_name": device_name, "host_name": hostname})
-                    added_sics.append({"device_name": device_name, "host_name": hostname})
+                    self.added_sics.append({"device_name": device_name, "host_name": hostname})
                     self.new_mcr_lb_needed = True
                 else:
                     print "MCR scale out limit reached."
                     break
-        return added_sics
+        return self.added_sics
 
     # TODO: Check if you can write it simpler
     # TODO: If needed add multiple host removal feature
@@ -557,6 +558,15 @@ class TemplateGenerator:
                     print "Can not remove all MCR instances, scale out first."
                     break
         return removed_sics
+
+    def is_new_instance(self, hostname):
+        for item in self.added_sics:
+            if item["hostname"] == hostname:
+                return True
+        return False
+
+    def clean_new_instance_list(self):
+        self.added_sics[:] = []
 
 if __name__ == '__main__':
     mytemp = TemplateGenerator()

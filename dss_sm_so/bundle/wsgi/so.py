@@ -516,22 +516,37 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         LOG.debug(self.swComponent + ' ' + "Update successful")
         LOG.debug(self.swComponent + ' ' + "Check config stat of instances")
 
+        newcomers = []
+        for item in listOfAllServers:
+            if self.so_e.templateManager.is_new_instance(item["hostname"]) or item["output_key"] in self.ignored_keys:
+                newcomers.append(item)
+        self.so_e.templateManager.clean_new_instance_list()
+
+        try:
+            for item in newcomers:
+                if item["output_key"] not in self.ignored_keys:
+                    first_newcomer_in_list = item["hostname"]
+                    break
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + "No new comers found, are you sure everything is OK? Just sayin'")
+
         # Talking to DSS SIC agents to get the configuration status of each# Pushing local configurations to DSS SICs
         localConfig_status = 0
         while localConfig_status != 1:
-            localConfig_status, localConfig_msg = self.performLocalConfig()
+            localConfig_status, localConfig_msg = self.configure.performLocalConfig(newcomers)
             LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
             LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
             if localConfig_msg != 'all_ok':
-                if localConfig_msg == self.agent_timedout:
+                if localConfig_msg == self.configure.agent_timedout:
                     LOG.debug(self.swComponent + ' ' + "SIC Agent unreachable - Deployment Failed")
-                    return -2, 'Change it to return failed hostname'#checkList[item]["hostname"]
-                elif localConfig_msg == self.db_failed_msg:
+                    return -2, first_newcomer_in_list # We send back the first new comer we find in the list as the faulty one
+                elif localConfig_msg == self.configure.db_failed_msg:
                     LOG.debug(self.swComponent + ' ' + "DB unreachable - Deployment Failed")
                     return -3, 'DB'
-        # Another problem, we have to mon config them by hostname
-        #LOG.debug(self.swComponent + ' ' + 'instance ' + item + ' configured successfully')
-        #self.configure.SICMonConfig(checkList[item]["hostname"], item)
+
+        for item in newcomers:
+            if item["output_key"] not in self.ignored_keys:
+                self.configure.SICMonConfig(item["hostname"], item["ep"])
         return 0, 'OK'
 
     # Updates the decision map according to the triggered triggers :-)
@@ -647,10 +662,17 @@ class SOConfigure(threading.Thread):
                 LOG.debug(self.swComponent + ' ' + "Adios nube!")
                 return
 
+        result = -1
+        while (result < 0):
+            result, self.instances = self.so_e.getServerInfo()
+            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
+            time.sleep(0.5)
+        #TODO: What would you do if at this point we get stuck? if you made it up to here 90% u're good
+
         # Pushing local configurations to DSS SICs
         localConfig_status = 0
         while localConfig_status != 1:
-            localConfig_status, localConfig_msg = self.performLocalConfig()
+            localConfig_status, localConfig_msg = self.performLocalConfig(self.instances)
             LOG.debug(self.swComponent + ' ' + "Config status is: " + str(localConfig_status))
             LOG.debug(self.swComponent + ' ' + "Config message is: " + str(localConfig_msg))
             if localConfig_msg != 'all_ok':
@@ -666,6 +688,8 @@ class SOConfigure(threading.Thread):
                 # Monitoring has not even started yet
                 LOG.debug(self.swComponent + ' ' + "Adios nube!")
                 return
+
+        self.so_e.templateManager.clean_new_instance_list()
 
         # Creating a monitor for pulling MaaS information
         # We need it here because we need all teh custome items and everything configured before doing it
@@ -758,20 +782,14 @@ class SOConfigure(threading.Thread):
 
         LOG.debug(self.swComponent + ' ' + "Exiting the loop to push dns domain names for all instances")
 
-    def performLocalConfig(self):
-        result = -1
-        while (result < 0):
-            result, self.instances = self.so_e.getServerInfo()
-            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
-            time.sleep(0.5)
-
+    def performLocalConfig(self, list_of_instances):
         LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
         #Publish DB config messages to broker
         self.send_count = 0
-        for item in self.instances:
+        for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
-                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"], self.instances)
+                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"])
                 if dbconfig_status == 0:
                     return dbconfig_status, status_msg
                 self.send_count += 1
@@ -794,10 +812,10 @@ class SOConfigure(threading.Thread):
 
         #Publish SIC provision messages to broker
         self.send_count = 0
-        for item in self.instances:
+        for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
-                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"], self.instances)
+                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"], list_of_instances)
                 if provision_status == 0:
                     return provision_status, status_msg
                 self.send_count += 1
@@ -821,7 +839,7 @@ class SOConfigure(threading.Thread):
         LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
         #Publish JSON config messages to broker
         self.send_count = 0
-        for item in self.instances:
+        for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
                 json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"])
@@ -848,7 +866,7 @@ class SOConfigure(threading.Thread):
         return 1, 'all_ok'
 
     # Configures all the things SIC needs to attach to DBaaS
-    def configureInstanceDB(self, target_ip, target_hostname, all_sic_info):
+    def configureInstanceDB(self, target_ip, target_hostname):
         # We don't declare the queue here, SICs later should do it and bind to SO exchange
         # Here we just publish required message to already defined exchange
         # Publish message for DB config
