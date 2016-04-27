@@ -816,7 +816,7 @@ class SOConfigure(threading.Thread):
                 self.send_count += 1
 
         timeout_counter = 0
-        max_retry = 30 # Messaging service timeout is 10 seconds, 30 makes us wait 5 minutes before reporting failure
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
             self.consume_timedout = True
             LOG.debug(self.swComponent + ' ' + "Consumption started ...")
@@ -847,7 +847,7 @@ class SOConfigure(threading.Thread):
                 self.send_count += 1
 
         timeout_counter = 0
-        max_retry = 30 # Messaging service timeout is 10 seconds, 30 makes us wait 5 minutes before reporting failure
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
             LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
             LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
@@ -881,7 +881,7 @@ class SOConfigure(threading.Thread):
                 self.send_count += 3
 
         timeout_counter = 0
-        max_retry = 30 # Messaging service timeout is 10 seconds, 300 makes us wait 5 minutes before reporting failure
+        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
             LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
             LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
