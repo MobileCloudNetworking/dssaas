@@ -713,7 +713,15 @@ class SOConfigure(threading.Thread):
         LOG.debug(self.swComponent + ' ' + "Response received " + str(data))
         if "'result':'OK'" in data:
             self.rec_count += 1
-            self.consume_timedout = False
+            if self.rec_count >= self.send_count:
+                LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+                LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
+                LOG.debug(self.swComponent + ' ' + "Received all config responses, ready to proceed")
+                self.consume_timedout = False
+                self.so_mqs.channel.stop_consuming()
+            else:
+                LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+                LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
 
     def getDbEndpoint(self):
         result = -1
@@ -815,24 +823,14 @@ class SOConfigure(threading.Thread):
                     return dbconfig_status, status_msg
                 self.send_count += 1
 
-        timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
-        while self.send_count > self.rec_count:
-            self.consume_timedout = True
-            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-            if self.consume_timedout:
-                timeout_counter += 1
-            else:
-                timeout_counter = 0
-            if timeout_counter > max_retry:
-                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-                return 0, self.agent_timedout
-            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
-            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
-            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
+        self.consume_timedout = True
+        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+        if self.consume_timedout:
+            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+            return 0, self.agent_timedout
 
         self.rec_count = 0
 
@@ -846,26 +844,14 @@ class SOConfigure(threading.Thread):
                     return provision_status, status_msg
                 self.send_count += 1
 
-        timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
-        while self.send_count > self.rec_count:
-            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
-            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
-            self.consume_timedout = True
-            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-            if self.consume_timedout:
-                timeout_counter += 1
-            else:
-                timeout_counter = 0
-            if timeout_counter > max_retry:
-                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-                return 0, self.agent_timedout
-            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
-            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
-            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
+        self.consume_timedout = True
+        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+        if self.consume_timedout:
+            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+            return 0, self.agent_timedout
 
         self.rec_count = 0
 
@@ -880,26 +866,14 @@ class SOConfigure(threading.Thread):
                     return json_publish_status, status_msg
                 self.send_count += 3
 
-        timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
-        while self.send_count > self.rec_count:
-            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
-            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
-            self.consume_timedout = True
-            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-            self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-            if self.consume_timedout:
-                timeout_counter += 1
-            else:
-                timeout_counter = 0
-            if timeout_counter > max_retry:
-                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-                return 0, self.agent_timedout
-            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
-            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
-            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
+        self.consume_timedout = True
+        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+        if self.consume_timedout:
+            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+            return 0, self.agent_timedout
 
         self.send_count = 0
         self.rec_count = 0

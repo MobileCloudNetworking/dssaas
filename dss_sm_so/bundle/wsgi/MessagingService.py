@@ -31,7 +31,7 @@ class MessagingService(object):
         self.so_queue_name = 'so_queue'
         self.so_queue_routing_key = 'ack_so'
 
-        self.wait_time = 5 # Seconds
+        self.wait_time = 300 # Seconds
 
         self.credentials = pika.PlainCredentials(self.userMQ, self.passMQ)
         self.connection = None
