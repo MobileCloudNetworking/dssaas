@@ -1,5 +1,5 @@
 '''''''''
-#Template Generator for scaling purposes
+# DSS Template Generator
 '''''''''
 import string
 import random
@@ -34,6 +34,7 @@ class TemplateGenerator:
 
         self.mq_service_user = 'adminRabbit'
         self.mq_service_pass = '******'
+        self.mq_service_port = '8384'
 
         self.cms_scaleout_limit = 4
         self.mcr_scaleout_limit = 4
@@ -41,6 +42,7 @@ class TemplateGenerator:
         # Content format: [{"device_name":"cms1_server", "host_name":"cms1_server_1451992360"}, ...]
         self.cms_instances = []
         self.mcr_instances = []
+        self.added_sics = []
 
         self.initial_cms_count = 2
         self.initial_mcr_count = 2
@@ -57,8 +59,6 @@ class TemplateGenerator:
 
         self.scaleOut("cms", self.initial_cms_count)
         self.scaleOut("mcr", self.initial_mcr_count)
-
-        self.added_sics = []
 
     def randomNameGenerator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
@@ -561,7 +561,7 @@ class TemplateGenerator:
 
     def is_new_instance(self, hostname):
         for item in self.added_sics:
-            if item["hostname"] == hostname:
+            if item["host_name"] == hostname:
                 return True
         return False
 

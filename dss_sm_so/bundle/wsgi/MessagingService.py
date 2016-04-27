@@ -17,10 +17,10 @@ def config_logger(log_level=logging.DEBUG):
 LOG = config_logger()
 
 class MessagingService(object):
-    def __init__(self, configModule, epMQ = 'localhost', portMQ = 0 ,userMQ = 'adminRabbit', passMQ = '******'):
+    def __init__(self, configModule, epMQ = 'localhost', portMQ = '0' ,userMQ = 'test', passMQ = 'test'):
         self.swComponent = 'SO-Messaging'
 
-        self.portMQ = portMQ
+        self.portMQ = int(portMQ)
         self.epMQ = epMQ
         self.userMQ = userMQ
         self.passMQ = passMQ
@@ -31,7 +31,7 @@ class MessagingService(object):
         self.so_queue_name = 'so_queue'
         self.so_queue_routing_key = 'ack_so'
 
-        self.wait_time = 5 # Seconds
+        self.wait_time = 10 # Seconds
 
         self.credentials = pika.PlainCredentials(self.userMQ, self.passMQ)
         self.connection = None
@@ -44,8 +44,9 @@ class MessagingService(object):
             self.connection = pika.BlockingConnection(
                     pika.ConnectionParameters(
                         host=self.epMQ,
+                        port=self.portMQ,
                         credentials=self.credentials))
-            self.connection.add_timeout(self.wait_time, self.stop_listening)
+            #self.connection.add_timeout(self.wait_time, self.stop_listening)
             self.channel = self.connection.channel()
 
             self.channel.exchange_declare(exchange=self.exchange_name,
@@ -62,6 +63,9 @@ class MessagingService(object):
         if self.connection is not None:
             self.connection.close()
 
+    def reconnect(self):
+        self.connect_to_mq()
+
     # Declares a new message queue
     def declare_queue(self, queue_name, durable=True):
         try:
@@ -70,6 +74,16 @@ class MessagingService(object):
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
             return 0
+
+    # Declares a message queue in passive mode to check if queue exists or not
+    def queue_exists(self, queue_name):
+        try:
+            self.channel.queue_declare(queue=queue_name, passive=True)
+            return 1# means queue is not there
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + str(e))
+            self.reconnect()
+            return 0# means queue is already there
 
     # Binds a message queue to and exchange
     def bind_queue(self, queue_name, exchange_name, routing_key=''):
@@ -97,7 +111,6 @@ class MessagingService(object):
     def msg_received(self, ch, method, properties, body):
         # TODO: Check if its config ok message
         self.so_config.notify_msg_receive(body)
-        self.channel.stop_consuming()
 
     def stop_listening(self):
         LOG.debug(self.swComponent + ' ' + str(self.wait_time) + ' seconds of waiting, Timeout reached')

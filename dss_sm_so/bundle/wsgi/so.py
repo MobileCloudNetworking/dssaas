@@ -70,6 +70,9 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
         self.update_start = 0
         self.update_end = 0
 
+        self.none_host_keys = ["mcn.dss.cms.lb.endpoint", "mcn.dss.mcr.lb.endpoint", "mcn.dss.db.endpoint",
+                             "mcn.endpoint.dssaas", "mcn.dss.mq.endpoint"]
+
         # make sure we can talk to deployer...
         LOG.debug(self.swComponent + ' ' + 'Make sure we can talk to deployer...')
         LOG.debug("About to get the deployer with token :" + str(self.token + " Tenant name : " + self.tenant_name))
@@ -217,7 +220,7 @@ class ServiceOrchestratorExecution(service_orchestrator.Execution):
                     serverInfo = []
                     for i in range(0 ,len(tmp["output"])):
                         output_key = tmp["output"][i]["output_key"]
-                        if output_key == "mcn.dss.mcr.lb.endpoint" or output_key == "mcn.dss.cms.lb.endpoint" or output_key == "mcn.dss.db.endpoint" or output_key == "mcn.endpoint.dssaas":
+                        if output_key in self.none_host_keys:
                             if "hostname" not in output_key:
                                 serverInfo.append({"output_key": output_key, "ep": tmp["output"][i]["output_value"], "hostname": "-"})
                         elif "hostname" not in output_key:
@@ -404,7 +407,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     self.lastCmsScale = time.time()
                     removed_hosts = self.so_e.templateManager.scaleIn("cms")
                     for hostname in removed_hosts:
-                        self.configure.monitor.removeWebScenarioFromWSList(hostname.replace("_","-"))
+                        self.configure.monitor.removeWebScenarioFromWSList(hostname)
                     self.numberOfCmsScaleOutsPerformed -= 1
                     scaleTriggered = True
                     LOG.debug(self.swComponent + ' ' + "IN CMS scaleIn")
@@ -598,6 +601,7 @@ class SOConfigure(threading.Thread):
         self.ignored_keys = ["mcn.dss.cms.lb.endpoint", "mcn.dss.mcr.lb.endpoint", "mcn.dss.db.endpoint", "mcn.endpoint.dssaas", "mcn.dss.mq.endpoint"]
 
         self.db_failed_msg = "DATABSE FAILURE"
+        self.dss_instance_mq_failed = "DSS INSTANCE FAILED TO CONFIGURE MQ SERVICE"
         self.dss_instance_failed_msg = "DSS INSTANCE FAILED"
         self.dss_mq_service_failed_msg = "DSS MESSAGE QUEUE SERVICE FAILED"
         self.agent_timedout = "DSS INSTANCE AGENT FAILED TO RESPOND ON TIME"
@@ -640,13 +644,14 @@ class SOConfigure(threading.Thread):
 
         # Get the DB endpoint from stack output
         # In this function we also make sure our stack creation is done
-        self.getDbEndpoint()
+        self.db_endpoint = self.getDbEndpoint()
         # Get the MQ Service endpoint from stack output
         # In this function we also make sure our stack creation is done
-        self.getMQServiceEndpoint()
+        self.mq_service_endpoint = self.getMQServiceEndpoint()
         #TODO: What would you do if at this point stack creation fails? Needs some checks here too
-
-        self.so_mqs = MessagingService()
+        LOG.debug(self.swComponent + ' ' + "MQ EP is: " + str(self.mq_service_endpoint))
+        self.so_mqs = MessagingService(self, epMQ = self.mq_service_endpoint, portMQ = self.so_e.templateManager.mq_service_port,
+                                       userMQ = self.so_e.templateManager.mq_service_user, passMQ = self.so_e.templateManager.mq_service_pass)
         mq_reachable = False
         try_to_reach_mq = 0
         max_retry = self.max_retry_count * self.timeout# 30 * 10 * 1 = 5 minutes
@@ -662,11 +667,11 @@ class SOConfigure(threading.Thread):
                 LOG.debug(self.swComponent + ' ' + "Adios nube!")
                 return
 
-        result = -1
-        while (result < 0):
-            result, self.instances = self.so_e.getServerInfo()
-            LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
-            time.sleep(0.5)
+        #result = -1
+        #while (result < 0):
+        #    result, self.instances = self.so_e.getServerInfo()
+        #    LOG.debug(self.swComponent + ' ' + "In while: " + str(result) + " , " + str(self.instances))
+        #    time.sleep(0.5)
         #TODO: What would you do if at this point we get stuck? if you made it up to here 90% u're good
 
         # Pushing local configurations to DSS SICs
@@ -705,8 +710,10 @@ class SOConfigure(threading.Thread):
 
     def notify_msg_receive(self, data):
         #TODO: process the data and act accordingly
-        self.rec_count += 1
-        self.consume_timedout = False
+        LOG.debug(self.swComponent + ' ' + "Response received " + str(data))
+        if "'result':'OK'" in data:
+            self.rec_count += 1
+            self.consume_timedout = False
 
     def getDbEndpoint(self):
         result = -1
@@ -718,7 +725,7 @@ class SOConfigure(threading.Thread):
         #WAIT FOR FINISHING THE DEPLOYMENT
         for item in self.instances:
             if item["output_key"] == "mcn.dss.db.endpoint":
-                self.db_endpoint = item["ep"]
+                return item["ep"]
 
     def getMQServiceEndpoint(self):
         result = -1
@@ -730,7 +737,7 @@ class SOConfigure(threading.Thread):
         #WAIT FOR FINISHING THE DEPLOYMENT
         for item in self.instances:
             if item["output_key"] == "mcn.dss.mq.endpoint":
-                self.mq_service_endpoint = item["ep"]
+                return item["ep"]
 
     def performDNSConfig(self):
         result = -1
@@ -789,16 +796,33 @@ class SOConfigure(threading.Thread):
         for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
-                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"])
+                queue_exists = 0
+                timeout_counter = 0
+                max_retry = 300
+                while queue_exists != 1:
+                    queue_exists = self.so_mqs.queue_exists(item["hostname"].replace("_","-"))
+                    LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
+                    time.sleep(1)
+                    timeout_counter += 1
+                    if timeout_counter > max_retry:
+                        LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                        return 0, self.agent_timedout
+                LOG.debug(self.swComponent + ' ' + "Declaring queue for host " + item["hostname"].replace("_","-"))
+                self.so_mqs.declare_queue(item["hostname"].replace("_","-"))
+                self.so_mqs.bind_queue(item["hostname"].replace("_","-"), self.so_mqs.exchange_name, item["hostname"].replace("_","-"))
+                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"].replace("_","-"))
                 if dbconfig_status == 0:
                     return dbconfig_status, status_msg
                 self.send_count += 1
 
         timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        max_retry = 30 # Messaging service timeout is 10 seconds, 30 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
             self.consume_timedout = True
+            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
             self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
             if self.consume_timedout:
                 timeout_counter += 1
             else:
@@ -806,8 +830,10 @@ class SOConfigure(threading.Thread):
             if timeout_counter > max_retry:
                 LOG.debug(self.swComponent + ' ' + self.agent_timedout)
                 return 0, self.agent_timedout
+            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
+            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
 
-        self.send_count = 0
         self.rec_count = 0
 
         #Publish SIC provision messages to broker
@@ -815,16 +841,21 @@ class SOConfigure(threading.Thread):
         for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
-                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"], list_of_instances)
+                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"].replace("_","-"), list_of_instances)
                 if provision_status == 0:
                     return provision_status, status_msg
                 self.send_count += 1
 
         timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        max_retry = 30 # Messaging service timeout is 10 seconds, 30 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
+            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
             self.consume_timedout = True
+            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
             self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
             if self.consume_timedout:
                 timeout_counter += 1
             else:
@@ -832,8 +863,10 @@ class SOConfigure(threading.Thread):
             if timeout_counter > max_retry:
                 LOG.debug(self.swComponent + ' ' + self.agent_timedout)
                 return 0, self.agent_timedout
+            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
+            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
 
-        self.send_count = 0
         self.rec_count = 0
 
         LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
@@ -842,16 +875,21 @@ class SOConfigure(threading.Thread):
         for item in list_of_instances:
             time.sleep(0.1)
             if item["output_key"] not in self.ignored_keys:
-                json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"])
+                json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"].replace("_","-"))
                 if json_publish_status == 0:
                     return json_publish_status, status_msg
-                self.send_count += 1
+                self.send_count += 3
 
         timeout_counter = 0
-        max_retry = 60 # Messaging service timeout is 5 seconds, 60 makes us wait 5 minutes before reporting failure
+        max_retry = 30 # Messaging service timeout is 10 seconds, 300 makes us wait 5 minutes before reporting failure
         while self.send_count > self.rec_count:
+            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
             self.consume_timedout = True
+            LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+            self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
             self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+            LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
             if self.consume_timedout:
                 timeout_counter += 1
             else:
@@ -859,6 +897,9 @@ class SOConfigure(threading.Thread):
             if timeout_counter > max_retry:
                 LOG.debug(self.swComponent + ' ' + self.agent_timedout)
                 return 0, self.agent_timedout
+            LOG.debug(self.swComponent + ' ' + "Send count: " + str(self.send_count))
+            LOG.debug(self.swComponent + ' ' + "Rec count: " + str(self.rec_count))
+            LOG.debug(self.swComponent + ' ' + "Restart consumption again ...")
 
         self.send_count = 0
         self.rec_count = 0
