@@ -799,86 +799,93 @@ class SOConfigure(threading.Thread):
 
     def performLocalConfig(self, list_of_instances):
         LOG.debug(self.swComponent + ' ' + "Entering the loop to provision each instance ...")
-        #Publish DB config messages to broker
-        self.send_count = 0
-        for item in list_of_instances:
-            time.sleep(0.1)
-            if item["output_key"] not in self.ignored_keys:
-                queue_exists = 0
-                timeout_counter = 0
-                max_retry = 300
-                while queue_exists != 1:
-                    queue_exists = self.so_mqs.queue_exists(item["hostname"].replace("_","-"))
-                    LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
-                    time.sleep(1)
-                    timeout_counter += 1
-                    if timeout_counter > max_retry:
+        while True:
+            try:
+                #Publish DB config messages to broker
+                self.send_count = 0
+                for item in list_of_instances:
+                    time.sleep(0.1)
+                    if item["output_key"] not in self.ignored_keys:
+                        queue_exists = 0
+                        timeout_counter = 0
+                        max_retry = 300
+                        while queue_exists != 1:
+                            queue_exists = self.so_mqs.queue_exists(item["hostname"].replace("_","-"))
+                            LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
+                            time.sleep(1)
+                            timeout_counter += 1
+                            if timeout_counter > max_retry:
+                                LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                                return 0, self.agent_timedout
+                        LOG.debug(self.swComponent + ' ' + "Declaring queue for host " + item["hostname"].replace("_","-"))
+                        self.so_mqs.declare_queue(item["hostname"].replace("_","-"))
+                        self.so_mqs.bind_queue(item["hostname"].replace("_","-"), self.so_mqs.exchange_name, item["hostname"].replace("_","-"))
+                        dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"].replace("_","-"))
+                        if dbconfig_status == 0:
+                            return dbconfig_status, status_msg
+                        self.send_count += 1
+                if self.send_count > 0:
+                    self.consume_timedout = True
+                    LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+                    self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+                    self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+                    LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+                    if self.consume_timedout:
                         LOG.debug(self.swComponent + ' ' + self.agent_timedout)
                         return 0, self.agent_timedout
-                LOG.debug(self.swComponent + ' ' + "Declaring queue for host " + item["hostname"].replace("_","-"))
-                self.so_mqs.declare_queue(item["hostname"].replace("_","-"))
-                self.so_mqs.bind_queue(item["hostname"].replace("_","-"), self.so_mqs.exchange_name, item["hostname"].replace("_","-"))
-                dbconfig_status, status_msg = self.configureInstanceDB(item["ep"], item["hostname"].replace("_","-"))
-                if dbconfig_status == 0:
-                    return dbconfig_status, status_msg
-                self.send_count += 1
 
-        self.consume_timedout = True
-        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-        if self.consume_timedout:
-            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-            return 0, self.agent_timedout
+                self.rec_count = 0
 
-        self.rec_count = 0
+                #Publish SIC provision messages to broker
+                self.send_count = 0
+                for item in list_of_instances:
+                    time.sleep(0.1)
+                    if item["output_key"] not in self.ignored_keys:
+                        provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"].replace("_","-"), list_of_instances)
+                        if provision_status == 0:
+                            return provision_status, status_msg
+                        self.send_count += 1
 
-        #Publish SIC provision messages to broker
-        self.send_count = 0
-        for item in list_of_instances:
-            time.sleep(0.1)
-            if item["output_key"] not in self.ignored_keys:
-                provision_status, status_msg = self.provisionInstance(item["ep"], item["hostname"].replace("_","-"), list_of_instances)
-                if provision_status == 0:
-                    return provision_status, status_msg
-                self.send_count += 1
+                if self.send_count > 0:
+                    self.consume_timedout = True
+                    LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+                    self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+                    self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+                    LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+                    if self.consume_timedout:
+                        LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                        return 0, self.agent_timedout
 
-        self.consume_timedout = True
-        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-        if self.consume_timedout:
-            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-            return 0, self.agent_timedout
+                self.rec_count = 0
 
-        self.rec_count = 0
+                LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
+                #Publish JSON config messages to broker
+                self.send_count = 0
+                for item in list_of_instances:
+                    time.sleep(0.1)
+                    if item["output_key"] not in self.ignored_keys:
+                        json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"].replace("_","-"))
+                        if json_publish_status == 0:
+                            return json_publish_status, status_msg
+                        self.send_count += 3
 
-        LOG.debug(self.swComponent + ' ' + "Entering the loop to create JSON config file for each instance ...")
-        #Publish JSON config messages to broker
-        self.send_count = 0
-        for item in list_of_instances:
-            time.sleep(0.1)
-            if item["output_key"] not in self.ignored_keys:
-                json_publish_status, status_msg = self.configInstance(item["ep"], item["hostname"].replace("_","-"))
-                if json_publish_status == 0:
-                    return json_publish_status, status_msg
-                self.send_count += 3
+                if self.send_count > 0:
+                    self.consume_timedout = True
+                    LOG.debug(self.swComponent + ' ' + "Consumption started ...")
+                    self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
+                    self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
+                    LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
+                    if self.consume_timedout:
+                        LOG.debug(self.swComponent + ' ' + self.agent_timedout)
+                        return 0, self.agent_timedout
 
-        self.consume_timedout = True
-        LOG.debug(self.swComponent + ' ' + "Consumption started ...")
-        self.so_mqs.connection.add_timeout(self.so_mqs.wait_time, self.so_mqs.stop_listening)
-        self.so_mqs.basic_consume(self.so_mqs.so_queue_name)
-        LOG.debug(self.swComponent + ' ' + "Consumption stopped ...")
-        if self.consume_timedout:
-            LOG.debug(self.swComponent + ' ' + self.agent_timedout)
-            return 0, self.agent_timedout
+                self.send_count = 0
+                self.rec_count = 0
+                LOG.debug(self.swComponent + ' ' + "Exiting the loop for JSON config file creation for all instances")
+                return 1, 'all_ok'
+            except Exception as e:
+                self.so_mqs.reconnect
 
-        self.send_count = 0
-        self.rec_count = 0
-        LOG.debug(self.swComponent + ' ' + "Exiting the loop for JSON config file creation for all instances")
-        return 1, 'all_ok'
 
     # Configures all the things SIC needs to attach to DBaaS
     def configureInstanceDB(self, target_ip, target_hostname):

@@ -37,6 +37,15 @@ class MessagingService(object):
         self.connection = None
         self.channel = None
 
+        self.consume_error = 'START CONSUMPTION ERROR'
+        self.reconnect_error = 'RECONNECTION ERROR'
+        self.connect_error = 'CONNECTION ERROR'
+        self.declare_queue_error = 'QUEUE DECLARATION ERROR'
+        self.declare_passive_queue_error = 'PASSIVE QUEUE DECLARATION ERROR'
+        self.bind_queue_error = 'BIND QUEUE DECLARATION ERROR'
+        self.publish_message_error = 'PUBLISH MESSAGE ERROR'
+        self.stop_consume_error = 'STOP CONSUMPTION ERROR'
+
         LOG.debug(self.swComponent + ' ' + "Messaging service initiated ................")
 
     def connect_to_mq(self):
@@ -57,14 +66,18 @@ class MessagingService(object):
             return True
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            return False
+            raise Exception(self.connect_error)
 
     def close_connection(self):
         if self.connection is not None:
             self.connection.close()
 
     def reconnect(self):
-        self.connect_to_mq()
+        try:
+            self.connect_to_mq()
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + str(e))
+            raise Exception(self.reconnect_error)
 
     # Declares a new message queue
     def declare_queue(self, queue_name, durable=True):
@@ -73,17 +86,16 @@ class MessagingService(object):
             return 1
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            return 0
+            raise Exception(self.declare_queue_error)
 
     # Declares a message queue in passive mode to check if queue exists or not
     def queue_exists(self, queue_name):
         try:
             self.channel.queue_declare(queue=queue_name, passive=True)
-            return 1# means queue is not there
+            return 1
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            self.reconnect()
-            return 0# means queue is already there
+            raise Exception(self.declare_passive_queue_error)
 
     # Binds a message queue to and exchange
     def bind_queue(self, queue_name, exchange_name, routing_key=''):
@@ -92,7 +104,7 @@ class MessagingService(object):
             return 1
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            return 0
+            raise Exception(self.bind_queue_error)
 
     # Publishes a message to exchange
     def basic_publish(self, data, routing_key='', delivery_mode=2):
@@ -105,23 +117,31 @@ class MessagingService(object):
                           ))
             return 1
         except Exception as e:
-            LOG.debug(self.swComponent + ' ' + str(e))
-            return 0
+            LOG.debug(self.swComponent + str(e))
+            raise Exception(self.publish_message_error)
 
     def msg_received(self, ch, method, properties, body):
         # TODO: Check if its config ok message
         self.so_config.notify_msg_receive(body)
 
     def stop_listening(self):
-        LOG.debug(self.swComponent + ' ' + str(self.wait_time) + ' seconds of waiting, Timeout reached')
-        self.channel.stop_consuming()
+        try:
+            LOG.debug(self.swComponent + ' ' + str(self.wait_time) + ' seconds of waiting, Timeout reached')
+            self.channel.stop_consuming()
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + str(e))
+            raise Exception(self.stop_consume_error)
 
     # Fetches one message from Service Orchestrator queue
     def basic_consume(self, queue_name):
-        self.channel.basic_consume(self.msg_received,
-                              queue=queue_name,
-                              no_ack=True)
-        self.channel.start_consuming()
+        try:
+            self.channel.basic_consume(self.msg_received,
+                                  queue=queue_name,
+                                  no_ack=True)
+            self.channel.start_consuming()
+        except Exception as e:
+            LOG.debug(self.swComponent + ' ' + str(e))
+            raise Exception(self.stop_consume_error)
 
 if __name__ == "__main__":
     testcls = MessagingService(None, epMQ='160.85.4.26')
