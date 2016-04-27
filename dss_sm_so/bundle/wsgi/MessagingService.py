@@ -95,7 +95,8 @@ class MessagingService(object):
             return 1
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            raise Exception(self.declare_passive_queue_error)
+            return 0
+            #raise Exception(self.declare_passive_queue_error)
 
     # Binds a message queue to and exchange
     def bind_queue(self, queue_name, exchange_name, routing_key=''):
