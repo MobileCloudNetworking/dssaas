@@ -819,6 +819,11 @@ class SOConfigure(threading.Thread):
                             except Exception as e:
                                 LOG.debug(self.swComponent + ' ' + str(e))
                                 queue_exists = 0
+                                try:
+                                    self.so_mqs.close_connection()
+                                    LOG.debug(self.swComponent + ' ' + "Connection closed manually")
+                                except:
+                                    LOG.debug(self.swComponent + ' ' + "No Connection to close")
                                 self.so_mqs.reconnect()
                             LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
                             time.sleep(1)
