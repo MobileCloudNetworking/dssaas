@@ -56,6 +56,7 @@ class MessagingService(object):
                         port=self.portMQ,
                         credentials=self.credentials))
             #self.connection.add_timeout(self.wait_time, self.stop_listening)
+            LOG.debug(self.swComponent + ' ' + "Connected Messaging Broker ................")
             self.channel = self.connection.channel()
 
             self.channel.exchange_declare(exchange=self.exchange_name,
@@ -95,8 +96,7 @@ class MessagingService(object):
             return 1
         except Exception as e:
             LOG.debug(self.swComponent + ' ' + str(e))
-            return 0
-            #raise Exception(self.declare_passive_queue_error)
+            raise Exception(self.declare_passive_queue_error)
 
     # Binds a message queue to and exchange
     def bind_queue(self, queue_name, exchange_name, routing_key=''):

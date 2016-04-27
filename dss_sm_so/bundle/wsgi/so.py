@@ -819,6 +819,7 @@ class SOConfigure(threading.Thread):
                             except Exception as e:
                                 LOG.debug(self.swComponent + ' ' + str(e))
                                 queue_exists = 0
+                                self.so_mqs.reconnect()
                             LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
                             time.sleep(1)
                             timeout_counter += 1
