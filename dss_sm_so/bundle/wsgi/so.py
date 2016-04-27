@@ -658,7 +658,11 @@ class SOConfigure(threading.Thread):
         while mq_reachable is not True:
             time.sleep(1)
             try_to_reach_mq += 1
-            mq_reachable = self.so_mqs.connect_to_mq()
+            try:
+                mq_reachable = self.so_mqs.connect_to_mq()
+            except Exception as e:
+                LOG.debug(self.swComponent + ' ' + str(e))
+                mq_reachable = False
             if try_to_reach_mq > max_retry:
                 LOG.debug(self.swComponent + ' ' + self.dss_mq_service_failed_msg)
                 # Finishes the thread
@@ -810,7 +814,11 @@ class SOConfigure(threading.Thread):
                         timeout_counter = 0
                         max_retry = 300
                         while queue_exists != 1:
-                            queue_exists = self.so_mqs.queue_exists(item["hostname"].replace("_","-"))
+                            try:
+                                queue_exists = self.so_mqs.queue_exists(item["hostname"].replace("_","-"))
+                            except Exception as e:
+                                LOG.debug(self.swComponent + ' ' + str(e))
+                                queue_exists = 0
                             LOG.debug(self.swComponent + ' ' + "Queue status of host " + item["hostname"].replace("_", "-") + " " + str(queue_exists))
                             time.sleep(1)
                             timeout_counter += 1
