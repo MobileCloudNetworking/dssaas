@@ -346,17 +346,17 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             mcrReplaceTriggered = False
             LOG.debug(self.swComponent + ' ' + "Checking CMS status")
             for item in self.decisionMapCMS:
-                if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
-                    LOG.debug(self.swComponent + ' ' + "More than 30% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)")
-                elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}":
-                    LOG.debug(self.swComponent + ' ' + "Less than 10% cpu utilization for more than 10 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)")
+                if item.keys()[0] == "More than 50% cpu utilization for more than 1 minute on {HOST.NAME}":
+                    LOG.debug(self.swComponent + ' ' + "More than 50% cpu utilization for more than 1 minute on " + str(item[item.keys()[0]]) + " CMS machine(s)")
+                elif item.keys()[0] == "Less than 10% cpu utilization for more than 5 minutes on {HOST.NAME}":
+                    LOG.debug(self.swComponent + ' ' + "Less than 10% cpu utilization for more than 5 minutes on " + str(item[item.keys()[0]]) + " CMS machine(s)")
                 LOG.debug(self.swComponent + ' ' + "Total CMS machine(s) count is: " + str(cmsCount))
                 if item[item.keys()[0]] == cmsCount:
                     # CMS scale out
-                    if item.keys()[0] == "More than 30% cpu utilization for more than 1 minute on {HOST.NAME}":
+                    if item.keys()[0] == "More than 50% cpu utilization for more than 1 minute on {HOST.NAME}":
                         cmsScaleOutTriggered = True
                     # CMS scale in
-                    elif item.keys()[0] == "Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}" and self.numberOfCmsScaleOutsPerformed > 0:
+                    elif item.keys()[0] == "Less than 10% cpu utilization for more than 5 minutes on {HOST.NAME}" and self.numberOfCmsScaleOutsPerformed > 0:
                         cmsScaleInTriggered = True
 
             #Calculate the player scaling situation
@@ -473,7 +473,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
     # Goes through all available instances and checks if the configuration info is pushed to all SICs, if not, tries to push the info
     def checkConfigurationStats(self, scale_type):
         result = -1
-        config_max_retry = 60
+        config_max_retry = 120
         config_retry_counter = 0
         listOfAllServers = None
         # Waits till the deployment of the stack is finished
@@ -1034,12 +1034,12 @@ class SOConfigure(threading.Thread):
             res = 0
             while (res != 1):
                 time.sleep(1)
-                res = self.monitor.configTrigger('More than 30% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<70')
+                res = self.monitor.configTrigger('More than 50% cpu utilization for more than 1 minute on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].min(1m)}<50')
 
             res = 0
             while (res != 1):
                 time.sleep(1)
-                res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(10m)}>90')
+                res = self.monitor.configTrigger('Less than 10% cpu utilization for more than 5 minutes on {HOST.NAME}',zabbixName,':system.cpu.util[,idle].avg(5m)}>90')
             res = 0
             while (res != 1):
                 time.sleep(1)
