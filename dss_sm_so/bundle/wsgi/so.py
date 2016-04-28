@@ -267,10 +267,10 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.ftlist = []
         self.playerCount = 0
         self.decisionMapMCR = [{"More than 90% hard disk usage on {HOST.NAME}": 0},
-                               {"Less than 30% hard disk usage on {HOST.NAME}": 0}]
+                               {"Less than 50% hard disk usage on {HOST.NAME}": 0}]
                                #{"Number of active players on {HOST.NAME}":0}]
 
-        self.decisionMapCMS = [{"More than 30% cpu utilization for more than 1 minute on {HOST.NAME}": 0},
+        self.decisionMapCMS = [{"More than 50% cpu utilization for more than 1 minute on {HOST.NAME}": 0},
                                {"Less than 10% cpu utilization for more than 10 minutes on {HOST.NAME}": 0}]
 
         # Creating a configuring object ( REST client for SO::SIC interface )
