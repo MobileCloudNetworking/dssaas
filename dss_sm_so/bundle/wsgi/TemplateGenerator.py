@@ -36,8 +36,8 @@ class TemplateGenerator:
         self.mq_service_pass = '******'
         self.mq_service_port = '8384'
 
-        self.cms_scaleout_limit = 4
-        self.mcr_scaleout_limit = 4
+        self.cms_scaleout_limit = 20
+        self.mcr_scaleout_limit = 20
 
         # Content format: [{"device_name":"cms1_server", "host_name":"cms1_server_1451992360"}, ...]
         self.cms_instances = []
