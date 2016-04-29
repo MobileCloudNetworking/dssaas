@@ -434,12 +434,12 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 upd_code = ''
                 while(upd_result < 0):
                     if "cms" in upd_code and upd_result == -2:
-                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty CMS instance " + item)
+                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty CMS instance " + str(upd_code))
                         self.so_e.templateManager.removeInstance(upd_code, "cms")
                         self.so_e.templateManager.scaleOut("cms")
                         self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
                     elif "mcr" in upd_code and upd_result == -2:
-                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty MCR instance " + item)
+                        LOG.debug(self.swComponent + ' ' + "Removing and replacing faulty MCR instance " + str(upd_code))
                         self.so_e.templateManager.removeInstance(upd_code, "mcr")
                         self.so_e.templateManager.scaleOut("mcr")
                         self.so_e.templateUpdate = self.so_e.templateManager.getTemplate()
@@ -525,6 +525,7 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                 newcomers.append(item)
         self.so_e.templateManager.clean_new_instance_list()
 
+        first_newcomer_in_list = ''
         try:
             for item in newcomers:
                 if item["output_key"] not in self.ignored_keys:
