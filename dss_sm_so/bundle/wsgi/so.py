@@ -277,8 +277,8 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
         self.configure = SOConfigure(self.so_e, self, self.event)
 
         # Scaling guard time
-        self.cmsScaleInThreshold = 450# in seconds
-        self.mcrScaleDownThreshold = 450# in seconds
+        self.cmsScaleInThreshold = 600# in seconds
+        self.mcrScaleDownThreshold = 600# in seconds
 
         # Number of players needed for each scale out/in
         self.playerCountLimit = 5.0
