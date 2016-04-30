@@ -1,0 +1,73 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          File synchronization service
+# Dependency:        Tracker service
+# Description: Start file synchronization process
+### END INIT INFO
+
+NAME=main.py
+DAEMON=/home/ubuntu/filesync-service/filesync/$NAME
+# Exit if executable is not installed
+[ -f $DAEMON ] || exit 0
+
+DEP_NAME=opentracker
+DEP_SERVICE_NAME=optracker
+DEP_DIR=/var/run/opentracker
+if [ -f $DEP_DIR/$DEP_NAME.pid ]
+then
+    DEP_PID=`cat $DEP_DIR/$DEP_NAME.pid`
+else
+    DEP_PID="NONE"
+fi
+
+
+DIR=/var/run/filesync
+if [ -f $DIR/$NAME.pid ]
+then
+    PID=`cat $DIR/$NAME.pid`
+else
+    PID="NONE"
+fi
+
+[ -d "$DIR" ] || mkdir "$DIR"
+
+case "$1" in
+  start)
+      if kill -0 "$PID" > /dev/null 2>&1; then
+          echo "Service filesync is already running with pid: $PID"
+      else
+          if ! kill -0 "$DEP_PID" > /dev/null 2>&1; then
+              service $DEP_SERVICE_NAME restart
+          fi
+          python $DAEMON &> /dev/null
+          echo $! > $DIR/$NAME.pid &
+          echo "Service filesync started"
+      fi
+  ;;
+  stop)
+      if ! kill -0 "$PID" > /dev/null 2>&1; then
+          echo "Service filesync is not running"
+      else
+          [ -f $DIR/$NAME.pid ] && rm $DIR/$NAME.pid
+          kill "$PID" &> /dev/null 2>&1
+          # Kill the rest in case we have more
+          kill `ps -eo pid,command | grep "filesync" | grep -v grep | awk '{print $1}'` &> /dev/null 2>&1
+          echo "Service filesync stopped"
+      fi
+  ;;
+  status)
+      if ! kill -0 "$PID" > /dev/null 2>&1; then
+          echo "Service filesync is not running"
+      else
+          echo "Service filesync is running with pid: $PID"
+      fi
+  ;;
+  restart|force-reload)
+    $0 stop
+    $0 start
+  ;;
+  *)
+    echo "Usage: service filesync {start|stop|restart|force-reload|status}" >&2
+    exit 1
+  ;;
+esac

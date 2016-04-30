@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# chkconfig: 35 90 12
+# description: Node server
+#
+# Get function from functions library
+# Start the service
+start() {
+        echo "start ffserver"
+        nohup /home/ubuntu/streaming/ffmpeg64/ffserver -f /home/ubuntu/streaming/ffmpeg64/conf/final.conf &> /var/log/ffserver.out&
+        echo
+}
+# Restart the service FOO
+stop() {
+        echo -n "Stopping ffserver: "
+        kill `pgrep ffserver`
+        echo
+}
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        ps aux | grep ffserver | grep ffmpeg
+        ;;
+  restart)
+        echo -n "Restarting ffserver: "
+        kill `pgrep ffserver`
+        nohup /home/ubuntu/streaming/ffmpeg64/ffserver -f /home/ubuntu/streaming/ffmpeg64/conf/final.conf &> /var/log/ffserver.out&
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac
+exit 0

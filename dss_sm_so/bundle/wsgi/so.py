@@ -366,7 +366,9 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
             if numOfCmsNeeded > cmsCount or cmsScaleOutTriggered:
                 self.lastCmsScale = time.time()
                 self.so_e.templateManager.scaleOut("cms")
+                self.so_e.templateManager.scaleOut("mcr")
                 self.numberOfCmsScaleOutsPerformed += 1
+                self.numberOfMcrScaleOutsPerformed += 1
                 if cmsScaleOutTriggered is not True:
                     cmsScaleOutTriggered = True
                 scaleTriggered = True
@@ -409,6 +411,10 @@ class ServiceOrchestratorDecision(service_orchestrator.Decision, threading.Threa
                     for hostname in removed_hosts:
                         self.configure.monitor.removeWebScenarioFromWSList(hostname)
                     self.numberOfCmsScaleOutsPerformed -= 1
+                    removed_hosts = self.so_e.templateManager.scaleIn("mcr")
+                    for hostname in removed_hosts:
+                        self.configure.monitor.removeWebScenarioFromWSList(hostname)
+                    self.numberOfMcrScaleOutsPerformed -= 1
                     scaleTriggered = True
                     LOG.debug(self.swComponent + ' ' + "IN CMS scaleIn")
 
