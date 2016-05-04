@@ -54,8 +54,10 @@ class TemplateGenerator:
 
         self.new_cms_lb_needed = False
         self.new_mcr_lb_needed = False
+        self.new_stream_lb_needed = False
         self.cms_lb_name = None
         self.mcr_lb_name = None
+        self.stream_lb_name = None
 
         self.scaleOut("cms", self.initial_cms_count)
         self.scaleOut("mcr", self.initial_mcr_count)
@@ -503,11 +505,11 @@ class TemplateGenerator:
         template += '    type: "OS::Neutron::Pool"' + "\n"
         template += "\n"
 
-        if self.new_mcr_lb_needed:
-            self.mcr_lb_name = self.randomNameGenerator(6)
-        self.new_mcr_lb_needed = False
+        if self.new_stream_lb_needed:
+            self.stream_lb_name = self.randomNameGenerator(6)
+        self.new_stream_lb_needed = False
 
-        template += '  ' + self.mcr_lb_name + '_loadbalancer:' + "\n"
+        template += '  ' + self.stream_lb_name + '_loadbalancer:' + "\n"
         template += '    properties:' + "\n"
         template += '      members:' + "\n"
         template += '        -' + "\n"
@@ -561,6 +563,7 @@ class TemplateGenerator:
                     self.mcr_instances.append({"device_name": device_name, "host_name": hostname})
                     self.added_sics.append({"device_name": device_name, "host_name": hostname})
                     self.new_mcr_lb_needed = True
+                    self.new_stream_lb_needed = True
                 else:
                     print "MCR scale out limit reached."
                     break
@@ -587,6 +590,7 @@ class TemplateGenerator:
                         host_to_remove = item
                 self.mcr_instances.remove(host_to_remove)
                 self.new_mcr_lb_needed = True
+                self.new_stream_lb_needed = True
                 self.numberOfMcrInstances -= 1
             else:
                 print "No MCR instances found."
