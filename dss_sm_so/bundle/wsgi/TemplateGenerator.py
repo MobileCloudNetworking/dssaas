@@ -551,7 +551,7 @@ class TemplateGenerator:
                     hostname, device_name = self.getBaseName(instance_type=instance_type)
                     self.cms_instances.append({"device_name": device_name, "host_name": hostname})
                     self.added_sics.append({"device_name": device_name, "host_name": hostname})
-                    self.new_cms_lb_needed = True
+                    #self.new_cms_lb_needed = True
                 else:
                     print "CMS scale out limit reached."
                     break
@@ -562,8 +562,8 @@ class TemplateGenerator:
                     hostname, device_name = self.getBaseName(instance_type=instance_type)
                     self.mcr_instances.append({"device_name": device_name, "host_name": hostname})
                     self.added_sics.append({"device_name": device_name, "host_name": hostname})
-                    self.new_mcr_lb_needed = True
-                    self.new_stream_lb_needed = True
+                    #self.new_mcr_lb_needed = True
+                    #self.new_stream_lb_needed = True
                 else:
                     print "MCR scale out limit reached."
                     break
@@ -579,7 +579,7 @@ class TemplateGenerator:
                     if item["host_name"] == hostname:
                         host_to_remove = item
                 self.cms_instances.remove(host_to_remove)
-                self.new_cms_lb_needed = True
+                #self.new_cms_lb_needed = True
                 self.numberOfCmsInstances -= 1
             else:
                 print "No CMS instances found."
@@ -589,8 +589,8 @@ class TemplateGenerator:
                     if item["host_name"] == hostname:
                         host_to_remove = item
                 self.mcr_instances.remove(host_to_remove)
-                self.new_mcr_lb_needed = True
-                self.new_stream_lb_needed = True
+                #self.new_mcr_lb_needed = True
+                #self.new_stream_lb_needed = True
                 self.numberOfMcrInstances -= 1
             else:
                 print "No MCR instances found."
@@ -602,7 +602,7 @@ class TemplateGenerator:
                 if len(self.cms_instances) > 1:
                     popped = self.cms_instances.pop()
                     removed_sics.append(popped["host_name"])
-                    self.new_cms_lb_needed = True
+                    #self.new_cms_lb_needed = True
                     self.numberOfCmsInstances -= 1
                 else:
                     print "Can not remove all CMS instances, scale out first."
@@ -612,7 +612,8 @@ class TemplateGenerator:
                 if len(self.mcr_instances) > 1:
                     popped = self.mcr_instances.pop()
                     removed_sics.append(popped["host_name"])
-                    self.new_mcr_lb_needed = True
+                    #self.new_mcr_lb_needed = True
+                    #self.new_stream_lb_needed = True
                     self.numberOfMcrInstances -= 1
                 else:
                     print "Can not remove all MCR instances, scale out first."
