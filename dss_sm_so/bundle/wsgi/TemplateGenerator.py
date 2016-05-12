@@ -52,9 +52,9 @@ class TemplateGenerator:
         self.lastCmsNumAssigned = 1
         self.lastMcrNumAssigned = 1
 
-        self.new_cms_lb_needed = False
-        self.new_mcr_lb_needed = False
-        self.new_stream_lb_needed = False
+        self.new_cms_lb_needed = True
+        self.new_mcr_lb_needed = True
+        self.new_stream_lb_needed = True
         self.cms_lb_name = None
         self.mcr_lb_name = None
         self.stream_lb_name = None
